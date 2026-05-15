@@ -37,6 +37,7 @@ import { useParams, useNavigate, Link as RouterLink, useSearchParams } from 'rea
 
 import DocViewer from '../components/docs/DocViewer';
 import DirectoryListing from '../components/mirrors/DirectoryListing';
+import GithubReleaseViewer from '../components/mirrors/GithubReleaseViewer';
 import StatusChip from '../components/mirrors/StatusChip';
 import SyncTimeline from '../components/mirrors/SyncTimeline';
 import { hasMdxDoc } from '../docs';
@@ -576,7 +577,11 @@ const MirrorDetail: React.FC = () => {
           </TabPanel>
 
           <TabPanel value={tabValue} index={1}>
-            <DirectoryListing mirrorUrl={mirror.url} mirrorName={mirror.name[locale]} />
+            {mirror.type === 'github-release' ? (
+              <GithubReleaseViewer rootPath={mirror.url} />
+            ) : (
+              <DirectoryListing mirrorUrl={mirror.url} mirrorName={mirror.name[locale]} />
+            )}
           </TabPanel>
 
           {hasFiles && (

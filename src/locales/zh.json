@@ -25,7 +25,8 @@
     "clickToCopy": "点击复制",
     "refreshing": "请稍候",
     "refreshed": "已完成",
-    "refreshFailed": "出错了"
+    "refreshFailed": "出错了",
+    "retry": "重试"
   },
   "search": {
     "placeholder": "搜索镜像...",
@@ -233,5 +234,14 @@
   },
   "filter": {
     "ariaLabel": "按状态过滤"
+  },
+  "githubRelease": {
+    "loadingProjects": "正在加载项目列表…",
+    "projectCount": "共 {{count}} 个项目",
+    "backToProjects": "返回项目列表",
+    "noReleases": "该项目暂无 Release",
+    "noFiles": "该 Release 暂无文件",
+    "latestRelease": "最新 Release",
+    "fileCount": "{{count}} 个文件"
   }
 }

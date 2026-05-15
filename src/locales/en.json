@@ -25,7 +25,8 @@
     "clickToCopy": "Click to copy",
     "refreshing": "Please wait",
     "refreshed": "Done",
-    "refreshFailed": "Error"
+    "refreshFailed": "Error",
+    "retry": "Retry"
   },
   "search": {
     "placeholder": "Search mirrors...",
@@ -233,5 +234,14 @@
   },
   "filter": {
     "ariaLabel": "Filter by status"
+  },
+  "githubRelease": {
+    "loadingProjects": "Loading projects…",
+    "projectCount": "{{count}} projects",
+    "backToProjects": "Back to projects",
+    "noReleases": "No releases found",
+    "noFiles": "No files in this release",
+    "latestRelease": "Latest Release",
+    "fileCount": "{{count}} files"
   }
 }
