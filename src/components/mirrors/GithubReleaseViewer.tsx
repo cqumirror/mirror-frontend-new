@@ -171,7 +171,6 @@ interface ProjectCardProps {
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ project, latestVersion, onSelect }) => {
-  // 'loading' → 显示首字母占位；'loaded' → 显示图片；'error' → 显示首字母
   const [imgStatus, setImgStatus] = useState<'loading' | 'loaded' | 'error'>('loading');
   const avatarUrl = `https://github.com/${project.org}.png?size=64`;
 
@@ -198,39 +197,46 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, latestVersion, onSel
       onKeyDown={(e) => e.key === 'Enter' && onSelect()}
     >
       <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, mb: 1.5 }}>
-        {/* 相对定位容器：首字母始终在底层，图片淡入覆盖 */}
-        <Box sx={{ position: 'relative', width: 40, height: 40, flexShrink: 0 }}>
-          {/* 首字母默认占位（loading / error 时均可见） */}
+        {/* 单一头像：loading/error 显示圆形首字母，loaded 显示方圆角图片 */}
+        {imgStatus === 'loaded' ? (
+          <Box
+            component="img"
+            src={avatarUrl}
+            alt={project.org}
+            sx={{
+              width: 40,
+              height: 40,
+              borderRadius: '8px',
+              flexShrink: 0,
+              objectFit: 'contain',
+            }}
+          />
+        ) : (
           <Avatar
             sx={{
               width: 40,
               height: 40,
               fontSize: '1rem',
-              position: 'absolute',
-              inset: 0,
               bgcolor: (theme) =>
                 theme.palette.mode === 'dark' ? 'grey.700' : 'grey.300',
               color: 'text.primary',
+              flexShrink: 0,
             }}
           >
             {project.org[0]?.toUpperCase()}
           </Avatar>
-          {/* 图片覆盖层：加载完成后淡入，失败后保持透明 */}
-          <Avatar
+        )}
+        {/* 隐藏预加载：始终加载图片，但不显示 */}
+        {imgStatus !== 'loaded' && (
+          <Box
+            component="img"
             src={avatarUrl}
             onLoad={() => setImgStatus('loaded')}
             onError={() => setImgStatus('error')}
-            sx={{
-              width: 40,
-              height: 40,
-              position: 'absolute',
-              inset: 0,
-              bgcolor: 'transparent',
-              opacity: imgStatus === 'loaded' ? 1 : 0,
-              transition: 'opacity 0.25s ease',
-            }}
+            sx={{ display: 'none' }}
+            alt=""
           />
-        </Box>
+        )}
         <Box sx={{ minWidth: 0, flex: 1 }}>
           <Typography
             variant="subtitle2"
@@ -257,7 +263,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, latestVersion, onSel
         </Box>
       </Box>
 
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
         {latestVersion ? (
           <Chip
             icon={<TagIcon sx={{ fontSize: '12px !important' }} />}
@@ -265,14 +271,21 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, latestVersion, onSel
             size="small"
             color="primary"
             variant="outlined"
-            sx={{ fontFamily: '"JetBrains Mono", monospace', fontSize: '0.7rem', height: 22, maxWidth: '100%' }}
+            sx={{
+              fontFamily: '"JetBrains Mono", monospace',
+              fontSize: '0.7rem',
+              height: 22,
+              maxWidth: '100%',
+              '& .MuiChip-label': {
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              },
+            }}
           />
         ) : (
           <Skeleton variant="rounded" width={80} height={22} />
         )}
-        <Typography variant="caption" sx={{ color: 'text.disabled', fontSize: '0.7rem', flexShrink: 0 }}>
-          {project.orgDate}
-        </Typography>
       </Box>
     </Paper>
   );
@@ -658,32 +671,38 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath }) =
 
       {/* 项目标题 */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
-        <Box sx={{ position: 'relative', width: 32, height: 32, flexShrink: 0 }}>
-          <Avatar
-            sx={{
-              width: 32,
-              height: 32,
-              fontSize: '0.9rem',
-              position: 'absolute',
-              inset: 0,
-              bgcolor: (theme) =>
-                theme.palette.mode === 'dark' ? 'grey.700' : 'grey.300',
-              color: 'text.primary',
-            }}
-          >
-            {selectedProject?.org[0]?.toUpperCase()}
-          </Avatar>
-          <Avatar
-            src={`https://github.com/${selectedProject?.org}.png?size=64`}
-            sx={{
-              width: 32,
-              height: 32,
-              position: 'absolute',
-              inset: 0,
-              bgcolor: 'transparent',
-            }}
-          />
-        </Box>
+        <Box
+          component="img"
+          src={`https://github.com/${selectedProject?.org}.png?size=64`}
+          alt={selectedProject?.org}
+          onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+            e.currentTarget.style.display = 'none';
+            // 显示 fallback
+            const next = e.currentTarget.nextElementSibling as HTMLElement | null;
+            if (next) next.style.display = 'flex';
+          }}
+          sx={{
+            width: 32,
+            height: 32,
+            borderRadius: '6px',
+            flexShrink: 0,
+            objectFit: 'contain',
+          }}
+        />
+        <Avatar
+          sx={{
+            width: 32,
+            height: 32,
+            fontSize: '0.9rem',
+            bgcolor: (theme) =>
+              theme.palette.mode === 'dark' ? 'grey.700' : 'grey.300',
+            color: 'text.primary',
+            display: 'none',
+            flexShrink: 0,
+          }}
+        >
+          {selectedProject?.org[0]?.toUpperCase()}
+        </Avatar>
         <Box>
           <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
             {selectedProject?.repo}

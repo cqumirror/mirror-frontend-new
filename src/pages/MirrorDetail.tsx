@@ -455,7 +455,7 @@ const MirrorDetail: React.FC = () => {
                   color="primary"
                   sx={{ fontFamily: '"JetBrains Mono", monospace', fontSize: '0.72rem' }}
                 />
-                {mirror.type && mirror.type !== 'none' && (
+                {mirror.type && mirror.type !== 'none' && mirror.type !== mirror.id && (
                   <Chip
                     label={mirror.type}
                     size="small"
