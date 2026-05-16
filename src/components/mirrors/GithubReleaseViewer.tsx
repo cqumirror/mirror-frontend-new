@@ -9,8 +9,10 @@ import {
   ArrowBack as BackIcon,
   OpenInNew as OpenIcon,
   Refresh as RefreshIcon,
-  Tag as TagIcon,
+  LocalOffer as LocalOfferIcon,
   FolderOff as EmptyIcon,
+  Tag as TagIcon,
+  VerifiedUser as ChecksumIcon,
 } from '@mui/icons-material';
 import {
   Box,
@@ -62,7 +64,7 @@ interface FileEntry {
   href: string;
   size: string;
   date: string;
-  platform: 'windows' | 'linux' | 'macos' | 'android' | 'other';
+  platform: 'windows' | 'linux' | 'macos' | 'android' | 'checksum' | 'other';
   arch: string;
 }
 
@@ -95,6 +97,14 @@ function detectPlatform(name: string): FileEntry['platform'] {
   )
     return 'linux';
   if (f.includes('android') || f.endsWith('.apk') || f.endsWith('.aab')) return 'android';
+  // 校验文件：sha256、md5、sig、asc 等
+  if (
+    f.endsWith('.sha256') || f.endsWith('.sha512') || f.endsWith('.md5') ||
+    f.endsWith('.sha1') || f.endsWith('.sig') || f.endsWith('.asc') ||
+    f.includes('checksum') || f.includes('sha256sum') || f.includes('md5sum') ||
+    f === 'shasums' || f.startsWith('sha256sums') || f.startsWith('md5sums') ||
+    f.includes('hash')
+  ) return 'checksum';
   return 'other';
 }
 
@@ -118,7 +128,8 @@ const PLATFORM_LABEL: Record<FileEntry['platform'], string> = {
   linux: 'Linux',
   macos: 'macOS',
   android: 'Android',
-  other: '通用',
+  checksum: '校验文件',
+  other: '跨平台 / 其他',
 };
 
 const PLATFORM_EMOJI: Record<FileEntry['platform'], string> = {
@@ -126,10 +137,11 @@ const PLATFORM_EMOJI: Record<FileEntry['platform'], string> = {
   linux: '🐧',
   macos: '',
   android: '🤖',
+  checksum: '🔒',
   other: '📦',
 };
 
-const PLATFORM_ORDER: FileEntry['platform'][] = ['windows', 'linux', 'macos', 'android', 'other'];
+const PLATFORM_ORDER: FileEntry['platform'][] = ['windows', 'linux', 'macos', 'android', 'other', 'checksum'];
 
 // ─── 解析 fancyindex HTML ─────────────────────────────────────────────────────
 
@@ -257,7 +269,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, latestVersion, onSel
         >
           {latestVersion ? (
             <Chip
-              icon={<TagIcon sx={{ fontSize: '11px !important' }} />}
+              icon={<LocalOfferIcon sx={{ fontSize: '11px !important' }} />}
               label={latestVersion}
               size="small"
               variant="outlined"
@@ -783,7 +795,7 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath }) =
               }}
             >
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-                <TagIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                <LocalOfferIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
                 <Typography
                   variant="caption"
                   sx={{
@@ -854,9 +866,13 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath }) =
                   {idx > 0 && <Divider sx={{ my: 1 }} />}
                   {/* 平台标题 */}
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, px: 1.5, py: 0.5, mb: 0.25 }}>
-                    <Typography sx={{ fontSize: '1rem', lineHeight: 1 }}>
-                      {PLATFORM_EMOJI[platform]}
-                    </Typography>
+                    {platform === 'checksum' ? (
+                      <ChecksumIcon sx={{ fontSize: '1rem', color: 'text.secondary' }} />
+                    ) : (
+                      <Typography sx={{ fontSize: '1rem', lineHeight: 1 }}>
+                        {PLATFORM_EMOJI[platform]}
+                      </Typography>
+                    )}
                     <Typography
                       variant="caption"
                       sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.05em' }}
