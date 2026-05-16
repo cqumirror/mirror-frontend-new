@@ -28,6 +28,8 @@ import {
   Link,
   Tab,
   Tabs,
+  Card,
+  CardActionArea,
 } from '@mui/material';
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -175,74 +177,83 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, latestVersion, onSel
   const avatarUrl = `https://github.com/${project.org}.png?size=64`;
 
   return (
-    <Paper
+    <Card
       variant="outlined"
       sx={{
-        p: 2,
-        borderRadius: 2,
-        cursor: 'pointer',
-        transition: 'all 0.18s ease',
+        borderRadius: 3,
+        transition: 'all 0.2s ease',
         '&:hover': {
           borderColor: 'primary.main',
           boxShadow: (theme) =>
             theme.palette.mode === 'dark'
-              ? '0 4px 16px rgba(96,165,250,0.15)'
-              : '0 4px 16px rgba(59,130,246,0.12)',
+              ? '0 6px 24px rgba(96,165,250,0.12)'
+              : '0 6px 24px rgba(59,130,246,0.10)',
           transform: 'translateY(-2px)',
         },
       }}
-      onClick={onSelect}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => e.key === 'Enter' && onSelect()}
     >
-      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, mb: 1.5 }}>
-        {/* 单一头像：loading/error 显示圆形首字母，loaded 显示方圆角图片 */}
-        {imgStatus === 'loaded' ? (
-          <Box
-            component="img"
-            src={avatarUrl}
-            alt={project.org}
-            sx={{
-              width: 40,
-              height: 40,
-              borderRadius: '8px',
-              flexShrink: 0,
-              objectFit: 'contain',
-            }}
-          />
-        ) : (
-          <Avatar
-            sx={{
-              width: 40,
-              height: 40,
-              fontSize: '1rem',
-              bgcolor: (theme) =>
-                theme.palette.mode === 'dark' ? 'grey.700' : 'grey.300',
-              color: 'text.primary',
-              flexShrink: 0,
-            }}
-          >
-            {project.org[0]?.toUpperCase()}
-          </Avatar>
-        )}
-        {/* 隐藏预加载：始终加载图片，但不显示 */}
-        {imgStatus !== 'loaded' && (
-          <Box
-            component="img"
-            src={avatarUrl}
-            onLoad={() => setImgStatus('loaded')}
-            onError={() => setImgStatus('error')}
-            sx={{ display: 'none' }}
-            alt=""
-          />
-        )}
-        <Box sx={{ minWidth: 0, flex: 1 }}>
+      <CardActionArea
+        onClick={onSelect}
+        sx={{
+          p: 2.5,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 1.5,
+          borderRadius: 3,
+        }}
+      >
+        {/* 头像 */}
+        <Box sx={{ position: 'relative', width: 48, height: 48 }}>
+          {imgStatus === 'loaded' ? (
+            <Box
+              component="img"
+              src={avatarUrl}
+              alt={project.org}
+              sx={{
+                width: 48,
+                height: 48,
+                borderRadius: '10px',
+                objectFit: 'contain',
+              }}
+            />
+          ) : (
+            <Avatar
+              sx={{
+                width: 48,
+                height: 48,
+                fontSize: '1.2rem',
+                fontWeight: 700,
+                borderRadius: '10px',
+                bgcolor: (theme) =>
+                  theme.palette.mode === 'dark' ? 'grey.800' : 'grey.200',
+                color: 'text.secondary',
+              }}
+              variant="rounded"
+            >
+              {project.org[0]?.toUpperCase()}
+            </Avatar>
+          )}
+          {imgStatus !== 'loaded' && (
+            <Box
+              component="img"
+              src={avatarUrl}
+              onLoad={() => setImgStatus('loaded')}
+              onError={() => setImgStatus('error')}
+              sx={{ display: 'none' }}
+              alt=""
+            />
+          )}
+        </Box>
+
+        {/* 项目名 + 组织名 */}
+        <Box sx={{ textAlign: 'center', width: '100%', minWidth: 0 }}>
           <Typography
             variant="subtitle2"
             sx={{
               fontWeight: 700,
-              fontSize: '0.92rem',
+              fontSize: '0.9rem',
+              lineHeight: 1.3,
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
@@ -255,39 +266,44 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, latestVersion, onSel
             sx={{
               color: 'text.secondary',
               fontFamily: '"JetBrains Mono", monospace',
-              fontSize: '0.72rem',
+              fontSize: '0.7rem',
             }}
           >
             {project.org}
           </Typography>
         </Box>
-      </Box>
 
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
-        {latestVersion ? (
-          <Chip
-            icon={<TagIcon sx={{ fontSize: '12px !important' }} />}
-            label={latestVersion}
-            size="small"
-            color="primary"
-            variant="outlined"
-            sx={{
-              fontFamily: '"JetBrains Mono", monospace',
-              fontSize: '0.7rem',
-              height: 22,
-              maxWidth: '100%',
-              '& .MuiChip-label': {
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              },
-            }}
-          />
-        ) : (
-          <Skeleton variant="rounded" width={80} height={22} />
-        )}
-      </Box>
-    </Paper>
+        {/* 版本 tag */}
+        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', minWidth: 0 }}>
+          {latestVersion ? (
+            <Chip
+              icon={<TagIcon sx={{ fontSize: '11px !important' }} />}
+              label={latestVersion}
+              size="small"
+              variant="outlined"
+              sx={{
+                fontFamily: '"JetBrains Mono", monospace',
+                fontSize: '0.68rem',
+                height: 22,
+                maxWidth: '100%',
+                bgcolor: (theme) =>
+                  theme.palette.mode === 'dark' ? 'rgba(96,165,250,0.08)' : 'rgba(59,130,246,0.06)',
+                borderColor: (theme) =>
+                  theme.palette.mode === 'dark' ? 'rgba(96,165,250,0.25)' : 'rgba(59,130,246,0.2)',
+                color: 'primary.main',
+                '& .MuiChip-label': {
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                },
+              }}
+            />
+          ) : (
+            <Skeleton variant="rounded" width={80} height={22} />
+          )}
+        </Box>
+      </CardActionArea>
+    </Card>
   );
 };
 
@@ -632,14 +648,14 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath }) =
         <Grid container spacing={2}>
           {projectsLoading
             ? Array.from({ length: 12 }).map((_, i) => (
-                <Grid key={i} size={{ xs: 12, sm: 6, md: 4 }}>
-                  <Skeleton variant="rectangular" height={100} sx={{ borderRadius: 2 }} />
+                <Grid key={i} size={{ xs: 6, sm: 4, md: 3 }}>
+                  <Skeleton variant="rounded" height={140} sx={{ borderRadius: 3 }} />
                 </Grid>
               ))
             : projects.map((proj) => {
                 const versionKey = `${proj.org}/${proj.repo}`;
                 return (
-                  <Grid key={versionKey} size={{ xs: 12, sm: 6, md: 4 }}>
+                  <Grid key={versionKey} size={{ xs: 6, sm: 4, md: 3 }}>
                     <ProjectCard
                       project={proj}
                       latestVersion={versionMap[versionKey]}
