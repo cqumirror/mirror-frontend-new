@@ -212,6 +212,70 @@ async function fetchDir(path: string): Promise<DirEntry[]> {
   return parseDirEntries(html, url);
 }
 
+// ─── 子组件：项目头像（加载中/失败显示彩色首字母 fallback） ──────────────────────
+
+interface ProjectAvatarProps {
+  org: string;
+  size?: number;
+}
+
+const ProjectAvatar: React.FC<ProjectAvatarProps> = ({ org, size = 44 }) => {
+  const [imgStatus, setImgStatus] = useState<'loading' | 'loaded' | 'error'>('loading');
+  const avatarUrl = `https://github.com/${org}.png?size=64`;
+  const colorIdx = orgColorIndex(org);
+
+  return (
+    <>
+      {imgStatus === 'loaded' ? (
+        <Box
+          component="img"
+          src={avatarUrl}
+          alt={org}
+          sx={{
+            width: size,
+            height: size,
+            borderRadius: '6px',
+            flexShrink: 0,
+            objectFit: 'contain',
+          }}
+        />
+      ) : (
+        <Avatar
+          variant="rounded"
+          sx={{
+            width: size,
+            height: size,
+            borderRadius: '6px',
+            fontSize: `${size * 0.45}rem`,
+            fontWeight: 700,
+            flexShrink: 0,
+            bgcolor: (theme) =>
+              theme.palette.mode === 'dark'
+                ? AVATAR_COLORS_DARK[colorIdx].bg
+                : AVATAR_COLORS[colorIdx].bg,
+            color: (theme) =>
+              theme.palette.mode === 'dark'
+                ? AVATAR_COLORS_DARK[colorIdx].fg
+                : AVATAR_COLORS[colorIdx].fg,
+          }}
+        >
+          {org[0]?.toUpperCase()}
+        </Avatar>
+      )}
+      {imgStatus !== 'loaded' && (
+        <Box
+          component="img"
+          src={avatarUrl}
+          onLoad={() => setImgStatus('loaded')}
+          onError={() => setImgStatus('error')}
+          sx={{ display: 'none' }}
+          alt=""
+        />
+      )}
+    </>
+  );
+};
+
 // ─── 子组件：项目卡片 ──────────────────────────────────────────────────────────
 
 interface ProjectCardProps {
@@ -221,10 +285,6 @@ interface ProjectCardProps {
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ project, latestVersion, onSelect }) => {
-  const [imgStatus, setImgStatus] = useState<'loading' | 'loaded' | 'error'>('loading');
-  const avatarUrl = `https://github.com/${project.org}.png?size=64`;
-  const colorIdx = orgColorIndex(project.org);
-
   return (
     <Card
       variant="outlined"
@@ -248,39 +308,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, latestVersion, onSel
         {/* 主体：头像左对齐 + 文字 */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 2, pb: 1.5 }}>
           {/* 头像 */}
-          {imgStatus === 'loaded' ? (
-            <Box
-              component="img"
-              src={avatarUrl}
-              alt={project.org}
-              sx={{ width: 44, height: 44, borderRadius: '10px', flexShrink: 0, objectFit: 'contain' }}
-            />
-          ) : (
-            <Avatar
-              variant="rounded"
-              sx={{
-                width: 44,
-                height: 44,
-                borderRadius: '10px',
-                fontSize: '1.15rem',
-                fontWeight: 700,
-                flexShrink: 0,
-                bgcolor: (theme) =>
-                  theme.palette.mode === 'dark'
-                    ? AVATAR_COLORS_DARK[colorIdx].bg
-                    : AVATAR_COLORS[colorIdx].bg,
-                color: (theme) =>
-                  theme.palette.mode === 'dark'
-                    ? AVATAR_COLORS_DARK[colorIdx].fg
-                    : AVATAR_COLORS[colorIdx].fg,
-              }}
-            >
-              {project.org[0]?.toUpperCase()}
-            </Avatar>
-          )}
-          {imgStatus !== 'loaded' && (
-            <Box component="img" src={avatarUrl} onLoad={() => setImgStatus('loaded')} onError={() => setImgStatus('error')} sx={{ display: 'none' }} alt="" />
-          )}
+          <ProjectAvatar org={project.org} size={44} />
 
           {/* 名称区 */}
           <Box sx={{ minWidth: 0, flex: 1 }}>
@@ -717,38 +745,7 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath }) =
 
       {/* 项目标题 */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
-        <Box
-          component="img"
-          src={`https://github.com/${selectedProject?.org}.png?size=64`}
-          alt={selectedProject?.org}
-          onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-            e.currentTarget.style.display = 'none';
-            // 显示 fallback
-            const next = e.currentTarget.nextElementSibling as HTMLElement | null;
-            if (next) next.style.display = 'flex';
-          }}
-          sx={{
-            width: 32,
-            height: 32,
-            borderRadius: '6px',
-            flexShrink: 0,
-            objectFit: 'contain',
-          }}
-        />
-        <Avatar
-          sx={{
-            width: 32,
-            height: 32,
-            fontSize: '0.9rem',
-            bgcolor: (theme) =>
-              theme.palette.mode === 'dark' ? 'grey.700' : 'grey.300',
-            color: 'text.primary',
-            display: 'none',
-            flexShrink: 0,
-          }}
-        >
-          {selectedProject?.org[0]?.toUpperCase()}
-        </Avatar>
+        <ProjectAvatar org={selectedProject?.org ?? ''} size={32} />
         <Box>
           <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
             {selectedProject?.repo}
