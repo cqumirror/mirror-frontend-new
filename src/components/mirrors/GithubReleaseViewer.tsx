@@ -181,100 +181,80 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, latestVersion, onSel
       variant="outlined"
       sx={{
         borderRadius: 3,
-        transition: 'all 0.2s ease',
+        transition: 'border-color 0.18s, box-shadow 0.18s, transform 0.18s',
         '&:hover': {
           borderColor: 'primary.main',
           boxShadow: (theme) =>
             theme.palette.mode === 'dark'
-              ? '0 6px 24px rgba(96,165,250,0.12)'
-              : '0 6px 24px rgba(59,130,246,0.10)',
+              ? '0 4px 20px rgba(96,165,250,0.12)'
+              : '0 4px 20px rgba(59,130,246,0.09)',
           transform: 'translateY(-2px)',
         },
       }}
     >
       <CardActionArea
         onClick={onSelect}
-        sx={{
-          p: 2.5,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: 1.5,
-          borderRadius: 3,
-        }}
+        sx={{ borderRadius: 3, display: 'flex', flexDirection: 'column', alignItems: 'stretch', height: '100%' }}
       >
-        {/* 头像 */}
-        <Box sx={{ position: 'relative', width: 48, height: 48 }}>
+        {/* 主体：头像左对齐 + 文字 */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 2, pb: 1.5 }}>
+          {/* 头像 */}
           {imgStatus === 'loaded' ? (
             <Box
               component="img"
               src={avatarUrl}
               alt={project.org}
-              sx={{
-                width: 48,
-                height: 48,
-                borderRadius: '10px',
-                objectFit: 'contain',
-              }}
+              sx={{ width: 44, height: 44, borderRadius: '10px', flexShrink: 0, objectFit: 'contain' }}
             />
           ) : (
             <Avatar
-              sx={{
-                width: 48,
-                height: 48,
-                fontSize: '1.2rem',
-                fontWeight: 700,
-                borderRadius: '10px',
-                bgcolor: (theme) =>
-                  theme.palette.mode === 'dark' ? 'grey.800' : 'grey.200',
-                color: 'text.secondary',
-              }}
               variant="rounded"
+              sx={{
+                width: 44,
+                height: 44,
+                borderRadius: '10px',
+                fontSize: '1.15rem',
+                fontWeight: 700,
+                bgcolor: (theme) => theme.palette.mode === 'dark' ? 'grey.800' : 'grey.200',
+                color: 'text.secondary',
+                flexShrink: 0,
+              }}
             >
               {project.org[0]?.toUpperCase()}
             </Avatar>
           )}
           {imgStatus !== 'loaded' && (
-            <Box
-              component="img"
-              src={avatarUrl}
-              onLoad={() => setImgStatus('loaded')}
-              onError={() => setImgStatus('error')}
-              sx={{ display: 'none' }}
-              alt=""
-            />
+            <Box component="img" src={avatarUrl} onLoad={() => setImgStatus('loaded')} onError={() => setImgStatus('error')} sx={{ display: 'none' }} alt="" />
           )}
+
+          {/* 名称区 */}
+          <Box sx={{ minWidth: 0, flex: 1 }}>
+            <Typography
+              variant="subtitle2"
+              sx={{ fontWeight: 700, fontSize: '0.9rem', lineHeight: 1.25, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+            >
+              {project.repo}
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{ color: 'text.secondary', fontFamily: '"JetBrains Mono", monospace', fontSize: '0.7rem', display: 'block', mt: 0.25, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+            >
+              {project.org}
+            </Typography>
+          </Box>
         </Box>
 
-        {/* 项目名 + 组织名 */}
-        <Box sx={{ textAlign: 'center', width: '100%', minWidth: 0 }}>
-          <Typography
-            variant="subtitle2"
-            sx={{
-              fontWeight: 700,
-              fontSize: '0.9rem',
-              lineHeight: 1.3,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {project.repo}
-          </Typography>
-          <Typography
-            variant="caption"
-            sx={{
-              color: 'text.secondary',
-              fontFamily: '"JetBrains Mono", monospace',
-              fontSize: '0.7rem',
-            }}
-          >
-            {project.org}
-          </Typography>
-        </Box>
-
-        {/* 版本 tag */}
-        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', minWidth: 0 }}>
+        {/* footer：版本 tag，细线隔开 */}
+        <Box
+          sx={{
+            px: 2,
+            py: 1,
+            borderTop: '1px solid',
+            borderColor: 'divider',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
           {latestVersion ? (
             <Chip
               icon={<TagIcon sx={{ fontSize: '11px !important' }} />}
@@ -284,22 +264,16 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, latestVersion, onSel
               sx={{
                 fontFamily: '"JetBrains Mono", monospace',
                 fontSize: '0.68rem',
-                height: 22,
+                height: 20,
                 maxWidth: '100%',
-                bgcolor: (theme) =>
-                  theme.palette.mode === 'dark' ? 'rgba(96,165,250,0.08)' : 'rgba(59,130,246,0.06)',
-                borderColor: (theme) =>
-                  theme.palette.mode === 'dark' ? 'rgba(96,165,250,0.25)' : 'rgba(59,130,246,0.2)',
+                bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(96,165,250,0.07)' : 'rgba(59,130,246,0.05)',
+                borderColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(96,165,250,0.22)' : 'rgba(59,130,246,0.18)',
                 color: 'primary.main',
-                '& .MuiChip-label': {
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                },
+                '& .MuiChip-label': { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
               }}
             />
           ) : (
-            <Skeleton variant="rounded" width={80} height={22} />
+            <Skeleton variant="rounded" width={76} height={20} />
           )}
         </Box>
       </CardActionArea>
