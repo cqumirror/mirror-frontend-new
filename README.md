@@ -1,5 +1,7 @@
 # JCUT Mirror — 高校开源镜像站前端
 
+[English](README_en.md)
+
 [![CI](https://github.com/JCIOTeam/jcutmirror-new/actions/workflows/ci.yml/badge.svg)](https://github.com/JCIOTeam/jcutmirror-new/actions/workflows/ci.yml)
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0--or--later-blue.svg)](https://opensource.org/licenses/GPL-3.0)
 [![Node](https://img.shields.io/badge/Node-%3E%3D20-green.svg)]()
