@@ -132,16 +132,52 @@ const PLATFORM_LABEL: Record<FileEntry['platform'], string> = {
   other: '跨平台 / 其他',
 };
 
-const PLATFORM_EMOJI: Record<FileEntry['platform'], string> = {
-  windows: '🪟',
-  linux: '🐧',
-  macos: '',
-  android: '🤖',
-  checksum: '🔒',
-  other: '📦',
+// macOS 用内联 SVG（Apple logo 版权原因不能用 emoji，unicode 私有区在非 Apple 系统不渲染）
+const AppleIcon: React.FC<{ style?: React.CSSProperties }> = ({ style }) => (
+  <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" style={style} aria-hidden="true">
+    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98l-.09.06c-.22.15-2.2 1.28-2.18 3.81.03 3.02 2.65 4.03 2.68 4.04l-.05.17c-.1.36-.51 1.74-1.2 2.8M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+  </svg>
+);
+
+const PLATFORM_ICON: Record<FileEntry['platform'], React.ReactNode> = {
+  windows: <span aria-hidden="true" style={{ fontSize: '1rem', lineHeight: 1 }}>🪟</span>,
+  linux:   <span aria-hidden="true" style={{ fontSize: '1rem', lineHeight: 1 }}>🐧</span>,
+  macos:   <AppleIcon style={{ fontSize: '1rem', width: '1rem', height: '1rem' }} />,
+  android: <span aria-hidden="true" style={{ fontSize: '1rem', lineHeight: 1 }}>🤖</span>,
+  checksum: null, // 用 MUI VerifiedUser 图标，在渲染处单独处理
+  other:   <span aria-hidden="true" style={{ fontSize: '1rem', lineHeight: 1 }}>📦</span>,
 };
 
 const PLATFORM_ORDER: FileEntry['platform'][] = ['windows', 'linux', 'macos', 'android', 'other', 'checksum'];
+
+// ─── 头像颜色：根据 org 名 hash 生成确定性色相 ──────────────────────────────
+
+const AVATAR_COLORS = [
+  { bg: '#DBEAFE', fg: '#1D4ED8' }, // blue
+  { bg: '#D1FAE5', fg: '#065F46' }, // green
+  { bg: '#FEF3C7', fg: '#92400E' }, // amber
+  { bg: '#FCE7F3', fg: '#9D174D' }, // pink
+  { bg: '#EDE9FE', fg: '#5B21B6' }, // violet
+  { bg: '#FFEDD5', fg: '#9A3412' }, // orange
+  { bg: '#CFFAFE', fg: '#155E75' }, // cyan
+  { bg: '#F0FDF4', fg: '#166534' }, // emerald (light)
+];
+const AVATAR_COLORS_DARK = [
+  { bg: '#1E3A5F', fg: '#93C5FD' },
+  { bg: '#064E3B', fg: '#6EE7B7' },
+  { bg: '#451A03', fg: '#FDE68A' },
+  { bg: '#500724', fg: '#FBCFE8' },
+  { bg: '#2E1065', fg: '#C4B5FD' },
+  { bg: '#431407', fg: '#FDBA74' },
+  { bg: '#083344', fg: '#67E8F9' },
+  { bg: '#052E16', fg: '#86EFAC' },
+];
+
+function orgColorIndex(org: string): number {
+  let h = 0;
+  for (let i = 0; i < org.length; i++) h = (Math.imul(31, h) + org.charCodeAt(i)) >>> 0;
+  return h % AVATAR_COLORS.length;
+}
 
 // ─── 解析 fancyindex HTML ─────────────────────────────────────────────────────
 
@@ -187,6 +223,7 @@ interface ProjectCardProps {
 const ProjectCard: React.FC<ProjectCardProps> = ({ project, latestVersion, onSelect }) => {
   const [imgStatus, setImgStatus] = useState<'loading' | 'loaded' | 'error'>('loading');
   const avatarUrl = `https://github.com/${project.org}.png?size=64`;
+  const colorIdx = orgColorIndex(project.org);
 
   return (
     <Card
@@ -227,9 +264,15 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, latestVersion, onSel
                 borderRadius: '10px',
                 fontSize: '1.15rem',
                 fontWeight: 700,
-                bgcolor: (theme) => theme.palette.mode === 'dark' ? 'grey.800' : 'grey.200',
-                color: 'text.secondary',
                 flexShrink: 0,
+                bgcolor: (theme) =>
+                  theme.palette.mode === 'dark'
+                    ? AVATAR_COLORS_DARK[colorIdx].bg
+                    : AVATAR_COLORS[colorIdx].bg,
+                color: (theme) =>
+                  theme.palette.mode === 'dark'
+                    ? AVATAR_COLORS_DARK[colorIdx].fg
+                    : AVATAR_COLORS[colorIdx].fg,
               }}
             >
               {project.org[0]?.toUpperCase()}
@@ -269,7 +312,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, latestVersion, onSel
         >
           {latestVersion ? (
             <Chip
-              icon={<LocalOfferIcon sx={{ fontSize: '11px !important' }} />}
+              icon={<LocalOfferIcon sx={{ fontSize: '11px !important', color: 'inherit !important' }} />}
               label={latestVersion}
               size="small"
               variant="outlined"
@@ -281,6 +324,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, latestVersion, onSel
                 bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(96,165,250,0.07)' : 'rgba(59,130,246,0.05)',
                 borderColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(96,165,250,0.22)' : 'rgba(59,130,246,0.18)',
                 color: 'primary.main',
+                '& .MuiChip-icon': { color: 'inherit' },
                 '& .MuiChip-label': { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
               }}
             />
@@ -869,9 +913,9 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath }) =
                     {platform === 'checksum' ? (
                       <ChecksumIcon sx={{ fontSize: '1rem', color: 'text.secondary' }} />
                     ) : (
-                      <Typography sx={{ fontSize: '1rem', lineHeight: 1 }}>
-                        {PLATFORM_EMOJI[platform]}
-                      </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary', fontSize: '1rem', lineHeight: 1 }}>
+                        {PLATFORM_ICON[platform]}
+                      </Box>
                     )}
                     <Typography
                       variant="caption"
