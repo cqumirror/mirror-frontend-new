@@ -171,7 +171,8 @@ interface ProjectCardProps {
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ project, latestVersion, onSelect }) => {
-  const [imgError, setImgError] = useState(false);
+  // 'loading' → 显示首字母占位；'loaded' → 显示图片；'error' → 显示首字母
+  const [imgStatus, setImgStatus] = useState<'loading' | 'loaded' | 'error'>('loading');
   const avatarUrl = `https://github.com/${project.org}.png?size=64`;
 
   return (
@@ -197,13 +198,39 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, latestVersion, onSel
       onKeyDown={(e) => e.key === 'Enter' && onSelect()}
     >
       <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, mb: 1.5 }}>
-        <Avatar
-          src={imgError ? undefined : avatarUrl}
-          onError={() => setImgError(true)}
-          sx={{ width: 40, height: 40, bgcolor: 'primary.main', fontSize: '1.1rem', flexShrink: 0 }}
-        >
-          {project.org[0]?.toUpperCase()}
-        </Avatar>
+        {/* 相对定位容器：首字母始终在底层，图片淡入覆盖 */}
+        <Box sx={{ position: 'relative', width: 40, height: 40, flexShrink: 0 }}>
+          {/* 首字母默认占位（loading / error 时均可见） */}
+          <Avatar
+            sx={{
+              width: 40,
+              height: 40,
+              fontSize: '1rem',
+              position: 'absolute',
+              inset: 0,
+              bgcolor: (theme) =>
+                theme.palette.mode === 'dark' ? 'grey.700' : 'grey.300',
+              color: 'text.primary',
+            }}
+          >
+            {project.org[0]?.toUpperCase()}
+          </Avatar>
+          {/* 图片覆盖层：加载完成后淡入，失败后保持透明 */}
+          <Avatar
+            src={avatarUrl}
+            onLoad={() => setImgStatus('loaded')}
+            onError={() => setImgStatus('error')}
+            sx={{
+              width: 40,
+              height: 40,
+              position: 'absolute',
+              inset: 0,
+              bgcolor: 'transparent',
+              opacity: imgStatus === 'loaded' ? 1 : 0,
+              transition: 'opacity 0.25s ease',
+            }}
+          />
+        </Box>
         <Box sx={{ minWidth: 0, flex: 1 }}>
           <Typography
             variant="subtitle2"
@@ -276,46 +303,49 @@ const FileRow: React.FC<FileRowProps> = ({ file }) => {
       sx={{
         display: 'flex',
         alignItems: 'center',
-        gap: 1,
+        gap: { xs: 0.5, sm: 1 },
         px: 1.5,
         py: 0.8,
         borderRadius: 1,
+        minWidth: 0,
         '&:hover': { bgcolor: 'action.hover' },
       }}
     >
-      {/* 文件名 */}
+      {/* 文件名 + arch chip（xs 时 chip 换行到文件名下方） */}
       <Box sx={{ flex: 1, minWidth: 0 }}>
-        <Link
-          href={file.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          underline="hover"
-          sx={{
-            fontFamily: '"JetBrains Mono", monospace',
-            fontSize: '0.8rem',
-            wordBreak: 'break-all',
-            lineHeight: 1.4,
-          }}
-        >
-          {file.name}
-        </Link>
-        {file.arch && (
-          <Chip
-            label={file.arch}
-            size="small"
-            variant="outlined"
+        <Box sx={{ display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: 0.5, minWidth: 0 }}>
+          <Link
+            href={file.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            underline="hover"
             sx={{
-              ml: 0.75,
-              fontSize: '0.65rem',
-              height: 18,
               fontFamily: '"JetBrains Mono", monospace',
-              verticalAlign: 'middle',
+              fontSize: { xs: '0.75rem', sm: '0.8rem' },
+              wordBreak: 'break-all',
+              lineHeight: 1.4,
+              minWidth: 0,
             }}
-          />
-        )}
+          >
+            {file.name}
+          </Link>
+          {file.arch && (
+            <Chip
+              label={file.arch}
+              size="small"
+              variant="outlined"
+              sx={{
+                fontSize: '0.65rem',
+                height: 18,
+                fontFamily: '"JetBrains Mono", monospace',
+                flexShrink: 0,
+              }}
+            />
+          )}
+        </Box>
       </Box>
 
-      {/* 大小 */}
+      {/* 大小：xs 时隐藏，避免撑破行 */}
       <Typography
         variant="caption"
         sx={{
@@ -323,8 +353,9 @@ const FileRow: React.FC<FileRowProps> = ({ file }) => {
           fontFamily: '"JetBrains Mono", monospace',
           fontSize: '0.75rem',
           flexShrink: 0,
-          minWidth: 60,
+          minWidth: { sm: 56 },
           textAlign: 'right',
+          display: { xs: 'none', sm: 'block' },
         }}
       >
         {file.size}
@@ -627,12 +658,32 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath }) =
 
       {/* 项目标题 */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
-        <Avatar
-          src={`https://github.com/${selectedProject?.org}.png?size=64`}
-          sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}
-        >
-          {selectedProject?.org[0]?.toUpperCase()}
-        </Avatar>
+        <Box sx={{ position: 'relative', width: 32, height: 32, flexShrink: 0 }}>
+          <Avatar
+            sx={{
+              width: 32,
+              height: 32,
+              fontSize: '0.9rem',
+              position: 'absolute',
+              inset: 0,
+              bgcolor: (theme) =>
+                theme.palette.mode === 'dark' ? 'grey.700' : 'grey.300',
+              color: 'text.primary',
+            }}
+          >
+            {selectedProject?.org[0]?.toUpperCase()}
+          </Avatar>
+          <Avatar
+            src={`https://github.com/${selectedProject?.org}.png?size=64`}
+            sx={{
+              width: 32,
+              height: 32,
+              position: 'absolute',
+              inset: 0,
+              bgcolor: 'transparent',
+            }}
+          />
+        </Box>
         <Box>
           <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
             {selectedProject?.repo}
@@ -664,7 +715,7 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath }) =
           {t('githubRelease.noReleases')}
         </Alert>
       ) : (
-        <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
+        <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', minWidth: 0 }}>
           {/* 版本 Tabs */}
           <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'action.hover', px: 1 }}>
             <Tabs
