@@ -648,14 +648,14 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath }) =
         <Grid container spacing={2}>
           {projectsLoading
             ? Array.from({ length: 12 }).map((_, i) => (
-                <Grid key={i} size={{ xs: 6, sm: 4, md: 3 }}>
+                <Grid key={i} size={{ xs: 12, sm: 6, md: 4 }}>
                   <Skeleton variant="rounded" height={140} sx={{ borderRadius: 3 }} />
                 </Grid>
               ))
             : projects.map((proj) => {
                 const versionKey = `${proj.org}/${proj.repo}`;
                 return (
-                  <Grid key={versionKey} size={{ xs: 6, sm: 4, md: 3 }}>
+                  <Grid key={versionKey} size={{ xs: 12, sm: 6, md: 4 }}>
                     <ProjectCard
                       project={proj}
                       latestVersion={versionMap[versionKey]}
