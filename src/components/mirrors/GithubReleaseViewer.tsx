@@ -246,7 +246,7 @@ const ProjectAvatar: React.FC<ProjectAvatarProps> = ({ org, size = 44 }) => {
             width: size,
             height: size,
             borderRadius: '6px',
-            fontSize: `${size * 0.45}rem`,
+            fontSize: size <= 36 ? '0.9rem' : '1.15rem',
             fontWeight: 700,
             flexShrink: 0,
             bgcolor: (theme) =>
