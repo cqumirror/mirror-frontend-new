@@ -206,9 +206,7 @@ const StatusPage: React.FC = () => {
         // tunasync /jobs/:name 返回数组，取第一条
         const job = Array.isArray(data) ? data[0] : data;
         const msg = job?.error_msg || t('status.noErrorMsg');
-        setErrorPopover((prev) =>
-          prev ? { ...prev, loading: false, errorMsg: msg } : null
-        );
+        setErrorPopover((prev) => (prev ? { ...prev, loading: false, errorMsg: msg } : null));
       } catch {
         setErrorPopover((prev) =>
           prev ? { ...prev, loading: false, errorMsg: t('status.fetchErrorFailed') } : null
@@ -656,9 +654,7 @@ const StatusPage: React.FC = () => {
                             underline="hover"
                             color="primary"
                             sx={{ fontWeight: 600, cursor: 'pointer' }}
-                            onClick={(e: React.MouseEvent<HTMLElement>) =>
-                              handleShowError(e, m.id)
-                            }
+                            onClick={(e: React.MouseEvent<HTMLElement>) => handleShowError(e, m.id)}
                           >
                             {t('common.details')}
                           </Link>

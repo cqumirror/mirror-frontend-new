@@ -72,7 +72,12 @@ const IsoFilesCard: React.FC<IsoFilesCardProps> = ({ files, mirrorUrl }) => {
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => () => { if (copyTimerRef.current) clearTimeout(copyTimerRef.current); }, []);
+  useEffect(
+    () => () => {
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+    },
+    []
+  );
 
   const handleCopy = async (url: string, idx: number) => {
     try {
@@ -305,7 +310,12 @@ const MirrorDetail: React.FC = () => {
 
   const [copiedUrl, setCopiedUrl] = useState(false);
   const copyUrlTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(() => () => { if (copyUrlTimerRef.current) clearTimeout(copyUrlTimerRef.current); }, []);
+  useEffect(
+    () => () => {
+      if (copyUrlTimerRef.current) clearTimeout(copyUrlTimerRef.current);
+    },
+    []
+  );
 
   const fullMirrorUrl = mirror ? toFullUrl(mirror.url) : '';
 

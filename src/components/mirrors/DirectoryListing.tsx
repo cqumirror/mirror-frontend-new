@@ -147,8 +147,11 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
 
   const absCurrentUrl = toAbsoluteUrl(currentUrl);
   const currentPathname = (() => {
-    try { return new URL(absCurrentUrl).pathname; }
-    catch { return absCurrentUrl; }
+    try {
+      return new URL(absCurrentUrl).pathname;
+    } catch {
+      return absCurrentUrl;
+    }
   })();
 
   // ── 搜索 ─────────────────────────────────────────────────────────────────
@@ -156,14 +159,14 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   // 切换目录时清空搜索
-  useEffect(() => { setSearchQuery(''); }, [currentUrl]);
+  useEffect(() => {
+    setSearchQuery('');
+  }, [currentUrl]);
 
   const filteredEntries = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return entries;
-    return entries.filter(
-      (e) => e.isParent || e.name.toLowerCase().includes(q)
-    );
+    return entries.filter((e) => e.isParent || e.name.toLowerCase().includes(q));
   }, [entries, searchQuery]);
 
   /** 在文件名中高亮匹配的关键词 */
@@ -176,7 +179,12 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
         {text.slice(0, idx)}
         <Box
           component="mark"
-          sx={{ bgcolor: 'rgba(59,130,246,0.22)', color: 'inherit', borderRadius: '2px', px: '1px' }}
+          sx={{
+            bgcolor: 'rgba(59,130,246,0.22)',
+            color: 'inherit',
+            borderRadius: '2px',
+            px: '1px',
+          }}
         >
           {text.slice(idx, idx + query.length)}
         </Box>
@@ -361,7 +369,15 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
           />
           {/* 匹配计数 */}
           {searchQuery && (
-            <Typography variant="caption" sx={{ color: 'text.secondary', flexShrink: 0, fontFamily: '"JetBrains Mono", monospace', fontSize: '0.75rem' }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+                flexShrink: 0,
+                fontFamily: '"JetBrains Mono", monospace',
+                fontSize: '0.75rem',
+              }}
+            >
               {filteredEntries.filter((e) => !e.isParent).length}
               {' / '}
               {entries.filter((e) => !e.isParent).length}
@@ -370,7 +386,10 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
           {searchQuery && (
             <IconButton
               size="small"
-              onClick={() => { setSearchQuery(''); searchInputRef.current?.focus(); }}
+              onClick={() => {
+                setSearchQuery('');
+                searchInputRef.current?.focus();
+              }}
               aria-label={t('common.clear')}
               sx={{ p: 0.25 }}
             >
@@ -400,13 +419,24 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
         >
           <TableHead>
             <TableRow sx={{ bgcolor: 'action.hover' }}>
-              <TableCell sx={{ fontWeight: 700, fontSize: '0.78rem', width: { xs: '55%', sm: '55%' } }}>
+              <TableCell
+                sx={{ fontWeight: 700, fontSize: '0.78rem', width: { xs: '55%', sm: '55%' } }}
+              >
                 {t('directory.colName')}
               </TableCell>
-              <TableCell sx={{ fontWeight: 700, fontSize: '0.78rem', width: { xs: '20%', sm: '20%' } }}>
+              <TableCell
+                sx={{ fontWeight: 700, fontSize: '0.78rem', width: { xs: '20%', sm: '20%' } }}
+              >
                 {t('directory.colSize')}
               </TableCell>
-              <TableCell sx={{ fontWeight: 700, fontSize: '0.78rem', width: '25%', display: { xs: 'none', sm: 'table-cell' } }}>
+              <TableCell
+                sx={{
+                  fontWeight: 700,
+                  fontSize: '0.78rem',
+                  width: '25%',
+                  display: { xs: 'none', sm: 'table-cell' },
+                }}
+              >
                 {t('directory.colModified')}
               </TableCell>
             </TableRow>
@@ -416,11 +446,24 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
               <TableRow
                 key={entry.href}
                 hover
-                sx={{ cursor: entry.isDir || entry.isParent ? 'pointer' : 'default', '&:last-child td': { border: 0 } }}
+                sx={{
+                  cursor: entry.isDir || entry.isParent ? 'pointer' : 'default',
+                  '&:last-child td': { border: 0 },
+                }}
                 onClick={() => (entry.isDir || entry.isParent) && handleNavigate(entry)}
               >
-                <TableCell sx={{ maxWidth: 0, overflow: 'hidden', p: { xs: '6px 8px', sm: '6px 16px' } }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, overflow: 'hidden', minWidth: 0 }}>
+                <TableCell
+                  sx={{ maxWidth: 0, overflow: 'hidden', p: { xs: '6px 8px', sm: '6px 16px' } }}
+                >
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 0.75,
+                      overflow: 'hidden',
+                      minWidth: 0,
+                    }}
+                  >
                     {entry.isParent ? (
                       <ParentIcon sx={{ fontSize: 16, color: 'text.secondary', flexShrink: 0 }} />
                     ) : entry.isDir ? (
@@ -432,9 +475,21 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
                       <Typography
                         variant="body2"
                         title={entry.name}
-                        sx={{ fontFamily: '"JetBrains Mono", monospace', fontSize: '0.83rem', color: 'primary.main', fontWeight: 600, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                        sx={{
+                          fontFamily: '"JetBrains Mono", monospace',
+                          fontSize: '0.83rem',
+                          color: 'primary.main',
+                          fontWeight: 600,
+                          flex: 1,
+                          minWidth: 0,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
                       >
-                        {entry.isParent ? t('directory.parentDirectory') : (
+                        {entry.isParent ? (
+                          t('directory.parentDirectory')
+                        ) : (
                           <Highlighted text={entry.name} query={searchQuery} />
                         )}
                       </Typography>
@@ -446,7 +501,16 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
                         underline="hover"
                         title={entry.href}
                         onClick={(e) => e.stopPropagation()}
-                        sx={{ fontFamily: '"JetBrains Mono", monospace', fontSize: '0.83rem', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}
+                        sx={{
+                          fontFamily: '"JetBrains Mono", monospace',
+                          fontSize: '0.83rem',
+                          flex: 1,
+                          minWidth: 0,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          display: 'block',
+                        }}
                       >
                         <Highlighted text={entry.name} query={searchQuery} />
                       </Link>
@@ -454,12 +518,18 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
                   </Box>
                 </TableCell>
                 <TableCell>
-                  <Typography variant="caption" sx={{ color: 'text.secondary', fontFamily: '"JetBrains Mono", monospace' }}>
+                  <Typography
+                    variant="caption"
+                    sx={{ color: 'text.secondary', fontFamily: '"JetBrains Mono", monospace' }}
+                  >
                     {entry.isDir || entry.isParent ? '-' : entry.size}
                   </Typography>
                 </TableCell>
                 <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
-                  <Typography variant="caption" sx={{ color: 'text.secondary', fontFamily: '"JetBrains Mono", monospace' }}>
+                  <Typography
+                    variant="caption"
+                    sx={{ color: 'text.secondary', fontFamily: '"JetBrains Mono", monospace' }}
+                  >
                     {entry.date}
                   </Typography>
                 </TableCell>

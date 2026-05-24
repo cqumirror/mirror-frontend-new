@@ -74,7 +74,12 @@ const UpstreamCard: React.FC<{ label: string; value: string }> = ({ label, value
   const [copied, setCopied] = useState(false);
   const { t } = useTranslation();
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(() => () => { if (copyTimerRef.current) clearTimeout(copyTimerRef.current); }, []);
+  useEffect(
+    () => () => {
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+    },
+    []
+  );
 
   const handleCopy = async () => {
     if (!hasValue) return;

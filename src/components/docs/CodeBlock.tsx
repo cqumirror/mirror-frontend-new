@@ -35,7 +35,12 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ children, language = 'bash', inli
   const { mode } = useThemeStore();
   const { t } = useTranslation();
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(() => () => { if (copyTimerRef.current) clearTimeout(copyTimerRef.current); }, []);
+  useEffect(
+    () => () => {
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+    },
+    []
+  );
 
   const handleCopy = async () => {
     try {

@@ -50,8 +50,8 @@ const Header: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [downloadOpen, setDownloadOpen] = useState(false);
-  const searchInputRef = useRef<HTMLInputElement>(null);      // mobile 弹层搜索框
-  const desktopSearchRef = useRef<HTMLInputElement>(null);    // 桌面端 header 搜索框
+  const searchInputRef = useRef<HTMLInputElement>(null); // mobile 弹层搜索框
+  const desktopSearchRef = useRef<HTMLInputElement>(null); // 桌面端 header 搜索框
 
   const { searchQuery, setSearchQuery } = useMirrorSearchStore();
 

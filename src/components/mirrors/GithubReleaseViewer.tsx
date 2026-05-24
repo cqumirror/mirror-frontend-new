@@ -102,12 +102,21 @@ function detectPlatform(name: string): FileEntry['platform'] {
   if (f.includes('android') || f.endsWith('.apk') || f.endsWith('.aab')) return 'android';
   // 校验文件：sha256、md5、sig、asc 等
   if (
-    f.endsWith('.sha256') || f.endsWith('.sha512') || f.endsWith('.md5') ||
-    f.endsWith('.sha1') || f.endsWith('.sig') || f.endsWith('.asc') ||
-    f.includes('checksum') || f.includes('sha256sum') || f.includes('md5sum') ||
-    f === 'shasums' || f.startsWith('sha256sums') || f.startsWith('md5sums') ||
+    f.endsWith('.sha256') ||
+    f.endsWith('.sha512') ||
+    f.endsWith('.md5') ||
+    f.endsWith('.sha1') ||
+    f.endsWith('.sig') ||
+    f.endsWith('.asc') ||
+    f.includes('checksum') ||
+    f.includes('sha256sum') ||
+    f.includes('md5sum') ||
+    f === 'shasums' ||
+    f.startsWith('sha256sums') ||
+    f.startsWith('md5sums') ||
     f.includes('hash')
-  ) return 'checksum';
+  )
+    return 'checksum';
   return 'other';
 }
 
@@ -137,21 +146,51 @@ const PLATFORM_LABEL: Record<FileEntry['platform'], string> = {
 
 // macOS 用内联 SVG（Apple logo 版权原因不能用 emoji，unicode 私有区在非 Apple 系统不渲染）
 const AppleIcon: React.FC<{ style?: React.CSSProperties }> = ({ style }) => (
-  <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" style={style} aria-hidden="true">
-    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98l-.09.06c-.22.15-2.2 1.28-2.18 3.81.03 3.02 2.65 4.03 2.68 4.04l-.05.17c-.1.36-.51 1.74-1.2 2.8M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+  <svg
+    viewBox="0 0 24 24"
+    width="1em"
+    height="1em"
+    fill="currentColor"
+    style={style}
+    aria-hidden="true"
+  >
+    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98l-.09.06c-.22.15-2.2 1.28-2.18 3.81.03 3.02 2.65 4.03 2.68 4.04l-.05.17c-.1.36-.51 1.74-1.2 2.8M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
   </svg>
 );
 
 const PLATFORM_ICON: Record<FileEntry['platform'], React.ReactNode> = {
-  windows: <span aria-hidden="true" style={{ fontSize: '1rem', lineHeight: 1 }}>🪟</span>,
-  linux:   <span aria-hidden="true" style={{ fontSize: '1rem', lineHeight: 1 }}>🐧</span>,
-  macos:   <AppleIcon style={{ fontSize: '1rem', width: '1rem', height: '1rem' }} />,
-  android: <span aria-hidden="true" style={{ fontSize: '1rem', lineHeight: 1 }}>🤖</span>,
+  windows: (
+    <span aria-hidden="true" style={{ fontSize: '1rem', lineHeight: 1 }}>
+      🪟
+    </span>
+  ),
+  linux: (
+    <span aria-hidden="true" style={{ fontSize: '1rem', lineHeight: 1 }}>
+      🐧
+    </span>
+  ),
+  macos: <AppleIcon style={{ fontSize: '1rem', width: '1rem', height: '1rem' }} />,
+  android: (
+    <span aria-hidden="true" style={{ fontSize: '1rem', lineHeight: 1 }}>
+      🤖
+    </span>
+  ),
   checksum: null, // 用 MUI VerifiedUser 图标，在渲染处单独处理
-  other:   <span aria-hidden="true" style={{ fontSize: '1rem', lineHeight: 1 }}>📦</span>,
+  other: (
+    <span aria-hidden="true" style={{ fontSize: '1rem', lineHeight: 1 }}>
+      📦
+    </span>
+  ),
 };
 
-const PLATFORM_ORDER: FileEntry['platform'][] = ['windows', 'linux', 'macos', 'android', 'other', 'checksum'];
+const PLATFORM_ORDER: FileEntry['platform'][] = [
+  'windows',
+  'linux',
+  'macos',
+  'android',
+  'other',
+  'checksum',
+];
 
 // ─── 头像颜色：根据 org 名 hash 生成确定性色相 ──────────────────────────────
 
@@ -306,7 +345,13 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, latestVersion, onSel
     >
       <CardActionArea
         onClick={onSelect}
-        sx={{ borderRadius: 3, display: 'flex', flexDirection: 'column', alignItems: 'stretch', height: '100%' }}
+        sx={{
+          borderRadius: 3,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'stretch',
+          height: '100%',
+        }}
       >
         {/* 主体：头像左对齐 + 文字 */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 2, pb: 1.5 }}>
@@ -317,13 +362,29 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, latestVersion, onSel
           <Box sx={{ minWidth: 0, flex: 1 }}>
             <Typography
               variant="subtitle2"
-              sx={{ fontWeight: 700, fontSize: '0.9rem', lineHeight: 1.25, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+              sx={{
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                lineHeight: 1.25,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
             >
               {project.repo}
             </Typography>
             <Typography
               variant="caption"
-              sx={{ color: 'text.secondary', fontFamily: '"JetBrains Mono", monospace', fontSize: '0.7rem', display: 'block', mt: 0.25, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+              sx={{
+                color: 'text.secondary',
+                fontFamily: '"JetBrains Mono", monospace',
+                fontSize: '0.7rem',
+                display: 'block',
+                mt: 0.25,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
             >
               {project.org}
             </Typography>
@@ -343,7 +404,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, latestVersion, onSel
         >
           {latestVersion ? (
             <Chip
-              icon={<LocalOfferIcon sx={{ fontSize: '11px !important', color: 'inherit !important' }} />}
+              icon={
+                <LocalOfferIcon sx={{ fontSize: '11px !important', color: 'inherit !important' }} />
+              }
               label={latestVersion}
               size="small"
               variant="outlined"
@@ -352,11 +415,17 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, latestVersion, onSel
                 fontSize: '0.68rem',
                 height: 20,
                 maxWidth: '100%',
-                bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(96,165,250,0.07)' : 'rgba(59,130,246,0.05)',
-                borderColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(96,165,250,0.22)' : 'rgba(59,130,246,0.18)',
+                bgcolor: (theme) =>
+                  theme.palette.mode === 'dark' ? 'rgba(96,165,250,0.07)' : 'rgba(59,130,246,0.05)',
+                borderColor: (theme) =>
+                  theme.palette.mode === 'dark' ? 'rgba(96,165,250,0.22)' : 'rgba(59,130,246,0.18)',
                 color: 'primary.main',
                 '& .MuiChip-icon': { color: 'inherit' },
-                '& .MuiChip-label': { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+                '& .MuiChip-label': {
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                },
               }}
             />
           ) : (
@@ -378,7 +447,12 @@ const FileRow: React.FC<FileRowProps> = ({ file }) => {
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(() => () => { if (copyTimerRef.current) clearTimeout(copyTimerRef.current); }, []);
+  useEffect(
+    () => () => {
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+    },
+    []
+  );
 
   const handleCopy = async () => {
     try {
@@ -406,7 +480,9 @@ const FileRow: React.FC<FileRowProps> = ({ file }) => {
     >
       {/* 文件名 + arch chip（xs 时 chip 换行到文件名下方） */}
       <Box sx={{ flex: 1, minWidth: 0 }}>
-        <Box sx={{ display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: 0.5, minWidth: 0 }}>
+        <Box
+          sx={{ display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: 0.5, minWidth: 0 }}
+        >
           <Link
             href={file.href}
             target="_blank"
@@ -457,7 +533,12 @@ const FileRow: React.FC<FileRowProps> = ({ file }) => {
       {/* 操作按钮 */}
       <Box sx={{ display: 'flex', gap: 0.25, flexShrink: 0 }}>
         <Tooltip title={copied ? t('common.copied') : t('common.copyLink')}>
-          <IconButton size="small" sx={{ p: 0.5 }} onClick={handleCopy} color={copied ? 'success' : 'default'}>
+          <IconButton
+            size="small"
+            sx={{ p: 0.5 }}
+            onClick={handleCopy}
+            color={copied ? 'success' : 'default'}
+          >
             {copied ? <CheckIcon sx={{ fontSize: 14 }} /> : <CopyIcon sx={{ fontSize: 14 }} />}
           </IconButton>
         </Tooltip>
@@ -515,66 +596,76 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath }) =
 
   // ── 加载项目列表 ────────────────────────────────────────────────────────
 
-  const loadProjects = useCallback(async (signal?: AbortSignal) => {
-    setProjectsLoading(true);
-    setProjectsError(null);
-    try {
-      // Step1: 获取 org 列表
-      const norm = rootPath.endsWith('/') ? rootPath : rootPath + '/';
-      const orgs = await fetchDir(norm);
-      if (signal?.aborted) return;
-      const orgDirs = orgs.filter((e) => e.isDir);
+  const loadProjects = useCallback(
+    async (signal?: AbortSignal) => {
+      setProjectsLoading(true);
+      setProjectsError(null);
+      try {
+        // Step1: 获取 org 列表
+        const norm = rootPath.endsWith('/') ? rootPath : rootPath + '/';
+        const orgs = await fetchDir(norm);
+        if (signal?.aborted) return;
+        const orgDirs = orgs.filter((e) => e.isDir);
 
-      // Step2: 并行拉取每个 org 下的 repo
-      const results = await Promise.allSettled(
-        orgDirs.map(async (org) => {
-          const repos = await fetchDir(org.href);
-          return repos
-            .filter((r) => r.isDir)
-            .map((repo): Project => ({
-              org: org.name.replace(/\/$/, ''),
-              repo: repo.name.replace(/\/$/, ''),
-              orgDate: org.date,
-            }));
-        })
-      );
-      if (signal?.aborted) return;
+        // Step2: 并行拉取每个 org 下的 repo
+        const results = await Promise.allSettled(
+          orgDirs.map(async (org) => {
+            const repos = await fetchDir(org.href);
+            return repos
+              .filter((r) => r.isDir)
+              .map(
+                (repo): Project => ({
+                  org: org.name.replace(/\/$/, ''),
+                  repo: repo.name.replace(/\/$/, ''),
+                  orgDate: org.date,
+                })
+              );
+          })
+        );
+        if (signal?.aborted) return;
 
-      const allProjects: Project[] = results.flatMap((r) => (r.status === 'fulfilled' ? r.value : []));
-      setProjects(allProjects);
+        const allProjects: Project[] = results.flatMap((r) =>
+          r.status === 'fulfilled' ? r.value : []
+        );
+        setProjects(allProjects);
 
-      // Step3: 并行拉取每个项目的版本列表，只取最新非LatestRelease版本号
-      const versionResults = await Promise.allSettled(
-        allProjects.map(async (proj) => {
-          const rootOrg = orgs.find((o) => o.name.replace(/\/$/, '') === proj.org);
-          if (!rootOrg) return null;
-          const orgEntries = (await fetchDir(rootOrg.href)).filter((e) => e.isDir);
-          const repoEntry = orgEntries.find((r) => r.name.replace(/\/$/, '') === proj.repo);
-          if (!repoEntry) return null;
-          const versions = await fetchDir(repoEntry.href);
-          const latest = versions
-            .filter((v) => v.isDir && v.name.replace(/\/$/, '').toLowerCase() !== 'latestrelease')
-            .sort((a, b) => b.date.localeCompare(a.date))[0];
-          return { key: `${proj.org}/${proj.repo}`, version: latest?.name.replace(/\/$/, '') ?? '' };
-        })
-      );
-      if (signal?.aborted) return;
+        // Step3: 并行拉取每个项目的版本列表，只取最新非LatestRelease版本号
+        const versionResults = await Promise.allSettled(
+          allProjects.map(async (proj) => {
+            const rootOrg = orgs.find((o) => o.name.replace(/\/$/, '') === proj.org);
+            if (!rootOrg) return null;
+            const orgEntries = (await fetchDir(rootOrg.href)).filter((e) => e.isDir);
+            const repoEntry = orgEntries.find((r) => r.name.replace(/\/$/, '') === proj.repo);
+            if (!repoEntry) return null;
+            const versions = await fetchDir(repoEntry.href);
+            const latest = versions
+              .filter((v) => v.isDir && v.name.replace(/\/$/, '').toLowerCase() !== 'latestrelease')
+              .sort((a, b) => b.date.localeCompare(a.date))[0];
+            return {
+              key: `${proj.org}/${proj.repo}`,
+              version: latest?.name.replace(/\/$/, '') ?? '',
+            };
+          })
+        );
+        if (signal?.aborted) return;
 
-      const map: Record<string, string> = {};
-      versionResults.forEach((r) => {
-        if (r.status === 'fulfilled' && r.value) {
-          versionCache.current.set(r.value.key, r.value.version);
-          map[r.value.key] = r.value.version;
-        }
-      });
-      setVersionMap(map);
-    } catch (err: unknown) {
-      if (signal?.aborted) return;
-      setProjectsError(err instanceof Error ? err.message : String(err));
-    } finally {
-      if (!signal?.aborted) setProjectsLoading(false);
-    }
-  }, [rootPath]);
+        const map: Record<string, string> = {};
+        versionResults.forEach((r) => {
+          if (r.status === 'fulfilled' && r.value) {
+            versionCache.current.set(r.value.key, r.value.version);
+            map[r.value.key] = r.value.version;
+          }
+        });
+        setVersionMap(map);
+      } catch (err: unknown) {
+        if (signal?.aborted) return;
+        setProjectsError(err instanceof Error ? err.message : String(err));
+      } finally {
+        if (!signal?.aborted) setProjectsLoading(false);
+      }
+    },
+    [rootPath]
+  );
 
   useEffect(() => {
     const controller = new AbortController();
@@ -584,40 +675,43 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath }) =
 
   // ── 加载选中项目的 releases ────────────────────────────────────────────
 
-  const loadReleases = useCallback(async (proj: Project) => {
-    setReleasesLoading(true);
-    setReleases([]);
-    setFiles([]);
-    try {
-      const norm = rootPath.endsWith('/') ? rootPath : rootPath + '/';
-      const path = `${norm}${encodeURIComponent(proj.org)}/${encodeURIComponent(proj.repo)}/`;
-      const entries = await fetchDir(path);
-      const releaseList: Release[] = entries
-        .filter((e) => e.isDir)
-        .map((e) => {
-          const name = e.name.replace(/\/$/, '');
-          return {
-            name,
-            path: e.href,
-            date: e.date,
-            isLatest: name.toLowerCase() === 'latestrelease',
-          };
-        })
-        // LatestRelease 始终排第一
-        .sort((a, b) => {
-          if (a.isLatest) return -1;
-          if (b.isLatest) return 1;
-          return b.date.localeCompare(a.date);
-        });
-      setReleases(releaseList);
-      setSelectedReleaseIdx(0);
-    } catch (err) {
-      if (import.meta.env.DEV) console.warn('[GithubReleaseViewer] loadReleases:', err);
+  const loadReleases = useCallback(
+    async (proj: Project) => {
+      setReleasesLoading(true);
       setReleases([]);
-    } finally {
-      setReleasesLoading(false);
-    }
-  }, [rootPath]);
+      setFiles([]);
+      try {
+        const norm = rootPath.endsWith('/') ? rootPath : rootPath + '/';
+        const path = `${norm}${encodeURIComponent(proj.org)}/${encodeURIComponent(proj.repo)}/`;
+        const entries = await fetchDir(path);
+        const releaseList: Release[] = entries
+          .filter((e) => e.isDir)
+          .map((e) => {
+            const name = e.name.replace(/\/$/, '');
+            return {
+              name,
+              path: e.href,
+              date: e.date,
+              isLatest: name.toLowerCase() === 'latestrelease',
+            };
+          })
+          // LatestRelease 始终排第一
+          .sort((a, b) => {
+            if (a.isLatest) return -1;
+            if (b.isLatest) return 1;
+            return b.date.localeCompare(a.date);
+          });
+        setReleases(releaseList);
+        setSelectedReleaseIdx(0);
+      } catch (err) {
+        if (import.meta.env.DEV) console.warn('[GithubReleaseViewer] loadReleases:', err);
+        setReleases([]);
+      } finally {
+        setReleasesLoading(false);
+      }
+    },
+    [rootPath]
+  );
 
   // ── 加载 release 文件列表 ─────────────────────────────────────────────
 
@@ -628,14 +722,16 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath }) =
       const entries = await fetchDir(releasePath);
       const fileEntries: FileEntry[] = entries
         .filter((e) => !e.isDir)
-        .map((e): FileEntry => ({
-          name: e.name,
-          href: e.href,
-          size: e.size,
-          date: e.date,
-          platform: detectPlatform(e.name),
-          arch: detectArch(e.name),
-        }));
+        .map(
+          (e): FileEntry => ({
+            name: e.name,
+            href: e.href,
+            size: e.size,
+            date: e.date,
+            platform: detectPlatform(e.name),
+            arch: detectArch(e.name),
+          })
+        );
       setFiles(fileEntries);
     } catch (err) {
       if (import.meta.env.DEV) console.warn('[GithubReleaseViewer] loadFiles:', err);
@@ -674,7 +770,9 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath }) =
   const fileSearchRef = useRef<HTMLInputElement>(null);
 
   // 切换 release 时清空搜索
-  useEffect(() => { setFileSearch(''); }, [selectedReleaseIdx]);
+  useEffect(() => {
+    setFileSearch('');
+  }, [selectedReleaseIdx]);
 
   const filteredFiles = useMemo(() => {
     const q = fileSearch.trim().toLowerCase();
@@ -912,10 +1010,24 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath }) =
           <Box sx={{ p: 1.5 }}>
             {filesLoading ? (
               Array.from({ length: 6 }).map((_, i) => (
-                <Skeleton key={i} variant="rectangular" height={36} sx={{ mb: 0.5, borderRadius: 1 }} />
+                <Skeleton
+                  key={i}
+                  variant="rectangular"
+                  height={36}
+                  sx={{ mb: 0.5, borderRadius: 1 }}
+                />
               ))
             ) : files.length === 0 ? (
-              <Box sx={{ py: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, color: 'text.disabled' }}>
+              <Box
+                sx={{
+                  py: 4,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 1,
+                  color: 'text.disabled',
+                }}
+              >
                 <EmptyIcon sx={{ fontSize: 36 }} />
                 <Typography variant="body2">{t('githubRelease.noFiles')}</Typography>
               </Box>
@@ -925,11 +1037,16 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath }) =
                 {files.length > 6 && (
                   <Box
                     sx={{
-                      display: 'flex', alignItems: 'center', gap: 0.75,
-                      mb: 1.5, px: 1, py: 0.5,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 0.75,
+                      mb: 1.5,
+                      px: 1,
+                      py: 0.5,
                       border: '1.5px solid',
                       borderColor: fileSearch ? 'primary.main' : 'divider',
-                      borderRadius: 2, bgcolor: 'background.paper',
+                      borderRadius: 2,
+                      bgcolor: 'background.paper',
                       transition: 'border-color 0.15s',
                       boxShadow: fileSearch ? '0 0 0 3px rgba(59,130,246,0.12)' : 'none',
                     }}
@@ -943,17 +1060,34 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath }) =
                       placeholder={t('githubRelease.searchFiles')}
                       inputProps={{ 'aria-label': t('githubRelease.searchFiles') }}
                       sx={{
-                        flex: 1, fontSize: '0.82rem',
+                        flex: 1,
+                        fontSize: '0.82rem',
                         fontFamily: '"JetBrains Mono", monospace',
                       }}
                     />
                     {fileSearch && (
-                      <Typography variant="caption" sx={{ color: 'text.secondary', flexShrink: 0, fontFamily: '"JetBrains Mono", monospace', fontSize: '0.72rem' }}>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: 'text.secondary',
+                          flexShrink: 0,
+                          fontFamily: '"JetBrains Mono", monospace',
+                          fontSize: '0.72rem',
+                        }}
+                      >
                         {filteredFiles.length}/{files.length}
                       </Typography>
                     )}
                     {fileSearch && (
-                      <IconButton size="small" onClick={() => { setFileSearch(''); fileSearchRef.current?.focus(); }} aria-label={t('common.clear')} sx={{ p: 0.25 }}>
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          setFileSearch('');
+                          fileSearchRef.current?.focus();
+                        }}
+                        aria-label={t('common.clear')}
+                        sx={{ p: 0.25 }}
+                      >
                         <ClearIcon sx={{ fontSize: 14 }} />
                       </IconButton>
                     )}
@@ -963,39 +1097,63 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath }) =
                 {/* 无结果 */}
                 {fileSearch && filteredFiles.length === 0 ? (
                   <Box sx={{ py: 3, textAlign: 'center', color: 'text.disabled' }}>
-                    <Typography variant="body2">{t('directory.noResults', { query: fileSearch })}</Typography>
+                    <Typography variant="body2">
+                      {t('directory.noResults', { query: fileSearch })}
+                    </Typography>
                   </Box>
                 ) : (
                   PLATFORM_ORDER.filter((p) => filesByPlatform[p]).map((platform, idx) => (
-                <Box key={platform}>
-                  {idx > 0 && <Divider sx={{ my: 1 }} />}
-                  {/* 平台标题 */}
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, px: 1.5, py: 0.5, mb: 0.25 }}>
-                    {platform === 'checksum' ? (
-                      <ChecksumIcon sx={{ fontSize: '1rem', color: 'text.secondary' }} />
-                    ) : (
-                      <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary', fontSize: '1rem', lineHeight: 1 }}>
-                        {PLATFORM_ICON[platform]}
+                    <Box key={platform}>
+                      {idx > 0 && <Divider sx={{ my: 1 }} />}
+                      {/* 平台标题 */}
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 0.75,
+                          px: 1.5,
+                          py: 0.5,
+                          mb: 0.25,
+                        }}
+                      >
+                        {platform === 'checksum' ? (
+                          <ChecksumIcon sx={{ fontSize: '1rem', color: 'text.secondary' }} />
+                        ) : (
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              color: 'text.secondary',
+                              fontSize: '1rem',
+                              lineHeight: 1,
+                            }}
+                          >
+                            {PLATFORM_ICON[platform]}
+                          </Box>
+                        )}
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            fontWeight: 700,
+                            color: 'text.secondary',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em',
+                          }}
+                        >
+                          {PLATFORM_LABEL[platform]}
+                        </Typography>
+                        <Chip
+                          size="small"
+                          label={filesByPlatform[platform].length}
+                          sx={{ height: 18, fontSize: '0.65rem' }}
+                        />
                       </Box>
-                    )}
-                    <Typography
-                      variant="caption"
-                      sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.05em' }}
-                    >
-                      {PLATFORM_LABEL[platform]}
-                    </Typography>
-                    <Chip
-                      size="small"
-                      label={filesByPlatform[platform].length}
-                      sx={{ height: 18, fontSize: '0.65rem' }}
-                    />
-                  </Box>
-                  {/* 该平台的文件 */}
-                  {filesByPlatform[platform].map((file) => (
-                    <FileRow key={file.href} file={file} />
-                  ))}
-                </Box>
-              ))
+                      {/* 该平台的文件 */}
+                      {filesByPlatform[platform].map((file) => (
+                        <FileRow key={file.href} file={file} />
+                      ))}
+                    </Box>
+                  ))
                 )}
               </>
             )}

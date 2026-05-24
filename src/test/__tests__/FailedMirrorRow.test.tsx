@@ -11,9 +11,7 @@ import { describe, expect, it } from 'vitest';
 
 describe('StatusPage error popover: response handling', () => {
   it('parses array response and extracts error_msg', () => {
-    const data = [
-      { name: 'ubuntu', status: 'failed', error_msg: 'rsync: connection timed out' },
-    ];
+    const data = [{ name: 'ubuntu', status: 'failed', error_msg: 'rsync: connection timed out' }];
     const job = Array.isArray(data) ? data[0] : data;
     const msg = job?.error_msg || 'status.noErrorMsg';
     expect(msg).toBe('rsync: connection timed out');
