@@ -193,7 +193,8 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
     );
   }
 
-  if (loading) {
+  if (loading && entries.length === 0) {
+    // 首次加载：完整 skeleton
     return (
       <Box>
         {[...Array(6)].map((_, i) => (
@@ -240,7 +241,15 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
   const parent = entries.find((e) => e.isParent);
 
   return (
-    <Box>
+    <Box
+      sx={{
+        position: 'relative',
+        // 导航中淡化整体透明度，让原有 UI 保持可见
+        opacity: loading ? 0.55 : 1,
+        pointerEvents: loading ? 'none' : 'auto',
+        transition: 'opacity 0.2s ease',
+      }}
+    >
       {/* 当前路径 + 在新标签打开 */}
       <Box
         sx={{
