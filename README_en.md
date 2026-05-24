@@ -6,7 +6,7 @@
 
 [中文文档](README.md)
 
-A modern mirror site frontend built with React + TypeScript + Material UI, designed to work with [tunasync](https://github.com/tuna/tunasync) out of the box.
+A modern mirror site frontend built with React + TypeScript + Material UI, designed to work with [tunasync-rs](https://github.com/JCIOTeam/tunasync-rs) (recommended) or [tunasync](https://github.com/tuna/tunasync) out of the box.
 
 **Live site**: [https://mirrors.jcut.edu.cn](https://mirrors.jcut.edu.cn)
 
@@ -47,7 +47,7 @@ A modern mirror site frontend built with React + TypeScript + Material UI, desig
 
 ## How It Works with tunasync
 
-This project **only provides the frontend**; mirror sync tasks are handled by [tunasync](https://github.com/tuna/tunasync). The relationship is as follows:
+This project **only provides the frontend**; mirror sync tasks are handled by a separate tunasync program. The relationship is as follows:
 
 ```
 tunasync worker  →  Sync mirror files to /data/mirrors/
@@ -59,7 +59,17 @@ tunasync manager →  Provides HTTP API (default :12345/jobs)
                   →  FancyIndex for direct mirror directory browsing
 ```
 
-The tunasync manager needs to be **deployed separately** (it can run on the host directly or use the official Docker image). The `backend` service in this project's `docker-compose.yml` points to the tunasync manager.
+### Recommended: tunasync-rs (Rust rewrite)
+
+> **Recommended**: [tunasync-rs](https://github.com/JCIOTeam/tunasync-rs) is a Rust rewrite of tunasync, optimized specifically for this project with better compatibility. Use it for the best experience.
+
+| Feature | tunasync-rs | Official tunasync (Go) |
+|---------|------------|----------------------|
+| Language | Rust | Go |
+| Compatibility with this project | ✅ Deeply integrated | Basically compatible |
+| Repository | [JCIOTeam/tunasync-rs](https://github.com/JCIOTeam/tunasync-rs) | [tuna/tunasync](https://github.com/tuna/tunasync) |
+
+The tunasync manager needs to be **deployed separately** (it can run on the host directly). The `backend` service in this project's `docker-compose.yml` points to the tunasync manager.
 
 ---
 
@@ -69,7 +79,7 @@ The tunasync manager needs to be **deployed separately** (it can run on the host
 
 - Node.js >= 20.0.0, npm >= 10.0.0 (for development)
 - Docker + Docker Compose (Compose v2 recommended)
-- tunasync manager running (default port `:12345`)
+- tunasync manager running (recommended: [tunasync-rs](https://github.com/JCIOTeam/tunasync-rs), default port `:12345`)
 - Mirror data directory (e.g. `/data/mirrors/`)
 
 ### Step 1: Clone and Configure

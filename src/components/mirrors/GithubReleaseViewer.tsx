@@ -11,7 +11,6 @@ import {
   Refresh as RefreshIcon,
   LocalOffer as LocalOfferIcon,
   FolderOff as EmptyIcon,
-  Tag as TagIcon,
   VerifiedUser as ChecksumIcon,
   Search as SearchIcon,
   Close as ClearIcon,
