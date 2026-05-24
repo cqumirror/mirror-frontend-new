@@ -27,7 +27,7 @@ import {
   LinearProgress,
   IconButton,
 } from '@mui/material';
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import RefreshButton from '../components/common/RefreshButton';
@@ -697,46 +697,62 @@ const Home: React.FC = () => {
             </Paper>
           )}
 
-          {/* 字母分组索引导航 */}
-          {!isLoading && Object.keys(groupedMirrors).length > 0 && (
-            <Box
-              sx={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: 0.5,
-                mb: 3,
-                p: 1.5,
-                bgcolor: 'background.paper',
-                borderRadius: 2,
-                border: '1px solid',
-                borderColor: 'divider',
-              }}
-              role="navigation"
-              aria-label={t('home.allMirrors')}
-            >
-              {sortedGroupKeys(groupedMirrors).map((letter) => (
-                <Button
-                  key={letter}
-                  size="small"
-                  href={`#group-${letter}`}
-                  sx={{
-                    minWidth: 32,
-                    width: 32,
-                    height: 28,
-                    p: 0,
-                    fontFamily: '"JetBrains Mono", monospace',
-                    fontWeight: 700,
-                    fontSize: '0.8rem',
-                    borderRadius: 1,
-                    color: 'primary.main',
-                    '&:hover': { bgcolor: 'primary.main', color: 'white' },
-                  }}
-                >
-                  {letter}
-                </Button>
-              ))}
-            </Box>
-          )}
+          {/* 字母分组索引导航 — roving tabindex：整体一个 Tab 停，方向键在字母间移动 */}
+          {!isLoading && Object.keys(groupedMirrors).length > 0 && (() => {
+            const letters = sortedGroupKeys(groupedMirrors);
+            const navRef = useRef<HTMLDivElement>(null);
+
+            const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+              const buttons = Array.from(
+                navRef.current?.querySelectorAll<HTMLAnchorElement>('[data-letter-btn]') ?? []
+              );
+              const idx = buttons.findIndex((b) => b === document.activeElement);
+              if (idx === -1) return;
+              let next = idx;
+              if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); next = (idx + 1) % buttons.length; }
+              else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); next = (idx - 1 + buttons.length) % buttons.length; }
+              else if (e.key === 'Home') { e.preventDefault(); next = 0; }
+              else if (e.key === 'End') { e.preventDefault(); next = buttons.length - 1; }
+              else return;
+              // 更新 tabIndex：聚焦目标，其余 -1
+              buttons.forEach((b, i) => { b.tabIndex = i === next ? 0 : -1; });
+              buttons[next].focus();
+            }, []);
+
+            return (
+              <Box
+                ref={navRef}
+                onKeyDown={handleKeyDown}
+                sx={{
+                  display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 3, p: 1.5,
+                  bgcolor: 'background.paper', borderRadius: 2,
+                  border: '1px solid', borderColor: 'divider',
+                }}
+                role="navigation"
+                aria-label={t('home.letterIndex')}
+              >
+                {letters.map((letter, i) => (
+                  <Button
+                    key={letter}
+                    size="small"
+                    href={`#group-${letter}`}
+                    data-letter-btn
+                    tabIndex={i === 0 ? 0 : -1}
+                    sx={{
+                      minWidth: 32, width: 32, height: 28, p: 0,
+                      fontFamily: '"JetBrains Mono", monospace',
+                      fontWeight: 700, fontSize: '0.8rem', borderRadius: 1,
+                      color: 'primary.main',
+                      '&:hover': { bgcolor: 'primary.main', color: 'white' },
+                      '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: '2px' },
+                    }}
+                  >
+                    {letter}
+                  </Button>
+                ))}
+              </Box>
+            );
+          })()}
 
           {/* 镜像列表 */}
           <Box

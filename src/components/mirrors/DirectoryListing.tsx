@@ -7,6 +7,8 @@ import {
   ArrowUpward as ParentIcon,
   OpenInNew as OpenIcon,
   Warning as WarnIcon,
+  Search as SearchIcon,
+  Close as ClearIcon,
 } from '@mui/icons-material';
 import {
   Box,
@@ -23,8 +25,10 @@ import {
   Alert,
   Button,
   Chip,
+  InputBase,
+  IconButton,
 } from '@mui/material';
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import RefreshButton from '../common/RefreshButton';
@@ -142,11 +146,44 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
   };
 
   const absCurrentUrl = toAbsoluteUrl(currentUrl);
-  // 安全地提取 pathname，渲染路径中的 new URL() 若 URL 格式异常会抛出同步异常导致白屏
   const currentPathname = (() => {
     try { return new URL(absCurrentUrl).pathname; }
     catch { return absCurrentUrl; }
   })();
+
+  // ── 搜索 ─────────────────────────────────────────────────────────────────
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // 切换目录时清空搜索
+  useEffect(() => { setSearchQuery(''); }, [currentUrl]);
+
+  const filteredEntries = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return entries;
+    return entries.filter(
+      (e) => e.isParent || e.name.toLowerCase().includes(q)
+    );
+  }, [entries, searchQuery]);
+
+  /** 在文件名中高亮匹配的关键词 */
+  function Highlighted({ text, query }: { text: string; query: string }) {
+    if (!query) return <>{text}</>;
+    const idx = text.toLowerCase().indexOf(query.toLowerCase());
+    if (idx === -1) return <>{text}</>;
+    return (
+      <>
+        {text.slice(0, idx)}
+        <Box
+          component="mark"
+          sx={{ bgcolor: 'rgba(59,130,246,0.22)', color: 'inherit', borderRadius: '2px', px: '1px' }}
+        >
+          {text.slice(idx, idx + query.length)}
+        </Box>
+        {text.slice(idx + query.length)}
+      </>
+    );
+  }
 
   if (loading) {
     return (
@@ -288,6 +325,68 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
           </Button>
         </Box>
       </Box>
+
+      {/* 搜索栏（仅在有文件时显示） */}
+      {(dirs.length > 0 || files.length > 0) && (
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            mb: 1.5,
+            px: 1,
+            py: 0.5,
+            border: '1.5px solid',
+            borderColor: searchQuery ? 'primary.main' : 'divider',
+            borderRadius: 2,
+            bgcolor: 'background.paper',
+            transition: 'border-color 0.15s',
+            boxShadow: searchQuery ? '0 0 0 3px rgba(59,130,246,0.12)' : 'none',
+          }}
+        >
+          <SearchIcon sx={{ fontSize: 16, color: 'text.secondary', flexShrink: 0 }} />
+          <InputBase
+            inputRef={searchInputRef}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => e.key === 'Escape' && setSearchQuery('')}
+            placeholder={t('directory.searchPlaceholder')}
+            inputProps={{ 'aria-label': t('directory.searchPlaceholder') }}
+            sx={{
+              flex: 1,
+              fontSize: '0.85rem',
+              fontFamily: '"JetBrains Mono", monospace',
+              '& input::placeholder': { fontFamily: 'inherit', fontSize: '0.83rem' },
+            }}
+          />
+          {/* 匹配计数 */}
+          {searchQuery && (
+            <Typography variant="caption" sx={{ color: 'text.secondary', flexShrink: 0, fontFamily: '"JetBrains Mono", monospace', fontSize: '0.75rem' }}>
+              {filteredEntries.filter((e) => !e.isParent).length}
+              {' / '}
+              {entries.filter((e) => !e.isParent).length}
+            </Typography>
+          )}
+          {searchQuery && (
+            <IconButton
+              size="small"
+              onClick={() => { setSearchQuery(''); searchInputRef.current?.focus(); }}
+              aria-label={t('common.clear')}
+              sx={{ p: 0.25 }}
+            >
+              <ClearIcon sx={{ fontSize: 15 }} />
+            </IconButton>
+          )}
+        </Box>
+      )}
+
+      {/* 无结果提示 */}
+      {searchQuery && filteredEntries.filter((e) => !e.isParent).length === 0 && (
+        <Alert severity="info" sx={{ mb: 1.5 }}>
+          {t('directory.noResults', { query: searchQuery })}
+        </Alert>
+      )}
+
       {/* 表格：overflowX:auto 兜底横向滚动，tableLayout:fixed + 百分比列宽控制截断 */}
       <TableContainer
         component={Paper}
@@ -301,57 +400,27 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
         >
           <TableHead>
             <TableRow sx={{ bgcolor: 'action.hover' }}>
-              <TableCell
-                sx={{ fontWeight: 700, fontSize: '0.78rem', width: { xs: '55%', sm: '55%' } }}
-              >
+              <TableCell sx={{ fontWeight: 700, fontSize: '0.78rem', width: { xs: '55%', sm: '55%' } }}>
                 {t('directory.colName')}
               </TableCell>
-              <TableCell
-                sx={{ fontWeight: 700, fontSize: '0.78rem', width: { xs: '20%', sm: '20%' } }}
-              >
+              <TableCell sx={{ fontWeight: 700, fontSize: '0.78rem', width: { xs: '20%', sm: '20%' } }}>
                 {t('directory.colSize')}
               </TableCell>
-              <TableCell
-                sx={{
-                  fontWeight: 700,
-                  fontSize: '0.78rem',
-                  width: '25%',
-                  display: { xs: 'none', sm: 'table-cell' },
-                }}
-              >
+              <TableCell sx={{ fontWeight: 700, fontSize: '0.78rem', width: '25%', display: { xs: 'none', sm: 'table-cell' } }}>
                 {t('directory.colModified')}
               </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {entries.map((entry) => (
+            {filteredEntries.map((entry) => (
               <TableRow
                 key={entry.href}
                 hover
-                sx={{
-                  cursor: entry.isDir || entry.isParent ? 'pointer' : 'default',
-                  '&:last-child td': { border: 0 },
-                }}
+                sx={{ cursor: entry.isDir || entry.isParent ? 'pointer' : 'default', '&:last-child td': { border: 0 } }}
                 onClick={() => (entry.isDir || entry.isParent) && handleNavigate(entry)}
               >
-                {/*
-                  名称列关键布局：
-                  - TableCell: maxWidth:0 + overflow:hidden → 在 fixed 布局下把列宽锁定为百分比值
-                  - Box(flex): overflow:hidden + minWidth:0 → flex 容器不超出 cell
-                  - Typography/Link: flex:1 + minWidth:0 + textOverflow:ellipsis → 文字截断
-                */}
-                <TableCell
-                  sx={{ maxWidth: 0, overflow: 'hidden', p: { xs: '6px 8px', sm: '6px 16px' } }}
-                >
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 0.75,
-                      overflow: 'hidden',
-                      minWidth: 0,
-                    }}
-                  >
+                <TableCell sx={{ maxWidth: 0, overflow: 'hidden', p: { xs: '6px 8px', sm: '6px 16px' } }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, overflow: 'hidden', minWidth: 0 }}>
                     {entry.isParent ? (
                       <ParentIcon sx={{ fontSize: 16, color: 'text.secondary', flexShrink: 0 }} />
                     ) : entry.isDir ? (
@@ -363,19 +432,11 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
                       <Typography
                         variant="body2"
                         title={entry.name}
-                        sx={{
-                          fontFamily: '"JetBrains Mono", monospace',
-                          fontSize: '0.83rem',
-                          color: 'primary.main',
-                          fontWeight: 600,
-                          flex: 1, // 撑满剩余宽度
-                          minWidth: 0, // 允许 flex 子项收缩到 0
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}
+                        sx={{ fontFamily: '"JetBrains Mono", monospace', fontSize: '0.83rem', color: 'primary.main', fontWeight: 600, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                       >
-                        {entry.isParent ? t('directory.parentDirectory') : entry.name}
+                        {entry.isParent ? t('directory.parentDirectory') : (
+                          <Highlighted text={entry.name} query={searchQuery} />
+                        )}
                       </Typography>
                     ) : (
                       <Link
@@ -383,47 +444,22 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
                         target="_blank"
                         rel="noopener noreferrer"
                         underline="hover"
-                        title={entry.href} // hover 显示完整 URL
+                        title={entry.href}
                         onClick={(e) => e.stopPropagation()}
-                        sx={{
-                          fontFamily: '"JetBrains Mono", monospace',
-                          fontSize: '0.83rem',
-                          flex: 1, // 撑满剩余宽度
-                          minWidth: 0, // 允许 flex 子项收缩到 0
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                          display: 'block', // block 才能让 textOverflow 生效
-                        }}
+                        sx={{ fontFamily: '"JetBrains Mono", monospace', fontSize: '0.83rem', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}
                       >
-                        {entry.name}
+                        <Highlighted text={entry.name} query={searchQuery} />
                       </Link>
                     )}
                   </Box>
                 </TableCell>
-
-                {/* 大小列 */}
                 <TableCell>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      color: 'text.secondary',
-                      fontFamily: '"JetBrains Mono", monospace',
-                    }}
-                  >
+                  <Typography variant="caption" sx={{ color: 'text.secondary', fontFamily: '"JetBrains Mono", monospace' }}>
                     {entry.isDir || entry.isParent ? '-' : entry.size}
                   </Typography>
                 </TableCell>
-
-                {/* 日期列 */}
                 <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      color: 'text.secondary',
-                      fontFamily: '"JetBrains Mono", monospace',
-                    }}
-                  >
+                  <Typography variant="caption" sx={{ color: 'text.secondary', fontFamily: '"JetBrains Mono", monospace' }}>
                     {entry.date}
                   </Typography>
                 </TableCell>

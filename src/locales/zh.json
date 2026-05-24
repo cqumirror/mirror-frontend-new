@@ -26,7 +26,8 @@
     "refreshing": "请稍候",
     "refreshed": "已完成",
     "refreshFailed": "出错了",
-    "retry": "重试"
+    "retry": "重试",
+    "clear": "清除"
   },
   "search": {
     "placeholder": "搜索镜像...",
@@ -77,7 +78,8 @@
     "syncedToday": "今日同步 {{count}} 次",
     "news": "最新动态",
     "failedSnackbar_one": "{{count}} 个镜像同步失败，点击查看 →",
-    "failedSnackbar_other": "{{count}} 个镜像同步失败，点击查看 →"
+    "failedSnackbar_other": "{{count}} 个镜像同步失败，点击查看 →",
+    "letterIndex": "按字母跳转"
   },
   "network": {
     "campus": "您正在使用校园网，可使用内网镜像源获得更快速度",
@@ -120,7 +122,9 @@
     "parentDirectory": "上级目录",
     "colName": "名称",
     "colSize": "大小",
-    "colModified": "修改日期"
+    "colModified": "修改日期",
+    "searchPlaceholder": "搜索文件名…",
+    "noResults": "未找到 \"{{query}}\""
   },
   "docs": {
     "loading": "加载文档中..."
@@ -242,6 +246,7 @@
     "noReleases": "该项目暂无 Release",
     "noFiles": "该 Release 暂无文件",
     "latestRelease": "最新 Release",
-    "fileCount": "{{count}} 个文件"
+    "fileCount": "{{count}} 个文件",
+    "searchFiles": "搜索文件…"
   }
 }

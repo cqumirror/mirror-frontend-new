@@ -13,6 +13,8 @@ import {
   FolderOff as EmptyIcon,
   Tag as TagIcon,
   VerifiedUser as ChecksumIcon,
+  Search as SearchIcon,
+  Close as ClearIcon,
 } from '@mui/icons-material';
 import {
   Box,
@@ -32,8 +34,9 @@ import {
   Tabs,
   Card,
   CardActionArea,
+  InputBase,
 } from '@mui/material';
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 // ─── 类型 ────────────────────────────────────────────────────────────────────
@@ -655,6 +658,7 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath }) =
     setSelectedProject(proj);
     setViewMode('project');
     loadReleases(proj);
+    setFileSearch('');
   };
 
   const handleBack = () => {
@@ -662,12 +666,24 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath }) =
     setSelectedProject(null);
     setReleases([]);
     setFiles([]);
+    setFileSearch('');
   };
 
-  // ── 按平台分组文件 ──────────────────────────────────────────────────────
+  // ── 文件搜索 ─────────────────────────────────────────────────────────────
+  const [fileSearch, setFileSearch] = useState('');
+  const fileSearchRef = useRef<HTMLInputElement>(null);
 
+  // 切换 release 时清空搜索
+  useEffect(() => { setFileSearch(''); }, [selectedReleaseIdx]);
+
+  const filteredFiles = useMemo(() => {
+    const q = fileSearch.trim().toLowerCase();
+    return q ? files.filter((f) => f.name.toLowerCase().includes(q)) : files;
+  }, [files, fileSearch]);
+
+  // ── 按平台分组文件（基于过滤后的列表） ────────────────────────────────────
   const filesByPlatform = PLATFORM_ORDER.reduce<Record<string, FileEntry[]>>((acc, p) => {
-    const group = files.filter((f) => f.platform === p);
+    const group = filteredFiles.filter((f) => f.platform === p);
     if (group.length > 0) acc[p] = group;
     return acc;
   }, {});
@@ -899,21 +915,58 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath }) =
                 <Skeleton key={i} variant="rectangular" height={36} sx={{ mb: 0.5, borderRadius: 1 }} />
               ))
             ) : files.length === 0 ? (
-              <Box
-                sx={{
-                  py: 4,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: 1,
-                  color: 'text.disabled',
-                }}
-              >
+              <Box sx={{ py: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, color: 'text.disabled' }}>
                 <EmptyIcon sx={{ fontSize: 36 }} />
                 <Typography variant="body2">{t('githubRelease.noFiles')}</Typography>
               </Box>
             ) : (
-              PLATFORM_ORDER.filter((p) => filesByPlatform[p]).map((platform, idx) => (
+              <>
+                {/* 搜索栏（文件数 > 6 时才显示） */}
+                {files.length > 6 && (
+                  <Box
+                    sx={{
+                      display: 'flex', alignItems: 'center', gap: 0.75,
+                      mb: 1.5, px: 1, py: 0.5,
+                      border: '1.5px solid',
+                      borderColor: fileSearch ? 'primary.main' : 'divider',
+                      borderRadius: 2, bgcolor: 'background.paper',
+                      transition: 'border-color 0.15s',
+                      boxShadow: fileSearch ? '0 0 0 3px rgba(59,130,246,0.12)' : 'none',
+                    }}
+                  >
+                    <SearchIcon sx={{ fontSize: 15, color: 'text.secondary', flexShrink: 0 }} />
+                    <InputBase
+                      inputRef={fileSearchRef}
+                      value={fileSearch}
+                      onChange={(e) => setFileSearch(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Escape' && setFileSearch('')}
+                      placeholder={t('githubRelease.searchFiles')}
+                      inputProps={{ 'aria-label': t('githubRelease.searchFiles') }}
+                      sx={{
+                        flex: 1, fontSize: '0.82rem',
+                        fontFamily: '"JetBrains Mono", monospace',
+                      }}
+                    />
+                    {fileSearch && (
+                      <Typography variant="caption" sx={{ color: 'text.secondary', flexShrink: 0, fontFamily: '"JetBrains Mono", monospace', fontSize: '0.72rem' }}>
+                        {filteredFiles.length}/{files.length}
+                      </Typography>
+                    )}
+                    {fileSearch && (
+                      <IconButton size="small" onClick={() => { setFileSearch(''); fileSearchRef.current?.focus(); }} aria-label={t('common.clear')} sx={{ p: 0.25 }}>
+                        <ClearIcon sx={{ fontSize: 14 }} />
+                      </IconButton>
+                    )}
+                  </Box>
+                )}
+
+                {/* 无结果 */}
+                {fileSearch && filteredFiles.length === 0 ? (
+                  <Box sx={{ py: 3, textAlign: 'center', color: 'text.disabled' }}>
+                    <Typography variant="body2">{t('directory.noResults', { query: fileSearch })}</Typography>
+                  </Box>
+                ) : (
+                  PLATFORM_ORDER.filter((p) => filesByPlatform[p]).map((platform, idx) => (
                 <Box key={platform}>
                   {idx > 0 && <Divider sx={{ my: 1 }} />}
                   {/* 平台标题 */}
@@ -943,6 +996,8 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath }) =
                   ))}
                 </Box>
               ))
+                )}
+              </>
             )}
           </Box>
         </Paper>

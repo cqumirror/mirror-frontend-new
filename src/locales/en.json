@@ -26,7 +26,8 @@
     "refreshing": "Please wait",
     "refreshed": "Done",
     "refreshFailed": "Error",
-    "retry": "Retry"
+    "retry": "Retry",
+    "clear": "Clear"
   },
   "search": {
     "placeholder": "Search mirrors...",
@@ -77,7 +78,8 @@
     "syncedToday": "{{count}} syncs today",
     "news": "News",
     "failedSnackbar_one": "{{count}} mirror failed to sync — click to view →",
-    "failedSnackbar_other": "{{count}} mirrors failed to sync — click to view →"
+    "failedSnackbar_other": "{{count}} mirrors failed to sync — click to view →",
+    "letterIndex": "Jump to letter"
   },
   "network": {
     "campus": "You are on the campus network, use the internal mirror for faster speed",
@@ -120,7 +122,9 @@
     "parentDirectory": "Parent Directory",
     "colName": "Name",
     "colSize": "Size",
-    "colModified": "Modified"
+    "colModified": "Modified",
+    "searchPlaceholder": "Search files…",
+    "noResults": "No results for \"{{query}}\""
   },
   "docs": {
     "loading": "Loading document..."
@@ -242,6 +246,7 @@
     "noReleases": "No releases found",
     "noFiles": "No files in this release",
     "latestRelease": "Latest Release",
-    "fileCount": "{{count}} files"
+    "fileCount": "{{count}} files",
+    "searchFiles": "Search files…"
   }
 }
