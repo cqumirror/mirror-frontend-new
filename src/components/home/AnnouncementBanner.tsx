@@ -46,7 +46,8 @@ function isRecent(dateStr: string) {
 function loadDismissed(): Set<string> {
   try {
     return new Set(JSON.parse(safeGetItem(STORAGE_KEY) ?? '[]'));
-  } catch {
+  } catch (err) {
+    if (import.meta.env.DEV) console.warn('[AnnouncementBanner] loadDismissed:', err);
     return new Set();
   }
 }

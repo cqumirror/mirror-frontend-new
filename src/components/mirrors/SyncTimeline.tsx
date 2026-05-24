@@ -10,7 +10,7 @@ import {
   Check as CheckIcon,
 } from '@mui/icons-material';
 import { Box, Typography, Paper, Grid, Tooltip, IconButton } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useLocaleStore } from '../../stores/mirrorStore';
@@ -73,15 +73,18 @@ const UpstreamCard: React.FC<{ label: string; value: string }> = ({ label, value
   const hasValue = display !== '—';
   const [copied, setCopied] = useState(false);
   const { t } = useTranslation();
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (copyTimerRef.current) clearTimeout(copyTimerRef.current); }, []);
 
   const handleCopy = async () => {
     if (!hasValue) return;
     try {
       await navigator.clipboard.writeText(display);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      /* ignore */
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+      copyTimerRef.current = setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      if (import.meta.env.DEV) console.warn('[copy]', err);
     }
   };
 

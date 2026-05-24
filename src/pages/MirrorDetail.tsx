@@ -30,7 +30,7 @@ import {
   ListItemText,
   IconButton,
 } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 // useSearchParams allows us to read ?tab=help from the URL
 import { useParams, useNavigate, Link as RouterLink, useSearchParams } from 'react-router-dom';
@@ -70,17 +70,18 @@ const LIST_MAX_HEIGHT = 36 * 5 + 8; // px
 const IsoFilesCard: React.FC<IsoFilesCardProps> = ({ files, mirrorUrl }) => {
   const { t } = useTranslation();
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const toFull = (url: string) =>
-    url.startsWith('http') ? url : `${window.location.origin}${sanitizeUrl(url)}`;
+  useEffect(() => () => { if (copyTimerRef.current) clearTimeout(copyTimerRef.current); }, []);
 
   const handleCopy = async (url: string, idx: number) => {
     try {
-      await navigator.clipboard.writeText(toFull(url));
+      await navigator.clipboard.writeText(toFullUrl(url));
       setCopiedIdx(idx);
-      setTimeout(() => setCopiedIdx(null), 2000);
-    } catch {
-      /* ignore */
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+      copyTimerRef.current = setTimeout(() => setCopiedIdx(null), 2000);
+    } catch (err) {
+      if (import.meta.env.DEV) console.warn('[copy]', err);
     }
   };
 
@@ -104,7 +105,7 @@ const IsoFilesCard: React.FC<IsoFilesCardProps> = ({ files, mirrorUrl }) => {
           <IconButton
             size="small"
             component="a"
-            href={toFull(mirrorUrl)}
+            href={toFullUrl(mirrorUrl)}
             target="_blank"
             rel="noopener noreferrer"
             aria-label={t('common.openInBrowser')}
@@ -129,7 +130,7 @@ const IsoFilesCard: React.FC<IsoFilesCardProps> = ({ files, mirrorUrl }) => {
           lineHeight: 1.5,
         }}
       >
-        {toFull(mirrorUrl)}
+        {toFullUrl(mirrorUrl)}
       </Box>
       <Divider sx={{ mb: 1 }} />
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
@@ -170,7 +171,7 @@ const IsoFilesCard: React.FC<IsoFilesCardProps> = ({ files, mirrorUrl }) => {
       >
         <List dense disablePadding>
           {files.map((file, idx) => {
-            const fullUrl = toFull(file.url);
+            const fullUrl = toFullUrl(file.url);
             return (
               <ListItem
                 key={file.url}
@@ -243,12 +244,21 @@ const IsoFilesCard: React.FC<IsoFilesCardProps> = ({ files, mirrorUrl }) => {
 };
 
 // ─── URL 安全校验 ─────────────────────────────────────────────────────────────
-// 仅允许 http / https / 相对路径，防止 javascript: 等危险协议被渲染为 href
-const SAFE_URL_RE = /^(https?:\/\/|\/)/i;
+// 仅允许 https?://（显式协议）或以单斜杠开头的相对路径
+// 明确排除 // 开头的协议相对 URL（如 //evil.com）
+const SAFE_URL_RE = /^(https?:\/\/[^/]|\/[^/]|\/\s*$)/i;
 
 function sanitizeUrl(url: string): string {
   if (!url) return '#';
   return SAFE_URL_RE.test(url) ? url : '#';
+}
+
+/** 将镜像 url 转换为完整 URL；若 sanitize 后为 # 则返回空串，避免拼出 origin/# */
+function toFullUrl(url: string): string {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  const safe = sanitizeUrl(url);
+  return safe === '#' ? '' : `${window.location.origin}${safe}`;
 }
 
 // ─── 主页面 ───────────────────────────────────────────────────────────────────
@@ -294,20 +304,20 @@ const MirrorDetail: React.FC = () => {
   };
 
   const [copiedUrl, setCopiedUrl] = useState(false);
+  const copyUrlTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (copyUrlTimerRef.current) clearTimeout(copyUrlTimerRef.current); }, []);
 
-  const toFull = (url: string) =>
-    url ? (url.startsWith('http') ? url : `${window.location.origin}${sanitizeUrl(url)}`) : '';
-
-  const fullMirrorUrl = mirror ? toFull(mirror.url) : '';
+  const fullMirrorUrl = mirror ? toFullUrl(mirror.url) : '';
 
   const handleCopyUrl = async () => {
     if (!mirror) return;
     try {
       await navigator.clipboard.writeText(fullMirrorUrl);
       setCopiedUrl(true);
-      setTimeout(() => setCopiedUrl(false), 2000);
-    } catch {
-      /* ignore */
+      if (copyUrlTimerRef.current) clearTimeout(copyUrlTimerRef.current);
+      copyUrlTimerRef.current = setTimeout(() => setCopiedUrl(false), 2000);
+    } catch (err) {
+      if (import.meta.env.DEV) console.warn('[copy]', err);
     }
   };
 
@@ -411,10 +421,12 @@ const MirrorDetail: React.FC = () => {
           startIcon={<BackIcon />}
           onClick={() => {
             navigate('/');
-            // 跳回首页后滚动到镜像列表区，与 SearchBar 的跳转逻辑保持一致
-            setTimeout(() => {
+            // 跳回首页后滚动到镜像列表区，timer 在组件卸载后已无 setState，影响低但仍清理
+            const t = window.setTimeout(() => {
               document.getElementById('mirrors')?.scrollIntoView({ behavior: 'smooth' });
             }, 150);
+            // navigate 后组件即卸载，无需 ref 存储，浏览器会在页面卸载时自动清理
+            return () => clearTimeout(t);
           }}
           size="small"
           sx={{ mb: 3, color: 'text.secondary' }}

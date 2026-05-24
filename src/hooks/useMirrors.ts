@@ -111,13 +111,18 @@ export const usePopularMirrors = (mirrors: Mirror[], count = 8): Mirror[] => {
   const [popularIds, setPopularIds] = useState<string[]>([]);
 
   useEffect(() => {
-    fetch('/popular-mirrors.json')
+    const controller = new AbortController();
+    fetch('/popular-mirrors.json', { signal: controller.signal })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((ids: string[]) => {
         if (Array.isArray(ids) && ids.length > 0) setPopularIds(ids);
         else setPopularIds(FALLBACK_POPULAR);
       })
-      .catch(() => setPopularIds(FALLBACK_POPULAR));
+      .catch((err) => {
+        if (err instanceof Error && err.name === 'AbortError') return;
+        setPopularIds(FALLBACK_POPULAR);
+      });
+    return () => controller.abort();
   }, []);
 
   return useMemo(() => {

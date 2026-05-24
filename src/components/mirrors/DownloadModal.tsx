@@ -33,7 +33,7 @@ import { useLocaleStore } from '../../stores/mirrorStore';
 import DistroLogo from './DistroLogo';
 
 // 仅允许 http / https / 相对路径，防止 javascript: 等危险协议
-const SAFE_URL_RE = /^(https?:\/\/|\/)/i;
+const SAFE_URL_RE = /^(https?:\/\/[^/]|\/[^/]|\/\s*$)/i;
 function sanitizeUrl(url: string): string {
   if (!url) return '#';
   return SAFE_URL_RE.test(url) ? url : '#';

@@ -3,7 +3,7 @@
 
 import { ContentCopy as CopyIcon, CheckCircle as CheckIcon } from '@mui/icons-material';
 import { Box, IconButton, Tooltip, Typography } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import bash from 'react-syntax-highlighter/dist/esm/languages/hljs/bash';
@@ -34,14 +34,17 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ children, language = 'bash', inli
   const [copied, setCopied] = useState(false);
   const { mode } = useThemeStore();
   const { t } = useTranslation();
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (copyTimerRef.current) clearTimeout(copyTimerRef.current); }, []);
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(children);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // ignore
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+      copyTimerRef.current = setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      if (import.meta.env.DEV) console.warn('[copy]', err);
     }
   };
 

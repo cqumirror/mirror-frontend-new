@@ -142,6 +142,11 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
   };
 
   const absCurrentUrl = toAbsoluteUrl(currentUrl);
+  // 安全地提取 pathname，渲染路径中的 new URL() 若 URL 格式异常会抛出同步异常导致白屏
+  const currentPathname = (() => {
+    try { return new URL(absCurrentUrl).pathname; }
+    catch { return absCurrentUrl; }
+  })();
 
   if (loading) {
     return (
@@ -215,7 +220,7 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
         >
           <Typography
             variant="caption"
-            title={new URL(absCurrentUrl).pathname} // hover 显示完整路径
+            title={currentPathname} // hover 显示完整路径
             sx={{
               fontFamily: '"JetBrains Mono", monospace',
               color: 'text.secondary',
@@ -232,7 +237,7 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
               display: 'block',
             }}
           >
-            {new URL(absCurrentUrl).pathname}
+            {currentPathname}
           </Typography>
           {(dirs.length > 0 || files.length > 0) && (
             <Box sx={{ display: 'flex', gap: 0.5, flexShrink: 0, flexWrap: 'nowrap' }}>

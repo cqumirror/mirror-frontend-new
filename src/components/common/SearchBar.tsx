@@ -12,13 +12,14 @@ import { useMirrorSearchStore } from '../../stores/mirrorStore';
 interface SearchBarProps {
   fullWidth?: boolean;
   size?: 'small' | 'medium';
+  inputRef?: React.Ref<HTMLInputElement>;
 }
 
 /**
  * 实时搜索框 - 过滤镜像列表
  * 在非首页输入时自动跳转到首页并滚动到镜像列表
  */
-const SearchBar: React.FC<SearchBarProps> = ({ fullWidth = false, size = 'small' }) => {
+const SearchBar: React.FC<SearchBarProps> = ({ fullWidth = false, size = 'small', inputRef }) => {
   const { t } = useTranslation();
   const { searchQuery, setSearchQuery } = useMirrorSearchStore();
   const location = useLocation();
@@ -68,6 +69,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ fullWidth = false, size = 'small'
 
         htmlInput: {
           'aria-label': t('search.placeholder'),
+          ref: inputRef,
         },
       }}
       sx={{

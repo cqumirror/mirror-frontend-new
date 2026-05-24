@@ -43,7 +43,8 @@ const RefreshButton: React.FC<RefreshButtonProps> = ({
     try {
       await onClick();
       setState('success');
-    } catch {
+    } catch (err) {
+      if (import.meta.env.DEV) console.warn('[RefreshButton]', err);
       setState('error');
     } finally {
       timerRef.current = setTimeout(() => setState('idle'), FEEDBACK_DURATION);

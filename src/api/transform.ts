@@ -46,7 +46,9 @@ const STATUS_MAP: Record<string, MirrorStatus> = {
   none: 'unknown',
 };
 
-const SAFE_URL_RE = /^(https?:\/\/|\/)/i;
+// 仅允许 https?://（显式协议）或以单斜杠开头的相对路径
+// 明确排除 // 开头的协议相对 URL（如 //evil.com 可绕过校验跳转外站）
+const SAFE_URL_RE = /^(https?:\/\/[^/]|\/[^/]|\/\s*$)/i;
 function sanitizeFileUrl(url: unknown): string | null {
   if (typeof url !== 'string' || !SAFE_URL_RE.test(url)) return null;
   return url;
@@ -57,8 +59,10 @@ function sanitizeFiles(files: unknown): MirrorFile[] {
   return files
     .map((f): MirrorFile | null => {
       if (!f || typeof f !== 'object') return null;
-      const name = (f as { name?: unknown }).name;
-      const url = sanitizeFileUrl((f as { url?: unknown }).url);
+      // 用 'in' 检查属性存在再访问，避免 as 断言绕过运行时校验
+      const name = 'name' in f ? (f as Record<string, unknown>).name : undefined;
+      const rawUrl = 'url' in f ? (f as Record<string, unknown>).url : undefined;
+      const url = sanitizeFileUrl(rawUrl);
       if (typeof name !== 'string' || !url) return null;
       return { name, url };
     })

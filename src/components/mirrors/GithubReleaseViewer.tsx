@@ -374,14 +374,17 @@ interface FileRowProps {
 const FileRow: React.FC<FileRowProps> = ({ file }) => {
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (copyTimerRef.current) clearTimeout(copyTimerRef.current); }, []);
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(file.href);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      /* ignore */
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+      copyTimerRef.current = setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      if (import.meta.env.DEV) console.warn('[copy]', err);
     }
   };
 
@@ -509,13 +512,14 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath }) =
 
   // ── 加载项目列表 ────────────────────────────────────────────────────────
 
-  const loadProjects = useCallback(async () => {
+  const loadProjects = useCallback(async (signal?: AbortSignal) => {
     setProjectsLoading(true);
     setProjectsError(null);
     try {
       // Step1: 获取 org 列表
       const norm = rootPath.endsWith('/') ? rootPath : rootPath + '/';
       const orgs = await fetchDir(norm);
+      if (signal?.aborted) return;
       const orgDirs = orgs.filter((e) => e.isDir);
 
       // Step2: 并行拉取每个 org 下的 repo
@@ -531,6 +535,7 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath }) =
             }));
         })
       );
+      if (signal?.aborted) return;
 
       const allProjects: Project[] = results.flatMap((r) => (r.status === 'fulfilled' ? r.value : []));
       setProjects(allProjects);
@@ -550,6 +555,7 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath }) =
           return { key: `${proj.org}/${proj.repo}`, version: latest?.name.replace(/\/$/, '') ?? '' };
         })
       );
+      if (signal?.aborted) return;
 
       const map: Record<string, string> = {};
       versionResults.forEach((r) => {
@@ -560,14 +566,17 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath }) =
       });
       setVersionMap(map);
     } catch (err: unknown) {
+      if (signal?.aborted) return;
       setProjectsError(err instanceof Error ? err.message : String(err));
     } finally {
-      setProjectsLoading(false);
+      if (!signal?.aborted) setProjectsLoading(false);
     }
   }, [rootPath]);
 
   useEffect(() => {
-    loadProjects();
+    const controller = new AbortController();
+    loadProjects(controller.signal);
+    return () => controller.abort();
   }, [loadProjects]);
 
   // ── 加载选中项目的 releases ────────────────────────────────────────────
@@ -599,7 +608,8 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath }) =
         });
       setReleases(releaseList);
       setSelectedReleaseIdx(0);
-    } catch {
+    } catch (err) {
+      if (import.meta.env.DEV) console.warn('[GithubReleaseViewer] loadReleases:', err);
       setReleases([]);
     } finally {
       setReleasesLoading(false);
@@ -624,7 +634,8 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath }) =
           arch: detectArch(e.name),
         }));
       setFiles(fileEntries);
-    } catch {
+    } catch (err) {
+      if (import.meta.env.DEV) console.warn('[GithubReleaseViewer] loadFiles:', err);
       setFiles([]);
     } finally {
       setFilesLoading(false);
@@ -669,7 +680,7 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath }) =
         <Alert
           severity="error"
           action={
-            <Button size="small" onClick={loadProjects} startIcon={<RefreshIcon />}>
+            <Button size="small" onClick={() => loadProjects()} startIcon={<RefreshIcon />}>
               {t('common.retry')}
             </Button>
           }
@@ -696,7 +707,7 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath }) =
               : t('githubRelease.projectCount', { count: projects.length })}
           </Typography>
           <Tooltip title={t('common.refresh')}>
-            <IconButton size="small" onClick={loadProjects} disabled={projectsLoading}>
+            <IconButton size="small" onClick={() => loadProjects()} disabled={projectsLoading}>
               <RefreshIcon sx={{ fontSize: 16 }} />
             </IconButton>
           </Tooltip>

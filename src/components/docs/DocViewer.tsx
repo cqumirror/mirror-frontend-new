@@ -166,8 +166,11 @@ const DocViewer: React.FC<DocViewerProps> = ({ mirrorId, content, loading }) => 
       setMdxLoading(true);
       loadHelpDoc(mirrorId, locale)
         .then((component) => {
-          // 必须用箭头函数包裹，否则 React 会把 component 当成 state updater 函数调用
           setMdxComponent(() => component);
+        })
+        .catch((err) => {
+          if (import.meta.env.DEV) console.warn('[DocViewer] MDX load failed:', err);
+          setMdxComponent(null);
         })
         .finally(() => {
           setMdxLoading(false);
@@ -207,6 +210,7 @@ const DocViewer: React.FC<DocViewerProps> = ({ mirrorId, content, loading }) => 
 
   // 回退到传统的 Markdown 渲染
   if (loading) {
+    const SKELETON_WIDTHS = ['92%', '85%', '96%', '88%', '78%'];
     return (
       <Box sx={{ py: 2 }}>
         {[...Array(5)].map((_, i) => (
@@ -217,7 +221,7 @@ const DocViewer: React.FC<DocViewerProps> = ({ mirrorId, content, loading }) => 
               bgcolor: 'action.hover',
               borderRadius: 1,
               mb: 1.5,
-              width: `${85 + Math.random() * 15}%`,
+              width: SKELETON_WIDTHS[i],
               animation: 'pulse 1.5s ease-in-out infinite',
               '@keyframes pulse': {
                 '0%, 100%': { opacity: 1 },

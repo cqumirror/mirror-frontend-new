@@ -50,7 +50,8 @@ const Header: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [downloadOpen, setDownloadOpen] = useState(false);
-  const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);      // mobile 弹层搜索框
+  const desktopSearchRef = useRef<HTMLInputElement>(null);    // 桌面端 header 搜索框
 
   const { searchQuery, setSearchQuery } = useMirrorSearchStore();
 
@@ -70,9 +71,8 @@ const Header: React.FC = () => {
         setSearchOpen(true);
         setTimeout(() => searchInputRef.current?.focus(), 50);
       } else {
-        // 桌面端：直接聚焦 SearchBar 内的 input
-        const input = document.querySelector<HTMLInputElement>('input[aria-label]');
-        input?.focus();
+        // 桌面端：通过 ref 精确聚焦，避免 document.querySelector 误匹配其他 input
+        desktopSearchRef.current?.focus();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -150,7 +150,7 @@ const Header: React.FC = () => {
           {/* 桌面端搜索框 */}
           {!isMobile && (
             <Box sx={{ flex: 1, maxWidth: 400, mx: 2 }}>
-              <SearchBar fullWidth />
+              <SearchBar fullWidth inputRef={desktopSearchRef} />
             </Box>
           )}
 

@@ -130,9 +130,14 @@ export const useFavoriteStore = create<FavoriteState>()(
       // 旧版本（v1，纯 JSON 数组写在 'mirror_favorites' key 下）的迁移
       migrate: (persisted, version) => {
         if (version < 2 && Array.isArray(persisted)) {
-          return { favorites: (persisted as string[]).filter((v) => typeof v === 'string') };
+          return { favorites: (persisted as unknown[]).filter((v): v is string => typeof v === 'string') };
         }
-        return persisted as { favorites: string[] };
+        // 运行时校验：persisted 可能来自格式异常的持久化数据
+        const p = persisted as Record<string, unknown>;
+        if (p && Array.isArray(p.favorites)) {
+          return { favorites: (p.favorites as unknown[]).filter((v): v is string => typeof v === 'string') };
+        }
+        return { favorites: [] };
       },
     }
   )
