@@ -27,7 +27,8 @@
     "refreshed": "已完成",
     "refreshFailed": "出错了",
     "retry": "重试",
-    "clear": "清除"
+    "clear": "清除",
+    "close": "关闭"
   },
   "search": {
     "placeholder": "搜索镜像...",
@@ -184,7 +185,9 @@
     "diskSpace": "磁盘剩余",
     "nginxRequests": "Nginx 请求数",
     "activeConnections": "活跃连接数",
-    "systemLoad": "系统负载（1m / 5m / 15m）"
+    "systemLoad": "系统负载（1m / 5m / 15m）",
+    "syncingMirrors": "正在同步的镜像",
+    "viewLog": "查看日志"
   },
   "favorites": {
     "title": "我的收藏",
@@ -248,5 +251,23 @@
     "latestRelease": "最新 Release",
     "fileCount": "{{count}} 个文件",
     "searchFiles": "搜索文件…"
+  },
+  "logStream": {
+    "title": "实时同步日志",
+    "connecting": "连接中",
+    "connected": "已连接",
+    "error": "连接异常",
+    "closed": "已断开",
+    "connectionError": "无法连接到日志流，可能是镜像名不存在或同步任务未启动",
+    "lag": "订阅速度过慢：{{msg}}",
+    "noData": "暂无日志",
+    "waitingForOutput": "等待镜像输出…",
+    "waitingHint": "同步任务尚未开始或刚结束，下一次启动时日志会自动出现",
+    "lineCount": "共 {{count}} 行",
+    "truncated": "已截断（仅保留最新 2000 行）",
+    "jumpToBottom": "跳到底部",
+    "following": "正在跟随",
+    "copyAll": "复制全部日志",
+    "viewLog": "查看日志"
   }
 }

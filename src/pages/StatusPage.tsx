@@ -14,6 +14,7 @@ import {
   BarChart as GrafanaIcon,
   OpenInNew as OpenInNewIcon,
   ExpandMore as ExpandMoreIcon,
+  Terminal as TerminalIcon,
 } from '@mui/icons-material';
 import {
   Box,
@@ -40,12 +41,14 @@ import {
   AccordionDetails,
   Popover,
   CircularProgress,
+  IconButton,
 } from '@mui/material';
 import React, { useMemo, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 
 import RefreshButton from '../components/common/RefreshButton';
+import LogStreamDialog from '../components/mirrors/LogStreamDialog';
 import { useMirrors } from '../hooks/useMirrors';
 import { useLocaleStore, useThemeStore } from '../stores/mirrorStore';
 import { canonicalUrl } from '../utils/seo';
@@ -195,6 +198,9 @@ const StatusPage: React.FC = () => {
     mirrorId: string;
   } | null>(null);
 
+  // ── 实时日志窗口 ──────────────────────────────────────────────────────────
+  const [logDialogMirror, setLogDialogMirror] = useState<string | null>(null);
+
   const handleShowError = useCallback(
     async (e: React.MouseEvent<HTMLElement>, mirrorId: string) => {
       e.preventDefault();
@@ -280,6 +286,9 @@ const StatusPage: React.FC = () => {
         return ta - tb;
       });
 
+    // 正在同步的列表
+    const syncingList = mirrors.filter((m) => m.status === 'syncing');
+
     return {
       total,
       activeTotal,
@@ -297,6 +306,7 @@ const StatusPage: React.FC = () => {
       recentlySynced,
       upcoming,
       failedList,
+      syncingList,
     };
   }, [mirrors]);
 
@@ -551,6 +561,122 @@ const StatusPage: React.FC = () => {
             </Paper>
           )}
 
+          {/* 正在同步的镜像 */}
+          {!isLoading && stats.syncingList.length > 0 && (
+            <Box sx={{ mb: 4 }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 700,
+                  mb: 2,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                }}
+              >
+                <SyncIcon
+                  sx={{
+                    fontSize: 22,
+                    color: 'info.main',
+                    animation: 'spin-slow 2.4s linear infinite',
+                    '@keyframes spin-slow': { to: { transform: 'rotate(360deg)' } },
+                  }}
+                />
+                {t('status.syncingMirrors')}
+                <Chip
+                  label={stats.syncingList.length}
+                  size="small"
+                  color="info"
+                  sx={{ fontWeight: 700, height: 20 }}
+                />
+              </Typography>
+              <Grid container spacing={1.5}>
+                {stats.syncingList.map((m) => (
+                  <Grid key={m.id} size={{ xs: 12, sm: 6, md: 4 }}>
+                    <Paper
+                      variant="outlined"
+                      sx={{
+                        p: 1.5,
+                        borderRadius: 2,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1.25,
+                        position: 'relative',
+                        overflow: 'hidden',
+                        // 顶部蓝色脉冲条
+                        '&::before': {
+                          content: '""',
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          height: 2,
+                          background:
+                            'linear-gradient(90deg, transparent, rgba(59,130,246,0.8), transparent)',
+                          backgroundSize: '200% 100%',
+                          animation: 'sync-pulse 1.8s linear infinite',
+                          '@keyframes sync-pulse': {
+                            '0%': { backgroundPosition: '200% 0' },
+                            '100%': { backgroundPosition: '-200% 0' },
+                          },
+                        },
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: '50%',
+                          bgcolor: 'info.main',
+                          flexShrink: 0,
+                          animation: 'pulse-dot 1.6s ease-in-out infinite',
+                          '@keyframes pulse-dot': {
+                            '0%, 100%': { opacity: 1, transform: 'scale(1)' },
+                            '50%': { opacity: 0.4, transform: 'scale(0.85)' },
+                          },
+                        }}
+                      />
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: 600,
+                            fontSize: '0.85rem',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {m.name[locale]}
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            color: 'text.disabled',
+                            fontFamily: '"JetBrains Mono", monospace',
+                            fontSize: '0.7rem',
+                          }}
+                        >
+                          {m.id}
+                        </Typography>
+                      </Box>
+                      <Tooltip title={t('status.viewLog')}>
+                        <IconButton
+                          size="small"
+                          onClick={() => setLogDialogMirror(m.id)}
+                          color="primary"
+                          sx={{ flexShrink: 0 }}
+                        >
+                          <TerminalIcon sx={{ fontSize: 18 }} />
+                        </IconButton>
+                      </Tooltip>
+                    </Paper>
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
+          )}
+
           {/* 失败镜像列表 */}
           {!isLoading && stats.failedList.length > 0 && (
             <Box sx={{ mb: 4 }}>
@@ -648,16 +774,29 @@ const StatusPage: React.FC = () => {
                           </Tooltip>
                         </TableCell>
                         <TableCell align="right">
-                          <Link
-                            component="button"
-                            variant="caption"
-                            underline="hover"
-                            color="primary"
-                            sx={{ fontWeight: 600, cursor: 'pointer' }}
-                            onClick={(e: React.MouseEvent<HTMLElement>) => handleShowError(e, m.id)}
-                          >
-                            {t('common.details')}
-                          </Link>
+                          <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+                            <Tooltip title={t('status.viewLog')}>
+                              <IconButton
+                                size="small"
+                                onClick={() => setLogDialogMirror(m.id)}
+                                sx={{ p: 0.5 }}
+                              >
+                                <TerminalIcon sx={{ fontSize: 16 }} />
+                              </IconButton>
+                            </Tooltip>
+                            <Link
+                              component="button"
+                              variant="caption"
+                              underline="hover"
+                              color="primary"
+                              sx={{ fontWeight: 600, cursor: 'pointer', ml: 0.5 }}
+                              onClick={(e: React.MouseEvent<HTMLElement>) =>
+                                handleShowError(e, m.id)
+                              }
+                            >
+                              {t('common.details')}
+                            </Link>
+                          </Box>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -1081,6 +1220,13 @@ const StatusPage: React.FC = () => {
         </Box>
         {/* end opacity wrapper */}
       </Container>
+
+      {/* 实时日志窗口（Dialog 通过 portal 渲染，独立于内容滚动） */}
+      <LogStreamDialog
+        open={!!logDialogMirror}
+        mirrorId={logDialogMirror}
+        onClose={() => setLogDialogMirror(null)}
+      />
     </>
   );
 };

@@ -27,7 +27,8 @@
     "refreshed": "Done",
     "refreshFailed": "Error",
     "retry": "Retry",
-    "clear": "Clear"
+    "clear": "Clear",
+    "close": "Close"
   },
   "search": {
     "placeholder": "Search mirrors...",
@@ -184,7 +185,9 @@
     "diskSpace": "Disk Space",
     "nginxRequests": "Nginx Requests",
     "activeConnections": "Active Connections",
-    "systemLoad": "System Load (1m / 5m / 15m)"
+    "systemLoad": "System Load (1m / 5m / 15m)",
+    "syncingMirrors": "Syncing Mirrors",
+    "viewLog": "View Log"
   },
   "favorites": {
     "title": "Favorites",
@@ -248,5 +251,23 @@
     "latestRelease": "Latest Release",
     "fileCount": "{{count}} files",
     "searchFiles": "Search files…"
+  },
+  "logStream": {
+    "title": "Live Sync Log",
+    "connecting": "Connecting",
+    "connected": "Connected",
+    "error": "Connection Error",
+    "closed": "Disconnected",
+    "connectionError": "Failed to connect to log stream — mirror may not exist or sync not started",
+    "lag": "Subscriber too slow: {{msg}}",
+    "noData": "No log data",
+    "waitingForOutput": "Waiting for output…",
+    "waitingHint": "Sync task not started or just finished; log will stream on next sync",
+    "lineCount": "{{count}} lines",
+    "truncated": "Truncated (keeping last 2000 lines only)",
+    "jumpToBottom": "Jump to bottom",
+    "following": "Following",
+    "copyAll": "Copy all logs",
+    "viewLog": "View log"
   }
 }
