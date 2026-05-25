@@ -49,6 +49,7 @@ import { useNavigate, Link as RouterLink } from 'react-router-dom';
 
 import RefreshButton from '../components/common/RefreshButton';
 import LogStreamDialog from '../components/mirrors/LogStreamDialog';
+import { useCapabilities } from '../hooks/useCapabilities';
 import { useMirrors } from '../hooks/useMirrors';
 import { useLocaleStore, useThemeStore } from '../stores/mirrorStore';
 import { canonicalUrl } from '../utils/seo';
@@ -189,6 +190,10 @@ const StatusPage: React.FC = () => {
   const grafanaAvailable = useGrafanaAvailable();
   const navigate = useNavigate();
   const { data: mirrors = [], isLoading, isFetching, error, refetch, dataUpdatedAt } = useMirrors();
+
+  // ── 后端能力探测 ──────────────────────────────────────────────────────────
+  // 旧版 tunasync 不支持单镜像详情 / SSE 流，探测后隐藏对应入口
+  const capabilities = useCapabilities(mirrors[0]?.id);
 
   // ── 失败详情气泡 ──────────────────────────────────────────────────────────
   const [errorPopover, setErrorPopover] = useState<{
@@ -660,16 +665,18 @@ const StatusPage: React.FC = () => {
                           {m.id}
                         </Typography>
                       </Box>
-                      <Tooltip title={t('status.viewLog')}>
-                        <IconButton
-                          size="small"
-                          onClick={() => setLogDialogMirror(m.id)}
-                          color="primary"
-                          sx={{ flexShrink: 0 }}
-                        >
-                          <TerminalIcon sx={{ fontSize: 18 }} />
-                        </IconButton>
-                      </Tooltip>
+                      {capabilities.logStream && (
+                        <Tooltip title={t('status.viewLog')}>
+                          <IconButton
+                            size="small"
+                            onClick={() => setLogDialogMirror(m.id)}
+                            color="primary"
+                            sx={{ flexShrink: 0 }}
+                          >
+                            <TerminalIcon sx={{ fontSize: 18 }} />
+                          </IconButton>
+                        </Tooltip>
+                      )}
                     </Paper>
                   </Grid>
                 ))}
@@ -774,29 +781,40 @@ const StatusPage: React.FC = () => {
                           </Tooltip>
                         </TableCell>
                         <TableCell align="right">
-                          <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
-                            <Tooltip title={t('status.viewLog')}>
-                              <IconButton
-                                size="small"
-                                onClick={() => setLogDialogMirror(m.id)}
-                                sx={{ p: 0.5 }}
-                              >
-                                <TerminalIcon sx={{ fontSize: 16 }} />
-                              </IconButton>
-                            </Tooltip>
-                            <Link
-                              component="button"
-                              variant="caption"
-                              underline="hover"
-                              color="primary"
-                              sx={{ fontWeight: 600, cursor: 'pointer', ml: 0.5 }}
-                              onClick={(e: React.MouseEvent<HTMLElement>) =>
-                                handleShowError(e, m.id)
-                              }
-                            >
-                              {t('common.details')}
-                            </Link>
-                          </Box>
+                          {capabilities.logStream || capabilities.jobDetail ? (
+                            <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+                              {capabilities.logStream && (
+                                <Tooltip title={t('status.viewLog')}>
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => setLogDialogMirror(m.id)}
+                                    sx={{ p: 0.5 }}
+                                  >
+                                    <TerminalIcon sx={{ fontSize: 16 }} />
+                                  </IconButton>
+                                </Tooltip>
+                              )}
+                              {capabilities.jobDetail && (
+                                <Link
+                                  component="button"
+                                  variant="caption"
+                                  underline="hover"
+                                  color="primary"
+                                  sx={{ fontWeight: 600, cursor: 'pointer', ml: 0.5 }}
+                                  onClick={(e: React.MouseEvent<HTMLElement>) =>
+                                    handleShowError(e, m.id)
+                                  }
+                                >
+                                  {t('common.details')}
+                                </Link>
+                              )}
+                            </Box>
+                          ) : (
+                            // 旧版后端：两个功能都不可用，显示一个占位破折号
+                            <Typography variant="caption" sx={{ color: 'text.disabled' }}>
+                              —
+                            </Typography>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))}
