@@ -72,9 +72,9 @@ const OLD_STATUS_MAP: Record<string, MirrorStatus> = {
 export function parseOldTimestamp(timeStr: string): string {
   if (!timeStr || typeof timeStr !== 'string') return '';
 
-  // 匹配 "YYYY-MM-DD HH:MM:SS" 格式
+  // 匹配 "YYYY-MM-DD HH:MM:SS" 格式，可选时区后缀 "+0800" / "+08:00"
   const match = timeStr.match(
-    /^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})$/
+    /^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})\s*([+-]\d{2}:?\d{2})?$/
   );
   if (!match) {
     // 回退：尝试直接解析（可能是 ISO 格式或其他）
@@ -83,18 +83,26 @@ export function parseOldTimestamp(timeStr: string): string {
     return '';
   }
 
-  const [, year, month, day, hour, min, sec] = match;
-  // 构造 UTC 时间：输入是 UTC+8，减去 8 小时得到 UTC
-  const utcDate = new Date(
-    Date.UTC(
-      Number(year),
-      Number(month) - 1,
-      Number(day),
-      Number(hour) - 8,
-      Number(min),
-      Number(sec)
-    )
-  );
+  const [, year, month, day, hour, min, sec, tz] = match;
+
+  let utcDate: Date;
+  if (tz) {
+    // 有时区信息，直接用 Date 解析（ISO 格式兼容）
+    const iso = `${year}-${month}-${day}T${hour}:${min}:${sec}${tz}`;
+    utcDate = new Date(iso);
+  } else {
+    // 无时区：假定 UTC+8，减去 8 小时得到 UTC
+    utcDate = new Date(
+      Date.UTC(
+        Number(year),
+        Number(month) - 1,
+        Number(day),
+        Number(hour) - 8,
+        Number(min),
+        Number(sec)
+      )
+    );
+  }
 
   if (isNaN(utcDate.getTime())) return '';
   return Math.floor(utcDate.getTime() / 1000).toString();

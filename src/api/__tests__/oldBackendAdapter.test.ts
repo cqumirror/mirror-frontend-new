@@ -31,6 +31,15 @@ describe('parseOldTimestamp', () => {
     expect(result).toBe('1704110400');
   });
 
+  it('handles "YYYY-MM-DD HH:MM:SS +0800" format', () => {
+    // 2024-01-01 12:00:00 +0800 = 2024-01-01 04:00:00 UTC = 1704081600
+    expect(parseOldTimestamp('2024-01-01 12:00:00 +0800')).toBe('1704081600');
+  });
+
+  it('handles "YYYY-MM-DD HH:MM:SS +08:00" format', () => {
+    expect(parseOldTimestamp('2024-01-01 12:00:00 +08:00')).toBe('1704081600');
+  });
+
   it('returns empty string for invalid date', () => {
     expect(parseOldTimestamp('not-a-date')).toBe('');
   });
