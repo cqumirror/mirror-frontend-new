@@ -1,4 +1,4 @@
-# JCUT Mirror — 高校开源镜像站前端
+# CQU Mirror — 高校开源镜像站前端
 
 [English](README_en.md)
 

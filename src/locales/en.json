@@ -67,9 +67,9 @@
   },
   "home": {
     "hero": {
-      "title": "JCUT Mirror",
-      "subtitle": "University Open Source Mirror",
-      "description": "Fast and reliable open source software mirror service, covering major Linux distributions and development tools"
+      "title": "CQU Mirror",
+      "subtitle": "Chongqing University Open Source Mirror",
+      "description": "High-quality open source software mirror and Linux repository service for campus and external users"
     },
     "popularMirrors": "Popular Mirrors",
     "allMirrors": "All Mirrors",
@@ -199,11 +199,11 @@
     "noVersions": "No versions available"
   },
   "footer": {
-    "description": "An open source software mirror maintained by the JCIOT team, providing fast software downloads for campus users.",
+    "description": "An open-source software mirror operated by Lanunion of Chongqing University, providing fast software download services for users on and off campus.\nIn accordance with applicable laws and regulations, this site does not serve users in the European Union.\nThis site does not serve users who abuse mirror resources, and will employ multiple technical measures to counter abuse and malicious attacks.",
     "links": "Links",
     "contact": "Contact",
     "github": "GitHub",
-    "copyright": "© {{year}} JCUT Mirror. All rights reserved.",
+    "copyright": "© {{year}} CQU Mirror. All rights reserved.",
     "poweredBy": "Powered by tunasync",
     "status": "System Status"
   },

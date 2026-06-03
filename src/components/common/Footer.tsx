@@ -24,10 +24,10 @@ const Footer: React.FC = () => {
   const year = new Date().getFullYear();
 
   const friendLinks = [
-    { name: '荆楚理工学院信息化办公室', url: 'https://net.jcut.edu.cn/' },
+    { name: '重庆大学信息化办公室', url: 'https://net.cqu.edu.cn/' },
+    { name: '重大蓝盟', url: 'http://lanunion.cqu.edu.cn/' },
     { name: 'TUNA Mirror', url: 'https://mirrors.tuna.tsinghua.edu.cn' },
     { name: 'USTC Mirror', url: 'https://mirrors.ustc.edu.cn' },
-    { name: '教育网联合镜像站', url: 'https://mirrors.cernet.edu.cn/' },
   ];
 
   return (
@@ -49,7 +49,7 @@ const Footer: React.FC = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
               <img
                 src="/favicon.svg"
-                alt="JCUT Mirror Logo"
+                alt="CQU Mirror Logo"
                 style={{
                   width: 22,
                   height: 22,
@@ -63,7 +63,7 @@ const Footer: React.FC = () => {
                   fontSize: '1rem',
                 }}
               >
-                JCUT
+                CQU
                 <Typography
                   component="span"
                   sx={{
@@ -82,6 +82,7 @@ const Footer: React.FC = () => {
                 color: 'text.secondary',
                 lineHeight: 1.7,
                 mb: 2,
+                whiteSpace: 'pre-line',
               }}
             >
               {t('footer.description')}
@@ -92,7 +93,7 @@ const Footer: React.FC = () => {
                 <IconButton
                   size="small"
                   component="a"
-                  href="https://github.com/JCIOTeam"
+                  href="https://github.com/cqumirror"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="GitHub"
@@ -104,7 +105,7 @@ const Footer: React.FC = () => {
                 <IconButton
                   size="small"
                   component="a"
-                  href="mailto:stucloud@jcut.edu.cn"
+                  href="mailto:cqumirror@gmail.com"
                   aria-label="联系邮箱"
                 >
                   <EmailIcon fontSize="small" />
@@ -166,14 +167,14 @@ const Footer: React.FC = () => {
               sx={{ display: 'flex', flexDirection: 'column', gap: 0.8 }}
             >
               <Link
-                href="mailto:stucloud@jcut.edu.cn"
+                href="mailto:cqumirror@gmail.com"
                 variant="body2"
                 underline="hover"
                 sx={{
                   color: 'text.secondary',
                 }}
               >
-                stucloud@jcut.edu.cn
+                cqumirror@gmail.com
               </Link>
               <Link
                 component={RouterLink}
@@ -187,7 +188,7 @@ const Footer: React.FC = () => {
                 {t('footer.status')}
               </Link>
               <Link
-                href="https://github.com/JCIOTeam/jcutmirror-new"
+                href="https://github.com/cqumirror/feedback"
                 target="_blank"
                 rel="noopener noreferrer"
                 variant="body2"

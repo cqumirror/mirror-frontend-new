@@ -1,10 +1,10 @@
 [
   "ubuntu",
   "debian",
-  "centos",
   "archlinux",
-  "rocky",
-  "alpine",
-  "openeuler",
-  "epel"
+  "centos",
+  "rockylinux",
+  "opensuse",
+  "fedora",
+  "kali"
 ]

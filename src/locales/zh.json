@@ -67,9 +67,9 @@
   },
   "home": {
     "hero": {
-      "title": "荆楚理工学院开源镜像站",
-      "subtitle": "JCUT Mirror",
-      "description": "提供快速、稳定的开源软件镜像服务，覆盖主流 Linux 发行版及常用开发工具"
+      "title": "重庆大学开源镜像站",
+      "subtitle": "CQU Mirror",
+      "description": "致力于为国内和校内用户提供高质量的开源软件镜像、Linux 镜像源服务"
     },
     "popularMirrors": "常用镜像",
     "allMirrors": "所有镜像",
@@ -199,11 +199,11 @@
     "noVersions": "暂无可用版本"
   },
   "footer": {
-    "description": "由 JCIOT 团队维护的开源软件镜像站，为校园网用户提供快速的软件下载服务。",
+    "description": "本站在重庆大学信息化办公室的支持下创办，由重庆大学蓝盟运营维护，为校内外用户提供快速的软件下载服务。\n根据相关法律法规，本站不对欧盟用户提供服务。\n本站不对特定滥用镜像站资源的用户提供服务，将采用多种技术措施反制滥用与恶意攻击行为。",
     "links": "友情链接",
     "contact": "联系我们",
     "github": "GitHub",
-    "copyright": "© {{year}} JCUT Mirror. All rights reserved.",
+    "copyright": "© {{year}} CQU Mirror. All rights reserved.",
     "poweredBy": "Powered by tunasync",
     "status": "系统状态"
   },

@@ -1,6 +1,6 @@
 // src/hooks/useLocale.ts
 // 语言切换 Hook —— i18next 是真理来源（detector 自动持久化到 localStorage['locale']）；
-// zustand store 仅作为 React 渲染层的派生状态（key='jcut.locale'，避免与 i18next 冲突）。
+// zustand store 仅作为 React 渲染层的派生状态（避免与 i18next 冲突）。
 
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';

@@ -3,32 +3,32 @@
 // 集中管理站点 SEO 元信息，确保所有页面一致
 
 /** 站点正式域名 */
-export const SITE_ORIGIN = 'https://mirrors.jcut.edu.cn';
+export const SITE_ORIGIN = 'https://mirrors.cqu.edu.cn';
 
 /** 站点名称 */
-export const SITE_NAME = 'JCUT Mirror';
+export const SITE_NAME = 'CQU Mirror';
 
 /** 站点全称（中文） */
-export const SITE_TITLE_ZH = '荆楚理工学院开源软件镜像站';
+export const SITE_TITLE_ZH = '重庆大学开源软件镜像站';
 
 /** 站点全称（英文） */
-export const SITE_TITLE_EN = 'JCUT Open Source Mirror';
+export const SITE_TITLE_EN = 'CQU Open Source Mirror';
 
 /** 站点关键词（中文） */
 export const KEYWORDS_ZH =
-  '荆楚理工学院镜像站,JCUT Mirror,开源软件镜像站,Linux镜像,高校镜像站,Ubuntu镜像,Debian镜像,Arch Linux镜像,CentOS镜像,软件源,镜像源,荆门';
+  '重庆大学镜像站,CQU Mirror,开源软件镜像站,Linux镜像,高校镜像站,Ubuntu镜像,Debian镜像,Arch Linux镜像,CentOS镜像,软件源,镜像源,重庆大学蓝盟';
 
 /** 站点关键词（英文） */
 export const KEYWORDS_EN =
-  'JCUT Mirror,open source mirror,Linux mirror,university mirror,Ubuntu mirror,Debian mirror,Arch Linux mirror,software repository,China mirror';
+  'CQU Mirror,open source mirror,Linux mirror,university mirror,Ubuntu mirror,Debian mirror,Arch Linux mirror,software repository,China mirror,Chongqing University';
 
 /** 站点描述（中文） */
 export const DESC_ZH =
-  '荆楚理工学院开源软件镜像站（JCUT Mirror）提供 Ubuntu、Debian、Arch Linux、CentOS 等主流 Linux 发行版及开源软件的高速镜像服务，面向校内外用户免费开放。';
+  '重庆大学开源软件镜像站致力于为国内和校内用户提供高质量的开源软件镜像、Linux 镜像源服务，帮助用户更方便地获取开源软件。本镜像站由重庆大学蓝盟负责维护。';
 
 /** 站点描述（英文） */
 export const DESC_EN =
-  'JCUT Mirror provides high-speed mirrors for Ubuntu, Debian, Arch Linux, CentOS and other major Linux distributions and open source software, freely available to all users.';
+  'CQU Mirror provides high-speed mirrors for Ubuntu, Debian, Arch Linux, CentOS and other major Linux distributions and open source software, maintained by Lanunion of Chongqing University.';
 
 /**
  * 生成 canonical URL
@@ -47,14 +47,14 @@ export function websiteJsonLd(): string {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: SITE_TITLE_ZH,
-    alternateName: [SITE_NAME, SITE_TITLE_EN, '荆楚理工学院镜像站'],
+    alternateName: [SITE_NAME, SITE_TITLE_EN, '重庆大学镜像站'],
     url: SITE_ORIGIN,
     description: DESC_ZH,
     publisher: {
       '@type': 'Organization',
-      name: '荆楚理工学院',
-      alternateName: 'Jingchu University of Technology',
-      url: 'https://www.jcut.edu.cn',
+      name: '重庆大学',
+      alternateName: 'Chongqing University',
+      url: 'https://www.cqu.edu.cn',
     },
     potentialAction: {
       '@type': 'SearchAction',
@@ -85,7 +85,7 @@ export function mirrorJsonLd(name: string, desc: string, url: string): string {
     },
     provider: {
       '@type': 'Organization',
-      name: '荆楚理工学院',
+      name: '重庆大学',
     },
   });
 }

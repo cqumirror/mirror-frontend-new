@@ -52,9 +52,9 @@ COPY docker/default.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 EXPOSE 443
 
-# 健康检查 —— 修正：原 /api/mirrors 不存在；用 /jobs（实际后端接口）
+# 健康检查 —— 使用旧后端 /static/tunasync.json 接口
 # 失败立刻 exit 1 让 Docker/K8s 知道服务不健康
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD wget -q --spider --tries=1 http://127.0.0.1/jobs || exit 1
+  CMD wget -q --spider --tries=1 http://127.0.0.1/static/tunasync.json || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]

@@ -1,100 +1,79 @@
-## EPEL 源使用帮助
+## EPEL 镜像使用帮助
 
-### 地址
+## 地址
 
-[https://mirrors.jcut.edu.cn/epel/](https://mirrors.jcut.edu.cn/epel/)
+https://mirrors.cqu.edu.cn/epel
 
-### 说明
+## 描述
 
-EPEL (Extra Packages for Enterprise Linux) 是由 Fedora Special Interest Group 为企业 Linux 创建、维护和管理的一个高质量附加包集合，适用于但不仅限于 Red Hat Enterprise Linux (RHEL), CentOS, Scientific Linux (SL), Oracle Linux (OL)。
+EPEL 是由 Fedora 维护的红帽系发行版（如 Rocky Linux, CentOS, Fedora, RHEL 等）中经常的包的集合。
 
-### 收录架构
+## 收录架构
 
-官方支持的所有架构
+- x86_64
+- aarch64
 
-### 收录版本
+## 收录版本
 
-官方支持的所有版本
+`release` 和 `testing`
 
----
+## 使用说明
 
-### 使用说明
+当存在配置过的 epel 时首先做好备份操作：
 
-执行以下命令：
-
-```shell
-sudo yum install -y epel-release
-sudo sed -e 's|^metalink=|#metalink=|g' \
-         -e 's|^#baseurl=https\?://download.fedoraproject.org/pub/epel/|baseurl=https://mirrors.jcut.edu.cn/epel/|g' \
-         -e 's|^#baseurl=https\?://download.example/pub/epel/|baseurl=https://mirrors.jcut.edu.cn/epel/|g' \
-         -i.bak \
-         /etc/yum.repos.d/epel.repo
+```bash
+# fedora
+mkdir epel-backup
+mv /etc/yum.repos.d/epel*.repo /etc/yum.repos.d/epel-backup/.
 ```
 
-以下是替换之后的 /etc/yum.repos.d/epel.repo 文件：
+### 在线状态
 
-CentOS 8：
+处于在线状态时：
 
-```text
-[epel]
-name=Extra Packages for Enterprise Linux $releasever - $basearch
-# It is much more secure to use the metalink, but if you wish to use a local mirror
-# place it's address here.
-baseurl=https://mirrors.jcut.edu.cn/epel/$releasever/Everything/$basearch
-#metalink=https://mirrors.fedoraproject.org/metalink?repo=epel-$releasever&arch=$basearch&infra=$infra&content=$contentdir
-enabled=1
-gpgcheck=1
-countme=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-8
 
-[epel-debuginfo]
-name=Extra Packages for Enterprise Linux $releasever - $basearch - Debug
-# It is much more secure to use the metalink, but if you wish to use a local mirror
-# place it's address here.
-baseurl=https://mirrors.jcut.edu.cn/epel/$releasever/Everything/$basearch/debug
-#metalink=https://mirrors.fedoraproject.org/metalink?repo=epel-debug-$releasever&arch=$basearch&infra=$infra&content=$contentdir
-enabled=0
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-8
-gpgcheck=1
-
-[epel-source]
-name=Extra Packages for Enterprise Linux $releasever - $basearch - Source
-# It is much more secure to use the metalink, but if you wish to use a local mirror
-# place it's address here.
-baseurl=https://mirrors.jcut.edu.cn/epel/$releasever/Everything/SRPMS
-#metalink=https://mirrors.fedoraproject.org/metalink?repo=epel-source-$releasever&arch=$basearch&infra=$infra&content=$contentdir
-enabled=0
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-8
-gpgcheck=1
+```bash
+# 配置 epel-release
+dnf install epel-release
 ```
 
-CentOS 7：
+配置 repo 文件：
 
-```text
-[epel]
-name=Extra Packages for Enterprise Linux 7 - $basearch
-baseurl=https://mirrors.jcut.edu.cn/epel/7/$basearch
-#metalink=https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch
-failovermethod=priority
-enabled=1
-gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7
-
-[epel-debuginfo]
-name=Extra Packages for Enterprise Linux 7 - $basearch - Debug
-baseurl=https://mirrors.jcut.edu.cn/epel/7/$basearch/debug
-#metalink=https://mirrors.fedoraproject.org/metalink?repo=epel-debug-7&arch=$basearch
-failovermethod=priority
-enabled=0
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7
-gpgcheck=1
-
-[epel-source]
-name=Extra Packages for Enterprise Linux 7 - $basearch - Source
-baseurl=https://mirrors.jcut.edu.cn/epel/7/SRPMS
-#metalink=https://mirrors.fedoraproject.org/metalink?repo=epel-source-7&arch=$basearch
-failovermethod=priority
-enabled=0
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7
-gpgcheck=1
+```bash
+# fedora epel
+for i in {'',-testing}; do wget https://mirrors.cqu.edu.cn/repo/epel/epel${i}.repo; done
 ```
+
+再执行：
+
+```bash
+sudo dnf makecache
+```
+
+生成缓存。
+
+### 离线状态
+
+确认不缺少依赖后直接执行：
+
+```bash
+# fedora epel
+for i in {'',-testing}; do wget https://mirrors.cqu.edu.cn/repo/epel/epel${i}.repo; done
+```
+
+再执行：
+
+```bash
+dnf install epel-release
+```
+
+添加该包的签名和相关内容。
+如果该步骤执行错误，则需手动从`epel`仓库中获取`epel-release`文件，并使用`rpm -i <file>.rpm` 来进行装载。再执行上述步骤替换 repo 文件。
+
+## 相关链接
+
+- [官方主页](https://getfedora.org/)
+- [邮件列表](https://fedoraproject.org/wiki/Communicating_and_getting_help)
+- [论坛](https://forums.fedoraforum.org/)
+- [文档](https://docs.fedoraproject.org/)
+- [Wiki](https://fedoraproject.org/wiki/)

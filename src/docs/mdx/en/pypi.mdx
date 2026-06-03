@@ -1,0 +1,60 @@
+## PyPI Mirror Usage Guide
+
+The PyPI repository on this mirror has been removed. Requests will be redirected (if accessed from off campus) or reverse-proxied (if accessed from on campus) to [Beijing Foreign Studies University Open Source Mirror](https://mirrors.bfsu.edu.cn).
+
+## URL
+https://mirrors.cqu.edu.cn/pypi/web/simple
+
+## Description
+PyPI repository (pip package index)
+
+## Usage
+### Temporary Change
+```bash
+pip install -i https://mirrors.cqu.edu.cn/pypi/web/simple {package name}
+```
+
+### Permanent Change
+#### Manual Change
+- Linux & Mac OS
+
+Create `~/.pip/pip.conf` and add the following content:
+```ini
+[global]
+index-url = https://mirrors.cqu.edu.cn/pypi/web/simple
+```
+- Windows
+
+Create the `%HOMEPATH%/pip` folder, then create the `%HOMEPATH%/pip/pip.ini` file with the following content:
+```ini
+[global]
+timeout = 6000
+index-url = https://mirrors.cqu.edu.cn/pypi/web/simple
+trusted-host = mirrors.cqu.edu.cn
+```
+
+#### Command-line Change (Recommended)
+
+Make sure your `pip` version is `10.0.0` or higher (pip version >= 10.0.0).
+
+Run the following command to switch the mirror:
+```bash
+pip config set global.index-url https://mirrors.cqu.edu.cn/pypi/web/simple
+```
+If your `pip` version needs to be upgraded, run the following command to upgrade `pip` using the mirror:
+```bash
+# Saved in user directory; on Linux, make sure it is added to PATH
+pip install -i https://mirrors.cqu.edu.cn/pypi/web/simple pip -U
+# Global (Linux and Unix-like systems only)
+sudo pip install -i https://mirrors.cqu.edu.cn/pypi/web/simple pip
+```
+
+### Homebrew
+This section is primarily for Homebrew users.
+```shell
+export HOMEBREW_PIP_INDEX_URL="https://mirrors.cqu.edu.cn/pypi/web/simple"
+```
+
+## Related Links
+
+- [Official Homepage](https://www.pypi.org/)

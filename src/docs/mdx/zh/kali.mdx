@@ -1,73 +1,89 @@
-import ConfigGenerator from '../../../components/config-generator/ConfigGenerator'
+## Kali linux 镜像使用帮助
 
-export const kaliVariantList = [
-  "标准（deb + deb-src）",
-  "仅二进制（deb）",
-];
+## 地址
+https://mirrors.cqu.edu.cn/kali
 
-export const defaultVersion = "标准（deb + deb-src）";
+## 描述
+kali Linux 的官方软件包仓库
 
-export const GenKaliConfig = (variant) => {
-  if (variant === "仅二进制（deb）") {
-    return `deb https://mirrors.jcut.edu.cn/kali kali-rolling main non-free contrib`;
-  }
-  return `deb https://mirrors.jcut.edu.cn/kali kali-rolling main non-free contrib
-deb-src https://mirrors.jcut.edu.cn/kali kali-rolling main non-free contrib`;
-};
+## 收录架构
 
-## Kali 镜像使用帮助
+- x86_64
+- x86
 
-### 地址
+## 使用说明
+### 详细使用步骤
 
-[https://mirrors.jcut.edu.cn/kali/](https://mirrors.jcut.edu.cn/kali/)
+此步骤假定你是一位 Linux 的初级使用者，请跟着步骤一步步操作
 
-### 说明
-
-*Kali Linux* 软件源
-
-### 支持的系统架构
-
-amd64, armel, armhf, i386
-
----
-
-### 使用说明
-
-#### 方法一：直接编辑 sources.list
-
-选择所需的源类型，复制后**覆盖写入** `/etc/apt/sources.list`，或添加到文件最顶部：
-
-<ConfigGenerator promptString="请选择源类型：" versionList={kaliVariantList} defaultVersion={defaultVersion} configGen={GenKaliConfig} language="bash" />
-
-> 如无需自行编译软件包，选择「仅二进制」即可，`deb-src` 行对日常使用无影响。
-
-复制后执行：
+#### 1. 定位并且备份 `sources.list`
 
 ```bash
-sudo tee /etc/apt/sources.list << EOF
-# 粘贴上方内容
-EOF
-sudo apt-get update
+$ cd /etc/apt/
+$ sudo cp sources.list sources.list.bak
 ```
 
-#### 方法二：一键 sed 替换
+#### 2. 编辑 `sources.list` 文件
+一般未编辑的`sources.list`文件如下所示。
 
-如果您的 `/etc/apt/sources.list` 中已有官方源，可直接替换地址：
+```bash
+$ sudo vim sources.list
 
-```shell
-sudo sed -i "s@http://http.kali.org/kali@https://mirrors.jcut.edu.cn/kali@g" /etc/apt/sources.list
+---------------------
+# sources.list
+---------------------
+
+# deb cdrom:[Debian GNU/Linux 2019.3 _Kali-rolling_ - Official Snapshot amd64 LIVE/INSTALL Binary 20190827-10:52]/ kali-last-snapshot contrib main non-free
+
+# deb cdrom:[Debian GNU/Linux 2019.3 _Kali-rolling_ - Official Snapshot amd64 LIVE/INSTALL Binary 20190827-10:52]/ kali-last-snapshot contrib main non-free
+
+deb http://http.kali.org/kali kali-rolling main non-free contrib
+# deb-src http://http.kali.org/kali kali-rolling main non-free contrib
+
+# This system was installed using small removable media
+# (e.g. netinst, live or single CD). The matching "deb cdrom"
+# entries were disabled at the end of the installation process.
+# For information about how to configure apt package sources,
+# see the sources.list(5) manual.
 ```
 
----
+#### 3. 添加源
 
-### 注意
+> 以下以`vim`作为示例
 
-> 更改完 `sources.list` 文件后请运行 `sudo apt-get update` 更新索引以生效。
+1. 在键盘按下 `i` 键 进入编辑模式
+2. 添加下方所示内容或者将`http.kali.org`替换为 `mirrors.cqu.edu.cn`
 
-由于 Kali 仓库未使用 by-hash 机制，同步时的一致性无法保证。如果在同步时执行 `apt update`，可能会看到以下错误
-
-```text
-E: 无法下载 https://mirrors.jcut.edu.cn/kali/dists/kali-rolling/main/source/Sources.gz 文件尺寸不符(14593053 != 14592993)。您使用的镜像正在同步中？
+```txt
+deb https://mirrors.cqu.edu.cn/kali kali-rolling main non-free contrib
+# deb-src https://mirrors.cqu.edu.cn/kali kali-rolling main non-free contrib
 ```
 
-如果出现以上错误，则需等待同步完成后再执行 `apt update`。
+3. 按下 `Esc` 退出编辑模式，同时按下 `shift`+`;` 键，在输入 `w`+`q`，回车保存
+
+#### 4. 刷新缓存
+
+```bash
+$ sudo apt-get update
+```
+
+### 一般更换步骤
+
+在终端中直接执行以下命令以进行更改：
+```bash
+sudo sed -i s/http.kali.org/mirrors.cqu.edu.cn/ /etc/apt/sources.list
+```
+
+
+详细有关`sed`指令的内容请参考`sed`man page 或者 参阅 [Arch Linux WIKI](https://wiki.archlinux.org/index.php/Core_utilities#Essentials)
+
+
+## 相关链接
+Kali Linux 主页
+https://www.kali.org/
+
+文档
+https://www.kali.org/kali-linux-documentation/
+
+论坛
+http://forums.kali.org/

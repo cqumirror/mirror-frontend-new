@@ -1,3 +1,54 @@
-`debian-security` is the Debian security update software repository.
+## Debian Security Updates Mirror Usage Guide
 
-Please refer to the Debian mirror usage guide.
+## URL
+
+https://mirrors.cqu.edu.cn/debian-security
+
+## Description
+
+Debian Security Updates
+
+## Supported Architectures
+
+- x86
+- x86_64
+- armel
+- arm64
+- ppc64el
+- source code
+
+## Supported Versions
+
+- old stable (Debian 8 jessie)
+- old stable (Debian 9 stretch)
+- stable (Debian 10 buster)
+- testing (bullseye)
+
+## Usage
+
+**In general, users should use `http://security.debian.org/debian-security` directly to obtain security updates, rather than specifying a mirror site.**
+
+Debian's [security update source](security.debian.org) is designed to make security updates **available as quickly as possible**.
+
+Using an unofficial mirror adds unnecessary hassle, especially when those mirrors are not updated in a timely manner.
+See [https://www.debian.org/security/](https://www.debian.org/security/) for details.
+
+
+By default, the following command replaces the default source (`security.debian.org/debian-security`) with the CQU mirror (`mirrors.cqu.edu.cn/debian-security`) and enables security updates:
+```bash
+sudo sed -i 's|#*deb http://security.debian.org|deb https://mirrors.cqu.edu.cn|' /etc/apt/sources.list
+```
+
+If you encounter "USERNAME is not in the sudoers file. This incident will be reported."
+You can use
+
+```bash
+su -c "sed -i 's|#*deb http://security.debian.org|deb https://mirrors.cqu.edu.cn|' /etc/apt/sources.list"
+```
+
+to complete this operation.
+
+However, we recommend the more secure approach — `sudo`. [How to configure `sudo`](/mirrors/debian).
+
+
+Alternatively, you can manually edit `/etc/apt/sources.list`.

@@ -1,63 +1,27 @@
-import ConfigGenerator from '../../../components/config-generator/ConfigGenerator'
-
-export const archVersionList = [
-  "x86_64",
-  "aarch64",
-  "i686",
-];
-
-export const defaultVersion = "x86_64";
-
-export const GenArchConfig = (arch) => {
-  return `Server = https://mirrors.jcut.edu.cn/archlinux/$repo/os/${arch}`;
-};
-
 ## Arch Linux Mirror Usage Guide
 
-### URL
+## Address
 
-https://mirrors.jcut.edu.cn/archlinux/
+https://mirrors.cqu.edu.cn/archlinux/
 
-### Description
+## Description
 
-Arch Linux software repository.
+Arch Linux package mirror
 
-### Supported Architectures
+## Supported Architectures
 
-i686, x86_64
+x86_64
 
----
+## Usage
 
-### Usage Instructions
-
-Pacman uses the order of servers in `mirrorlist` as priority, so adding a mirror requires adding it at the top of the file. You can comment out all other mirrors simultaneously.
-
-For detailed information on using Arch Linux mirrors, please see the [official documentation](https://wiki.archlinux.org/title/mirrors).
-
-Select your system architecture below, copy the generated Server entry, and add it to the **top** of `/etc/pacman.d/mirrorlist`:
-
-<ConfigGenerator promptString="Select your system architecture:" versionList={archVersionList} defaultVersion={defaultVersion} configGen={GenArchConfig} language="text" />
-
-> Most desktop and server users should select `x86_64`. Select `aarch64` for ARM devices such as Raspberry Pi.
-
-After copying, edit `/etc/pacman.d/mirrorlist` (requires `sudo`) and paste the line as the very first entry.
-
-It is recommended to also enable the `archlinuxcn` repository. For details, see [Arch Linux CN Mirror Usage Guide](#/doc/archlinuxcn).
-
----
-
-### Notes
-
-After modifying `mirrorlist`, update the package cache:
+As root, manually edit the file `/etc/pacman.d/mirrorlist` and add the following line at the top of the file:
 
 ```bash
-sudo pacman -Syyu
+Server = https://mirrors.cqu.edu.cn/archlinux/$repo/os/$arch
 ```
 
-Two `y`s can avoid problems that may occur when switching from a corrupted mirror to a working one.
+## Related Links
 
-If you switch from a newer mirror to an older one, the following command can downgrade some packages to avoid partial system updates:
-
-```bash
-sudo pacman -Syyuu
-```
+- [Official Website](https://archlinux.org)
+- [Official Documentation](https://wiki.archlinux.org)
+- [AUR](https://aur.archlinux.org)

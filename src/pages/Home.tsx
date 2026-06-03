@@ -250,17 +250,17 @@ const Home: React.FC = () => {
 
   return (
     <>
-      <title>{SITE_TITLE_ZH} - JCUT Mirror</title>
+      <title>{SITE_TITLE_ZH} - CQU Mirror</title>
       <meta name="description" content={DESC_ZH} />
       <meta name="keywords" content={KEYWORDS_ZH} />
       <link rel="canonical" href={canonicalUrl('/')} />
       <meta property="og:type" content="website" />
-      <meta property="og:title" content={`${SITE_TITLE_ZH} - JCUT Mirror`} />
+      <meta property="og:title" content={`${SITE_TITLE_ZH} - CQU Mirror`} />
       <meta property="og:description" content={DESC_ZH} />
       <meta property="og:url" content={canonicalUrl('/')} />
       <meta property="og:image" content={`${SITE_ORIGIN}/favicon.svg`} />
       <meta name="twitter:card" content="summary" />
-      <meta name="twitter:title" content={`${SITE_TITLE_ZH} - JCUT Mirror`} />
+      <meta name="twitter:title" content={`${SITE_TITLE_ZH} - CQU Mirror`} />
       <meta name="twitter:description" content={DESC_ZH} />
       {/* Hero 区域 */}
       <Box

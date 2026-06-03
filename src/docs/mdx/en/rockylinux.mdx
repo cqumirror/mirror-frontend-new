@@ -1,0 +1,61 @@
+## Rocky Linux Mirror Usage Guide
+
+## URL
+http://mirrors.cqu.edu.cn/rockylinux
+
+## Description
+Rocky Linux software repository
+
+## Supported Architectures
+- x86_64
+- aarch64
+
+## Supported Versions
+- Rocky Linux 8
+- Rocky Linux 9
+
+## Usage
+
+### Rocky Linux 8
+
+First, back up all `repo` files:
+```bash
+cd /etc/yum.repos.d/ && mkdir -p backup && mv Rocky-* backup/.
+```
+
+Download the corresponding files to the specified directory based on the version:
+
+```bash
+for i in {AppStream,BaseOS,Devel,Extras,HighAvailability,PowerTools,Sources}; do wget https://mirrors.cqu.edu.cn/repo/rockylinux/8/Rocky-${i}.repo; done
+```
+
+In some cases, `wget` may not be pre-installed on your system. Please install it beforehand.
+
+Then refresh the yum cache:
+```bash
+yum makecache
+```
+
+### Rocky Linux 9
+
+First, back up all `repo` files:
+```bash
+cd /etc/yum.repos.d/ && mkdir -p backup && mv rocky* backup/.
+```
+
+Download the corresponding files to the specified directory based on the version:
+
+```bash
+for i in {'',-addons,-devel,-extras}; do wget https://mirrors.cqu.edu.cn/repo/rockylinux/9/rocky${i}.repo; done
+```
+
+In some cases, `wget` may not be pre-installed on your system. Please install it beforehand.
+
+Then refresh the yum cache:
+```bash
+yum makecache
+```
+
+## Related Links
+
+- [Official Homepage](https://www.rockylinux.org/)

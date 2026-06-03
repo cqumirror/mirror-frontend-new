@@ -1,0 +1,21 @@
+## Crates.io-index Mirror Usage Guide
+
+## Address
+
+https://mirrors.cqu.edu.cn/git/crates.io-index
+
+## Description
+
+Rust crates.io index
+
+## Usage
+
+Add the following content to your cargo configuration file (`%HOMEPATH%\.cargo\config` on Windows, `~/.cargo/config` on Unix-like systems):
+
+```ini
+[source.crates-io]
+replace-with = 'cqu'
+
+[source.cqu]
+registry = "https://mirrors.cqu.edu.cn/git/crates.io-index"
+```

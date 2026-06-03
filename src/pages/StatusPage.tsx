@@ -323,10 +323,10 @@ const StatusPage: React.FC = () => {
   // ── 渲染 ──────────────────────────────────────────────────────────────────
   return (
     <>
-      <title>{`${t('status.title')} - 荆楚理工学院开源软件镜像站 JCUT Mirror`}</title>
+      <title>{`${t('status.title')} - 重庆大学开源软件镜像站 CQU Mirror`}</title>
       <meta
         name="description"
-        content="荆楚理工学院开源软件镜像站实时同步状态监控，查看各镜像源的同步健康情况、成功率和服务器指标。"
+        content="重庆大学开源软件镜像站实时同步状态监控，查看各镜像源的同步健康情况、成功率和服务器指标。"
       />
       <link rel="canonical" href={canonicalUrl('/status')} />
       <Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}>
@@ -1090,7 +1090,7 @@ const StatusPage: React.FC = () => {
                           variant="outlined"
                           endIcon={<OpenInNewIcon sx={{ fontSize: 14 }} />}
                           component="a"
-                          href="/grafana/d/jcut-mirror-system"
+                          href="/grafana/d/cqu-mirror-system"
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
@@ -1157,7 +1157,7 @@ const StatusPage: React.FC = () => {
                               {title}
                             </Typography>
                             <Link
-                              href={`/grafana/d/jcut-mirror-system?viewPanel=${panelId}`}
+                              href={`/grafana/d/cqu-mirror-system?viewPanel=${panelId}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               variant="caption"
@@ -1171,7 +1171,7 @@ const StatusPage: React.FC = () => {
                           </Box>
                           <Box
                             component="iframe"
-                            src={`/grafana/d-solo/jcut-mirror-system?orgId=1&panelId=${panelId}&from=now-1h&to=now&theme=${themeMode}&kiosk`}
+                            src={`/grafana/d-solo/cqu-mirror-system?orgId=1&panelId=${panelId}&from=now-1h&to=now&theme=${themeMode}&kiosk`}
                             sx={{
                               display: 'block',
                               width: '100%',
@@ -1210,7 +1210,7 @@ const StatusPage: React.FC = () => {
                           {t('status.systemLoad')}
                         </Typography>
                         <Link
-                          href="/grafana/d/jcut-mirror-system?viewPanel=7"
+                          href="/grafana/d/cqu-mirror-system?viewPanel=7"
                           target="_blank"
                           rel="noopener noreferrer"
                           variant="caption"
@@ -1224,7 +1224,7 @@ const StatusPage: React.FC = () => {
                       </Box>
                       <Box
                         component="iframe"
-                        src={`/grafana/d-solo/jcut-mirror-system?orgId=1&panelId=7&from=now-1h&to=now&theme=${themeMode}&kiosk`}
+                        src={`/grafana/d-solo/cqu-mirror-system?orgId=1&panelId=7&from=now-1h&to=now&theme=${themeMode}&kiosk`}
                         sx={{ display: 'block', width: '100%', height: 200, border: 'none' }}
                         title={t('status.systemLoad')}
                         loading="lazy"

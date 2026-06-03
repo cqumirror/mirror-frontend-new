@@ -20,12 +20,12 @@ const NewsListPage: React.FC = () => {
   // 空依赖数组是有意为之
   const news = useMemo(() => getNewsList(), []);
 
-  const title = t('news.title') + ' - 荆楚理工学院开源软件镜像站 JCUT Mirror';
+  const title = t('news.title') + ' - 重庆大学开源软件镜像站 CQU Mirror';
 
   return (
     <>
       <title>{title}</title>
-      <meta name="description" content="荆楚理工学院开源软件镜像站最新动态与公告。" />
+      <meta name="description" content="重庆大学开源软件镜像站最新动态与公告。" />
       <link rel="canonical" href={canonicalUrl('/news')} />
       <Container maxWidth="md" sx={{ py: { xs: 3, md: 5 } }}>
         <Breadcrumbs sx={{ mb: 3 }}>

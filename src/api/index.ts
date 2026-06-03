@@ -1,10 +1,10 @@
 // src/api/index.ts
-// API 请求封装 — 直接对接后端
+// API 请求封装 — 对接旧版后端（CQU tunasync）静态 JSON 接口
 //
 // 数据流：
-//   GET /jobs                       → RawJob[]（nginx 已反代到 tunasync manager）
+//   GET /static/tunasync.json       → OldTunasyncJob[]（旧后端静态 JSON）
 //   GET /local_data.json            → LocalMeta（本地补充元数据，随前端构建发布）
-//   transformJobs()                 → Mirror[]（前端完成格式转换）
+//   transformOldJobs()              → Mirror[]（前端完成格式转换）
 //
 // GET /api/is_campus_network 由 nginx 直接判断客户端 IP 并返回
 
@@ -12,8 +12,8 @@ import axios, { type AxiosInstance } from 'axios';
 
 import type { Mirror, CampusNetworkStatus } from '../types';
 
-import { transformJobs } from './transform';
-import type { RawJob, LocalMeta } from './transform';
+import { fetchOldTunasyncData, transformOldJobs } from './oldBackendAdapter';
+import type { LocalMeta } from './transform';
 
 // ── 工厂：每个域一个独立 axios 实例，避免每次 get 都传 baseURL ─────────────
 function createClient(baseURL: string): AxiosInstance {
@@ -26,16 +26,12 @@ function createClient(baseURL: string): AxiosInstance {
     (res) => res,
     (err) => {
       const msg = err instanceof Error ? err.message : String(err);
-      // 仅记录基础信息，避免把响应体打到 console（可能含敏感信息）
       console.error(`[API ${baseURL}]`, msg);
       return Promise.reject(err);
     }
   );
   return client;
 }
-
-// 后端镜像状态接口（nginx 已将 /jobs 反代）
-const backend = createClient('/');
 
 // 校园网检测（nginx 直接返回）
 const internal = createClient('/api');
@@ -77,16 +73,14 @@ function getLocalData(): Promise<Record<string, LocalMeta>> {
 
 /**
  * 获取所有镜像列表
+ * 从旧后端 /static/tunasync.json 获取同步状态，与本地 local_data.json 合并
  */
 export const fetchMirrors = async (): Promise<Mirror[]> => {
-  const [{ data: jobs }, localData] = await Promise.all([
-    backend.get<RawJob[]>('/jobs'),
+  const [jobs, localData] = await Promise.all([
+    fetchOldTunasyncData(),
     getLocalData(),
   ]);
-  if (!Array.isArray(jobs)) {
-    throw new Error('Backend /jobs response is not an array');
-  }
-  return transformJobs(jobs, localData);
+  return transformOldJobs(jobs, localData);
 };
 
 /**

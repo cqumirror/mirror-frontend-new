@@ -1,99 +1,79 @@
-## EPEL Repository Usage Guide
+## EPEL Mirror Usage Guide
 
-### URL
+## URL
 
-[https://mirrors.jcut.edu.cn/epel/](https://mirrors.jcut.edu.cn/epel/)
+https://mirrors.cqu.edu.cn/epel
 
-### Description
+## Description
 
-EPEL (Extra Packages for Enterprise Linux) is a collection of high-quality additional packages created, maintained, and managed by the Fedora Special Interest Group for Enterprise Linux, suitable for but not limited to Red Hat Enterprise Linux (RHEL), CentOS, Scientific Linux (SL), and Oracle Linux (OL).
+EPEL is a collection of commonly used packages for Red Hat-based distributions (such as Rocky Linux, CentOS, Fedora, RHEL, etc.), maintained by Fedora.
 
-### Supported Architectures
+## Supported Architectures
 
-All architectures officially supported
+- x86_64
+- aarch64
 
-### Supported Versions
+## Supported Versions
 
-All versions officially supported
+`release` and `testing`
 
----
+## Usage
 
-### Usage Instructions
+If a configured epel repo already exists, back it up first:
 
-Execute the following commands:
-
-```shell
-sudo yum install -y epel-release
-sudo sed -e 's|^metalink=|#metalink=|g' \
-         -e 's|^#baseurl=https\?://download.fedoraproject.org/pub/epel/|baseurl=https://mirrors.jcut.edu.cn/epel/|g' \
-         -e 's|^#baseurl=https\?://download.example/pub/epel/|baseurl=https://mirrors.jcut.edu.cn/epel/|g' \
-         -i.bak \
-         /etc/yum.repos.d/epel.repo
+```bash
+# fedora
+mkdir epel-backup
+mv /etc/yum.repos.d/epel*.repo /etc/yum.repos.d/epel-backup/.
 ```
 
-Below is the replaced /etc/yum.repos.d/epel.repo file:
+### Online
 
-CentOS 8:
+When online:
 
-```text
-[epel]
-name=Extra Packages for Enterprise Linux $releasever - $basearch
-# It is much more secure to use the metalink, but if you wish to use a local mirror
-# place it's address here.
-baseurl=https://mirrors.jcut.edu.cn/epel/$releasever/Everything/$basearch
-#metalink=https://mirrors.fedoraproject.org/metalink?repo=epel-$releasever&arch=$basearch&infra=$infra&content=$contentdir
-enabled=1
-gpgcheck=1
-countme=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-8
 
-[epel-debuginfo]
-name=Extra Packages for Enterprise Linux $releasever - $basearch - Debug
-# It is much more secure to use the metalink, but if you wish to use a local mirror
-# place it's address here.
-baseurl=https://mirrors.jcut.edu.cn/epel/$releasever/Everything/$basearch/debug
-#metalink=https://mirrors.fedoraproject.org/metalink?repo=epel-debug-$releasever&arch=$basearch&infra=$infra&content=$contentdir
-enabled=0
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-8
-gpgcheck=1
-
-[epel-source]
-name=Extra Packages for Enterprise Linux $releasever - $basearch - Source
-# It is much more secure to use the metalink, but if you wish to use a local mirror
-# place it's address here.
-baseurl=https://mirrors.jcut.edu.cn/epel/$releasever/Everything/SRPMS
-#metalink=https://mirrors.fedoraproject.org/metalink?repo=epel-source-$releasever&arch=$basearch&infra=$infra&content=$contentdir
-enabled=0
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-8
-gpgcheck=1
+```bash
+# Install epel-release
+dnf install epel-release
 ```
 
-CentOS 7:
+Configure the repo file:
 
-```text
-[epel]
-name=Extra Packages for Enterprise Linux 7 - $basearch
-baseurl=https://mirrors.jcut.edu.cn/epel/7/$basearch
-#metalink=https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch
-failovermethod=priority
-enabled=1
-gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7
+```bash
+# fedora epel
+for i in {'',-testing}; do wget https://mirrors.cqu.edu.cn/repo/epel/epel${i}.repo; done
+```
 
-[epel-debuginfo]
-name=Extra Packages for Enterprise Linux 7 - $basearch - Debug
-baseurl=https://mirrors.jcut.edu.cn/epel/7/$basearch/debug
-#metalink=https://mirrors.fedoraproject.org/metalink?repo=epel-debug-7&arch=$basearch
-failovermethod=priority
-enabled=0
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7
-gpgcheck=1
+Then run:
 
-[epel-source]
-name=Extra Packages for Enterprise Linux 7 - $basearch - Source
-baseurl=https://mirrors.jcut.edu.cn/epel/7/SRPMS
-#metalink=https://mirrors.fedoraproject.org/metalink?repo=epel-source-7&arch=$basearch
-failovermethod=priority
-enabled=0
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7
-gpgcheck=1
+```bash
+sudo dnf makecache
+```
+
+to generate the cache.
+
+### Offline
+
+After confirming that no dependencies are missing, run:
+
+```bash
+# fedora epel
+for i in {'',-testing}; do wget https://mirrors.cqu.edu.cn/repo/epel/epel${i}.repo; done
+```
+
+Then run:
+
+```bash
+dnf install epel-release
+```
+
+to add the package signature and related content.
+If this step fails, manually obtain the `epel-release` file from the `epel` repository and use `rpm -i <file>.rpm` to install it. Then follow the steps above to replace the repo file.
+
+## Related Links
+
+- [Official Homepage](https://getfedora.org/)
+- [Mailing List](https://fedoraproject.org/wiki/Communicating_and_getting_help)
+- [Forum](https://forums.fedoraforum.org/)
+- [Documentation](https://docs.fedoraproject.org/)
+- [Wiki](https://fedoraproject.org/wiki/)

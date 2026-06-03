@@ -365,33 +365,33 @@ const MirrorDetail: React.FC = () => {
     <>
       <title>
         {locale === 'en'
-          ? `${mirror.name.en} Mirror — JCUT Mirror`
-          : `${mirror.name.zh} 镜像 - 荆楚理工学院开源软件镜像站 JCUT Mirror`}
+          ? `${mirror.name.en} Mirror — CQU Mirror`
+          : `${mirror.name.zh} 镜像 - 重庆大学开源软件镜像站 CQU Mirror`}
       </title>
       <meta
         name="description"
         content={
           locale === 'en'
-            ? `${mirror.name.en} - ${mirror.desc.en} High-speed mirror provided by JCUT Mirror.`
-            : `${mirror.name.zh} - ${mirror.desc.zh} 由荆楚理工学院开源软件镜像站（JCUT Mirror）提供高速下载。`
+            ? `${mirror.name.en} - ${mirror.desc.en} High-speed mirror provided by CQU Mirror.`
+            : `${mirror.name.zh} - ${mirror.desc.zh} 由重庆大学开源软件镜像站（CQU Mirror）提供高速下载。`
         }
       />
       <meta
         name="keywords"
         content={
           locale === 'en'
-            ? `${mirror.name.en},${mirror.id},${mirror.name.en} mirror,${mirror.name.en} download,JCUT Mirror,open source mirror`
-            : `${mirror.name.zh},${mirror.id},${mirror.name.zh}镜像,${mirror.name.zh}下载,JCUT Mirror,荆楚理工学院镜像站,开源软件镜像`
+            ? `${mirror.name.en},${mirror.id},${mirror.name.en} mirror,${mirror.name.en} download,CQU Mirror,open source mirror`
+            : `${mirror.name.zh},${mirror.id},${mirror.name.zh}镜像,${mirror.name.zh}下载,CQU Mirror,重庆大学镜像站,开源软件镜像`
         }
       />
       <link rel="canonical" href={canonicalUrl(`/mirrors/${mirror.id}`)} />
       <meta property="og:type" content="website" />
-      <meta property="og:title" content={`${mirror.name[locale]} - JCUT Mirror`} />
+      <meta property="og:title" content={`${mirror.name[locale]} - CQU Mirror`} />
       <meta property="og:description" content={mirror.desc[locale]} />
       <meta property="og:url" content={canonicalUrl(`/mirrors/${mirror.id}`)} />
       <meta property="og:image" content={`${SITE_ORIGIN}/favicon.svg`} />
       <meta name="twitter:card" content="summary" />
-      <meta name="twitter:title" content={`${mirror.name[locale]} - JCUT Mirror`} />
+      <meta name="twitter:title" content={`${mirror.name[locale]} - CQU Mirror`} />
       <meta name="twitter:description" content={mirror.desc[locale]} />
       {/* 结构化数据：面包屑 */}
       <script type="application/ld+json">

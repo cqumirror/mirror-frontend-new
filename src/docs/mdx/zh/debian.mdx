@@ -1,119 +1,90 @@
-import ConfigGenerator from '../../../components/config-generator/ConfigGenerator'
+## Debian 软件仓库使用帮助
 
-export const debianVersionList = [
-  "13 (trixie)",
-  "12 (bookworm)",
-  "11 (bullseye)",
-  "10 (buster)",
-  "testing",
-  "unstable (sid)",
-];
+## 地址
+https://mirrors.cqu.edu.cn/debian
 
-export const debianVersionMap = {
-  "13 (trixie)": "trixie",
-  "12 (bookworm)": "bookworm",
-  "11 (bullseye)": "bullseye",
-  "10 (buster)": "buster",
-  "testing": "testing",
-  "unstable (sid)": "sid",
-};
+## 说明
 
-export const defaultVersion = "13 (trixie)";
+Debian 软件仓库
 
-export const GenDebianConfig = (version) => {
-  const debianName = debianVersionMap[version] || "trixie";
-  const isOldStable = version === "10 (buster)";
-  const isUnstable = version === "unstable (sid)";
-  
-  // unstable (sid) 只有单个源
-  if (isUnstable) {
-    return `# 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释
-deb https://mirrors.jcut.edu.cn/debian/ sid main contrib non-free non-free-firmware
-# deb-src https://mirrors.jcut.edu.cn/debian/ sid main contrib non-free non-free-firmware`;
-  }
-  
-  // 老版本使用 archive 路径
-  const securityPath = isOldStable ? `${debianName}/updates` : `${debianName}-security`;
-  
-  return `# 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释
-deb https://mirrors.jcut.edu.cn/debian/ ${debianName} main contrib non-free non-free-firmware
-# deb-src https://mirrors.jcut.edu.cn/debian/ ${debianName} main contrib non-free non-free-firmware
-deb https://mirrors.jcut.edu.cn/debian/ ${debianName}-updates main contrib non-free non-free-firmware
-# deb-src https://mirrors.jcut.edu.cn/debian/ ${debianName}-updates main contrib non-free non-free-firmware
-deb https://mirrors.jcut.edu.cn/debian/ ${debianName}-backports main contrib non-free non-free-firmware
-# deb-src https://mirrors.jcut.edu.cn/debian/ ${debianName}-backports main contrib non-free non-free-firmware
-deb https://mirrors.jcut.edu.cn/debian-security ${securityPath} main contrib non-free non-free-firmware
-# deb-src https://mirrors.jcut.edu.cn/debian-security ${securityPath} main contrib non-free non-free-firmware`;
-};
+## 收录架构
 
-## Debian 源使用帮助
+- x86
+- amd64 (x86_64)
+- armel
+- armhl
+- arm64
+- mipsel
+- mips64el
+- ppc64el
+- s390x
+- 源代码
 
-### 地址
+## 收录版本
 
-[https://mirrors.jcut.edu.cn/debian/](https://mirrors.jcut.edu.cn/debian/)
+- oldoldstable (stretch)
+- oldstable (buster)
+- stable (bullseye)
+- testing (bookworm)
+- unstable (sid)
+- experimental
 
-### 说明
+## 使用说明
 
-*Debian* 软件源
+### Debian Stable
 
-### 收录架构
-
-amd64(X86_64), i386, arm
-
-### 收录版本
-
-所有 *Debian* 当前支持的版本，包括 Stable、OldStable、Testing 和 Unstable，具体版本见 [https://www.debian.org/releases/](https://www.debian.org/releases/)
-
-当前 Stable 为 Debian 13，代号为 trixie。
-
----
-
-### 使用方法
-
-#### 方法一
-
-一般情况下，将 `/etc/apt/sources.list` 文件中 *Debian* 默认的源地址 `deb.debian.org` 替换为 `mirrors.jcut.edu.cn` 即可。
-
-可以使用如下命令：
-
-```shell
-sudo sed -i 's|deb.debian.org|mirrors.jcut.edu.cn|g' /etc/apt/sources.list
-```
-
-从 *Debian 12 (bookworm)* 开始在容器镜像中使用 DEB822 格式，对应需要修改的文件为 `/etc/apt/sources.list.d/debian.sources`。同样可以使用如下命令：
-
-```shell
-sudo sed -i 's/deb.debian.org/mirrors.jcut.edu.cn/g' /etc/apt/sources.list.d/debian.sources
-```
-
-#### 方法二
-
-直接编辑 `/etc/apt/sources.list`（需要使用 `sudo`）。
-
-<ConfigGenerator promptString="请选择您的 Debian 版本：" versionList={debianVersionList} defaultVersion={defaultVersion} configGen={GenDebianConfig} language="bash" />
-
----
-
-### 注意事项
-
-#### 更新索引
-
-更改完 `sources.list` 文件后请运行 `sudo apt-get update` 更新索引以生效。
-
-#### HTTP Pipelining 问题
-
-在 apt 2.1.9 及以后的版本中，apt 的 HTTP Pipelining 特性与 Nginx 服务器疑似存在一定的不兼容问题，可能导致高带宽从镜像站下载大量软件包（例如系统升级）时出现偶发的 Connection reset by peer 错误（详见 [Debian bug #973581](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=973581)）。
-
-如果需要关闭，可以在使用 `apt` 命令时加上 `-o Acquire::http::Pipeline-Depth=0` 参数，或使用以下命令将相关设置加入 apt 系统配置中：
+默认情况下，以下命令可以将默认软件源（`deb.debian.org/debian`）替换为重庆大学镜像站（`mirrors.cqu.edu.cn/debian`）。
 
 ```bash
-echo "Acquire::http::Pipeline-Depth \"0\";" > /etc/apt/apt.conf.d/99nopipelining
+sudo sed -i s/deb.debian.org/mirrors.cqu.edu.cn/ /etc/apt/sources.list
 ```
 
-#### HTTPS 源
-
-如果遇到无法拉取 https 源的情况，请先使用 http 源并安装：
+如果出现"USERNAME 不在 sudoers 文件中。此事将被报告"或"USERNAME is not in the sudoers file.  This incident will be reported.",
+可以使用
 
 ```bash
-sudo apt install apt-transport-https ca-certificates
+su -c 'sed -i s/deb.debian.org/mirrors.cqu.edu.cn/ /etc/apt/sources.list'
 ```
+
+来完成这一操作。
+
+但我们更推荐更安全的做法——`sudo`。[如何配置`sudo`](/mirrors/debian)。
+
+除此之外，您亦可手动编辑`/etc/apt/sources.list`。以下是 Debian Stable 参考配置内容：
+
+```txt
+deb http://mirrors.cqu.edu.cn/debian stable main contrib non-free
+# deb-src http://mirrors.cqu.edu.cn/debian stable main contrib non-free
+deb http://mirrors.cqu.edu.cn/debian stable-updates main contrib non-free
+# deb-src http://mirrors.cqu.edu.cn/debian stable-updates main contrib non-free
+
+# deb http://mirrors.cqu.edu.cn/debian stable-proposed-updates main contrib non-free
+# deb-src http://mirrors.cqu.edu.cn/debian stable-proposed-updates main contrib non-free
+```
+
+
+注意：从 Debian 12 (bookworm) 开始，Debian 安装 CD 已经包含了部分非自由固件（nonfree-firmware）。以下列出了更改后的部分：
+
+
+```txt[/etc/apt/sources.list]
+deb http://mirrors.cqu.edu.cn/debian stable main contrib non-free non-free-firmware
+# deb-src http://mirrors.cqu.edu.cn/debian stable main contrib non-free non-free-firmware
+deb http://mirrors.cqu.edu.cn/debian stable-updates main contrib non-free non-free-firmware
+# deb-src http://mirrors.cqu.edu.cn/debian stable-updates main contrib non-free non-free-firmware
+
+# deb http://mirrors.cqu.edu.cn/debian stable-proposed-updates main contrib non-free non-free-firmware
+# deb-src http://mirrors.cqu.edu.cn/debian stable-proposed-updates main contrib non-free non-free-firmware
+```
+
+## Debian Unstable (sid)
+
+Debian Sid 需要且仅仅需要按照如下样例设置自己的`sources.list`：
+
+```txt
+deb https://mirrors.cqu.edu.cn/debian sid main contrib non-free non-free-firmware
+# deb-src http://mirrors.cqu.edu.cn/debian sid main contrib non-free non-free-firmware
+```
+
+
+
+为了避免更新冲突导致问题，请回避使用 `apt full-upgrade`,并仅仅使用 `apt upgrade`

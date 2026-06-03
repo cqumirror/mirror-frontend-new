@@ -1,63 +1,27 @@
-import ConfigGenerator from '../../../components/config-generator/ConfigGenerator'
+## Arch Linux 源使用帮助
 
-export const archVersionList = [
-  "x86_64",
-  "aarch64",
-  "i686",
-];
+## 地址
 
-export const defaultVersion = "x86_64";
+https://mirrors.cqu.edu.cn/archlinux/
 
-export const GenArchConfig = (arch) => {
-  return `Server = https://mirrors.jcut.edu.cn/archlinux/$repo/os/${arch}`;
-};
+## 说明
 
-## ArchLinux 镜像使用帮助
+Arch Linux 软件源
 
-### 地址
+## 收录架构
 
-https://mirrors.jcut.edu.cn/archlinux/
+x86_64
 
-### 说明
+## 使用说明
 
-Arch Linux 软件源。
-
-### 收录架构
-
-i686, x86_64
-
----
-
-### 使用说明
-
-Pacman 以 `mirrorlist` 中 Server 的顺序作为优先级，因此添加镜像需要在文件的最顶端添加；您可以同时注释掉其它所有镜像。
-
-有关 Arch Linux 使用镜像的详细说明请见[官方文档](https://wiki.archlinux.org/title/mirrors)
-
-选择您的系统架构，复制生成的 Server 条目，添加到 `/etc/pacman.d/mirrorlist` 文件的最顶端：
-
-<ConfigGenerator promptString="请选择您的系统架构：" versionList={archVersionList} defaultVersion={defaultVersion} configGen={GenArchConfig} language="text" />
-
-> 提示：大多数桌面及服务器用户选择 `x86_64`；树莓派等 ARM 设备选择 `aarch64`。
-
-复制后编辑 `/etc/pacman.d/mirrorlist`（需要 `sudo`），将上面的行粘贴到文件第一行。
-
-建议同时启用 `archlinuxcn` 源，有关 `archlinuxcn` 源的介绍，请查看 [archlinuxcn 镜像使用帮助](#/doc/archlinuxcn)
-
----
-
-### 注意
-
-修改 `mirrorlist` 之后请更新软件包缓存：
+以 root 身份手动编辑文件`/etc/pacman.d/mirrorlist`，在文件顶端加入
 
 ```bash
-sudo pacman -Syyu
+Server = https://mirrors.cqu.edu.cn/archlinux/$repo/os/$arch
 ```
 
-两次 `y` 能避免从损坏的镜像切换到正常的镜像时出现的问题。
+## 相关链接
 
-如果您从一个较新的镜像切换到较旧的镜像，以下命令可以降级部分包，以避免系统的部分更新。
-
-```bash
-sudo pacman -Syyuu
-```
+- [官方网站](https://archlinux.org)
+- [官方文档](https://wiki.archlinux.org)
+- [AUR](https://aur.archlinux.org)

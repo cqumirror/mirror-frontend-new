@@ -1,36 +1,50 @@
 ## Arch Linux CN Mirror Usage Guide
 
-### URL
+## Address
 
-[https://mirrors.jcut.edu.cn/archlinuxcn/](https://mirrors.jcut.edu.cn/archlinuxcn/)
+https://mirrors.cqu.edu.cn/archlinuxcn/
 
-### Description
+## Description
 
-Arch Linux CN software repository.
+Arch Linux CN Repository
 
-### Introduction
+## Introduction
 
-> The Arch Linux Chinese Community Repository is an unofficial software repository driven by the Arch Linux Chinese Community, containing many additional packages not provided by the official repositories, as well as variants such as git versions of existing software.
->
-> \- [Arch Linux Chinese Community Repository](https://www.archlinuxcn.org/archlinux-cn-repo-and-mirror/)
+The Arch Linux Chinese Community Repository is an unofficial user repository driven by the Arch Linux Chinese community. It contains software, tools, fonts, and theme packages commonly used by Chinese users.
 
-Repository URL: [http://repo.archlinuxcn.org](http://repo.archlinuxcn.org)
+## Supported Architectures
 
----
+- x86_64
+- arm64
 
-### Usage Instructions
+## Usage
 
-Add the following two lines at the end of the `/etc/pacman.conf` file:
+As root, manually edit the file `/etc/pacman.conf` and add the following lines at the end of the file:
 
-```toml
+```bash
 [archlinuxcn]
-Server = https://mirrors.jcut.edu.cn/archlinuxcn/$arch
+Server = https://mirrors.cqu.edu.cn/archlinuxcn/$arch
 ```
 
-Then please install the `archlinuxcn-keyring` package to import the GPG key:
+Run:
 
-```shell
-sudo pacman -Sy archlinuxcn-keyring
+```bash
+pacman -Syy
 ```
 
-The GPG signature will be automatically performed.
+to force a refresh of the package sources. Then run:
+
+```bash
+pacman -S archlinuxcn-keyring
+```
+
+to add the Arch Linux CN GPG key.
+
+It is recommended to set `SigLevel` to `TrustedOnly`.
+
+## Related Links
+
+Arch Linux Chinese Community Homepage:
+[https://www.archlinuxcn.org](https://www.archlinuxcn.org)
+Arch Linux Chinese Community Repository / Mirror Introduction:
+[https://www.archlinuxcn.org/archlinux-cn-repo-and-mirror/](https://www.archlinuxcn.org/archlinux-cn-repo-and-mirror/)

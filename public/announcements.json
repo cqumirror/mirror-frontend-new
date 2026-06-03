@@ -1,18 +1,1 @@
-[
-  {
-    "id": "2025-002",
-    "type": "info",
-    "pinned": false,
-    "dismissible": true,
-    "date": "2025-10-01",
-    "title": {
-      "zh": "新增 openEuler 镜像",
-      "en": "openEuler mirror added"
-    },
-    "content": {
-      "zh": "镜像站现已提供华为 openEuler 操作系统的完整镜像，欢迎使用。",
-      "en": "The mirror now provides a full mirror of Huawei's openEuler OS. Welcome to use it."
-    },
-    "link": null
-  }
-]
+[]

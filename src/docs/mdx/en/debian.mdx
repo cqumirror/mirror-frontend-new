@@ -1,129 +1,89 @@
-import ConfigGenerator from '../../../components/config-generator/ConfigGenerator'
-
-export const debianVersionList = [
-  "13 (trixie)",
-  "12 (bookworm)",
-  "11 (bullseye)",
-  "10 (buster)",
-  "testing",
-  "unstable (sid)",
-];
-
-export const debianVersionMap = {
-  "13 (trixie)": "trixie",
-  "12 (bookworm)": "bookworm",
-  "11 (bullseye)": "bullseye",
-  "10 (buster)": "buster",
-  "testing": "testing",
-  "unstable (sid)": "sid",
-};
-
-export const defaultVersion = "13 (trixie)";
-
-export const GenDebianConfig = (version) => {
-  const debianName = debianVersionMap[version] || "bookworm";
-  const isOldStable = version === "10 (buster)";
-  const isUnstable = version === "unstable (sid)";
-  
-  // unstable (sid) only has a single source
-  if (isUnstable) {
-    return `# Source mirrors are commented out by default to improve apt update speed. Uncomment if needed.
-deb https://mirrors.jcut.edu.cn/debian/ sid main contrib non-free non-free-firmware
-# deb-src https://mirrors.jcut.edu.cn/debian/ sid main contrib non-free non-free-firmware`;
-  }
-  
-  // Older versions use archive path
-  const securityPath = isOldStable ? `${debianName}/updates` : `${debianName}-security`;
-  
-  return `# Source mirrors are commented out by default to improve apt update speed. Uncomment if needed.
-deb https://mirrors.jcut.edu.cn/debian/ ${debianName} main contrib non-free non-free-firmware
-# deb-src https://mirrors.jcut.edu.cn/debian/ ${debianName} main contrib non-free non-free-firmware
-deb https://mirrors.jcut.edu.cn/debian/ ${debianName}-updates main contrib non-free non-free-firmware
-# deb-src https://mirrors.jcut.edu.cn/debian/ ${debianName}-updates main contrib non-free non-free-firmware
-deb https://mirrors.jcut.edu.cn/debian/ ${debianName}-backports main contrib non-free non-free-firmware
-# deb-src https://mirrors.jcut.edu.cn/debian/ ${debianName}-backports main contrib non-free non-free-firmware
-deb https://mirrors.jcut.edu.cn/debian-security ${securityPath} main contrib non-free non-free-firmware
-# deb-src https://mirrors.jcut.edu.cn/debian-security ${securityPath} main contrib non-free non-free-firmware`;
-};
-
 ## Debian Repository Usage Guide
 
-### URL
+## Address
+https://mirrors.cqu.edu.cn/debian
 
-[https://mirrors.jcut.edu.cn/debian/](https://mirrors.jcut.edu.cn/debian/)
+## Description
 
-### Description
+Debian package repository
 
-*Debian* software repository.
+## Supported Architectures
 
-### Supported Architectures
+- x86
+- amd64 (x86_64)
+- armel
+- armhl
+- arm64
+- mipsel
+- mips64el
+- ppc64el
+- s390x
+- Source code
 
-amd64 (X86_64), i386, arm
+## Supported Versions
 
-### Supported Versions
+- oldoldstable (stretch)
+- oldstable (buster)
+- stable (bullseye)
+- testing (bookworm)
+- unstable (sid)
+- experimental
 
-All currently supported versions of *Debian*, including Stable, OldStable, Testing, and Unstable, for specific versions see [https://www.debian.org/releases/](https://www.debian.org/releases/)
+## Usage
 
-The current Stable is Debian 13, codenamed trixie.
+### Debian Stable
 
----
-
-### Usage Instructions
-
-#### Method 1
-
-Generally, it is sufficient to replace the default repository address `deb.debian.org` with `mirrors.jcut.edu.cn` in the `/etc/apt/sources.list` file.
-
-You can use the following command:
-
-```shell
-sudo sed -i 's|deb.debian.org|mirrors.jcut.edu.cn|g' /etc/apt/sources.list
-```
-
-Starting from *Debian 12 (bookworm)*, DEB822 format is used in container images, and the corresponding file to modify is `/etc/apt/sources.list.d/debian.sources`. You can also use the following command:
-
-```shell
-sudo sed -i 's/deb.debian.org/mirrors.jcut.edu.cn/g' /etc/apt/sources.list.d/debian.sources
-```
-
-#### Method 2
-
-Directly edit `/etc/apt/sources.list` (requires `sudo`).
-
-<ConfigGenerator promptString="Please select your Debian version:" versionList={debianVersionList} defaultVersion={defaultVersion} configGen={GenDebianConfig} language="bash" />
-
-#### Method 3 (One-click Script)
+By default, the following command can replace the default package source (`deb.debian.org/debian`) with the Chongqing University mirror (`mirrors.cqu.edu.cn/debian`).
 
 ```bash
-# Using curl
-bash <(curl -sSL http://mirrors.jcut.edu.cn/mirrors.sh)
-# Using wget
-bash <(wget -qO- http://mirrors.jcut.edu.cn/mirrors.sh)
-
-## Either method above works
+sudo sed -i s/deb.debian.org/mirrors.cqu.edu.cn/ /etc/apt/sources.list
 ```
 
----
-
-### Notes
-
-#### Update Index
-
-After modifying the `sources.list` file, please run `sudo apt-get update` to update the index for the changes to take effect.
-
-#### HTTP Pipelining Issue
-
-In apt version 2.1.9 and later, apt's HTTP Pipelining feature appears to have a compatibility issue with Nginx servers, which may cause occasional "Connection reset by peer" errors when downloading a large number of packages from the mirror (such as system upgrades) with high bandwidth (see [Debian bug #973581](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=973581) for details).
-
-To disable it, you can add the `-o Acquire::http::Pipeline-Depth=0` parameter when using the `apt` command, or use the following command to add the relevant settings to the apt system configuration:
+If you encounter "USERNAME is not in the sudoers file. This incident will be reported.", you can use:
 
 ```bash
-echo "Acquire::http::Pipeline-Depth \"0\";" > /etc/apt/apt.conf.d/99nopipelining
+su -c 'sed -i s/deb.debian.org/mirrors.cqu.edu.cn/ /etc/apt/sources.list'
 ```
 
-#### HTTPS Repository
+to perform this operation.
 
-If you encounter issues pulling from https sources, please use http sources first and install:
+However, we recommend the more secure approach -- using `sudo`. [How to configure `sudo`](/mirrors/debian).
 
-```bash
-sudo apt install apt-transport-https ca-certificates
+Alternatively, you can manually edit `/etc/apt/sources.list`. Below is a reference configuration for Debian Stable:
+
+```txt
+deb http://mirrors.cqu.edu.cn/debian stable main contrib non-free
+# deb-src http://mirrors.cqu.edu.cn/debian stable main contrib non-free
+deb http://mirrors.cqu.edu.cn/debian stable-updates main contrib non-free
+# deb-src http://mirrors.cqu.edu.cn/debian stable-updates main contrib non-free
+
+# deb http://mirrors.cqu.edu.cn/debian stable-proposed-updates main contrib non-free
+# deb-src http://mirrors.cqu.edu.cn/debian stable-proposed-updates main contrib non-free
+```
+
+
+Note: Starting from Debian 12 (bookworm), the Debian installation CD includes some non-free firmware (nonfree-firmware). The following shows the updated configuration:
+
+
+```txt[/etc/apt/sources.list]
+deb http://mirrors.cqu.edu.cn/debian stable main contrib non-free non-free-firmware
+# deb-src http://mirrors.cqu.edu.cn/debian stable main contrib non-free non-free-firmware
+deb http://mirrors.cqu.edu.cn/debian stable-updates main contrib non-free non-free-firmware
+# deb-src http://mirrors.cqu.edu.cn/debian stable-updates main contrib non-free non-free-firmware
+
+# deb http://mirrors.cqu.edu.cn/debian stable-proposed-updates main contrib non-free non-free-firmware
+# deb-src http://mirrors.cqu.edu.cn/debian stable-proposed-updates main contrib non-free non-free-firmware
+```
+
+## Debian Unstable (sid)
+
+Debian Sid requires and only requires the following configuration in your `sources.list`:
+
+```txt
+deb https://mirrors.cqu.edu.cn/debian sid main contrib non-free non-free-firmware
+# deb-src http://mirrors.cqu.edu.cn/debian sid main contrib non-free non-free-firmware
+```
+
+
+
+To avoid issues caused by update conflicts, please avoid using `apt full-upgrade` and only use `apt upgrade`.

@@ -1,672 +1,185 @@
 {
   "ubuntu": {
-    "desc": {
-      "en": "Ubuntu package archive mirror",
-      "zh": "Ubuntu 软件包镜像"
-    },
+    "name": { "zh": "Ubuntu", "en": "Ubuntu" },
+    "desc": { "zh": "Ubuntu 软件包镜像", "en": "Ubuntu package archive mirror" },
     "type": "os",
     "files": [
-      {
-        "name": "24.04.4 live server-amd64",
-        "url": "/ubuntu-releases/noble/ubuntu-24.04.4-live-server-amd64.iso"
-      },
-      {
-        "name": "24.04.4 desktop amd64",
-        "url": "/ubuntu-releases/noble/ubuntu-24.04.4-desktop-amd64.iso"
-      },
-      {
-        "name": "22.04.5 live server-amd64",
-        "url": "/ubuntu-releases/jammy/ubuntu-22.04.5-live-server-amd64.iso"
-      },
-      {
-        "name": "22.04.5 desktop amd64",
-        "url": "/ubuntu-releases/jammy/ubuntu-22.04.5-desktop-amd64.iso"
-      },
-      {
-        "name": "16.04.6 desktop i386",
-        "url": "/ubuntu-releases/xenial/ubuntu-16.04.6-desktop-i386.iso"
-      },
-      {
-        "name": "16.04.7 server amd64",
-        "url": "/ubuntu-releases/xenial/ubuntu-16.04.7-server-amd64.iso"
-      },
-      {
-        "name": "16.04.6 server i386",
-        "url": "/ubuntu-releases/xenial/ubuntu-16.04.6-server-i386.iso"
-      },
-      {
-        "name": "16.04.7 desktop amd64",
-        "url": "/ubuntu-releases/xenial/ubuntu-16.04.7-desktop-amd64.iso"
-      },
-      {
-        "name": "18.04.6 live server-amd64",
-        "url": "/ubuntu-releases/bionic/ubuntu-18.04.6-live-server-amd64.iso"
-      },
-      {
-        "name": "18.04.6 desktop amd64",
-        "url": "/ubuntu-releases/bionic/ubuntu-18.04.6-desktop-amd64.iso"
-      },
-      {
-        "name": "25.10 desktop amd64",
-        "url": "/ubuntu-releases/questing/ubuntu-25.10-desktop-amd64.iso"
-      },
-      {
-        "name": "25.10 live server-amd64",
-        "url": "/ubuntu-releases/questing/ubuntu-25.10-live-server-amd64.iso"
-      },
-      {
-        "name": "20.04.6 live server-amd64",
-        "url": "/ubuntu-releases/focal/ubuntu-20.04.6-live-server-amd64.iso"
-      },
-      {
-        "name": "20.04.6 desktop amd64",
-        "url": "/ubuntu-releases/focal/ubuntu-20.04.6-desktop-amd64.iso"
-      },
-      {
-        "name": "14.04.6 desktop amd64",
-        "url": "/ubuntu-releases/trusty/ubuntu-14.04.6-desktop-amd64.iso"
-      },
-      {
-        "name": "14.04.6 server amd64",
-        "url": "/ubuntu-releases/trusty/ubuntu-14.04.6-server-amd64.iso"
-      },
-      {
-        "name": "14.04.6 server i386",
-        "url": "/ubuntu-releases/trusty/ubuntu-14.04.6-server-i386.iso"
-      },
-      {
-        "name": "14.04.6 desktop i386",
-        "url": "/ubuntu-releases/trusty/ubuntu-14.04.6-desktop-i386.iso"
-      }
+      { "name": "24.04 LTS desktop amd64", "url": "/ubuntu-releases/noble/ubuntu-24.04-desktop-amd64.iso" },
+      { "name": "24.04 LTS server amd64", "url": "/ubuntu-releases/noble/ubuntu-24.04-live-server-amd64.iso" },
+      { "name": "22.04 LTS desktop amd64", "url": "/ubuntu-releases/jammy/ubuntu-22.04-desktop-amd64.iso" },
+      { "name": "22.04 LTS server amd64", "url": "/ubuntu-releases/jammy/ubuntu-22.04-live-server-amd64.iso" }
     ]
   },
   "debian": {
-    "desc": {
-      "zh": "Debian 发行版软件包",
-      "en": "Debian Packages"
-    },
+    "name": { "zh": "Debian", "en": "Debian" },
+    "desc": { "zh": "Debian 软件包镜像", "en": "Debian package archive mirror" },
     "type": "os",
     "files": [
-      {
-        "name": "13.3.0 amd64 debian-edu netinst",
-        "url": "/debian-cd/13.3.0/amd64/iso-cd/debian-edu-13.3.0-amd64-netinst.iso"
-      },
-      {
-        "name": "13.3.0 amd64 debian netinst",
-        "url": "/debian-cd/13.3.0/amd64/iso-cd/debian-13.3.0-amd64-netinst.iso"
-      },
-      {
-        "name": "13.3.0 amd64 debian",
-        "url": "/debian-cd/13.3.0/amd64/iso-dvd/debian-13.3.0-amd64-DVD-1.iso"
-      },
-      {
-        "name": "13.3.0 amd64 debian-edu",
-        "url": "/debian-cd/13.3.0/amd64/iso-bd/debian-edu-13.3.0-amd64-BD-1.iso"
-      },
-      {
-        "name": "13.3.0 riscv64 debian netinst",
-        "url": "/debian-cd/13.3.0/riscv64/iso-cd/debian-13.3.0-riscv64-netinst.iso"
-      },
-      {
-        "name": "13.3.0 riscv64 debian",
-        "url": "/debian-cd/13.3.0/riscv64/iso-dvd/debian-13.3.0-riscv64-DVD-1.iso"
-      },
-      {
-        "name": "13.3.0 arm64 debian",
-        "url": "/debian-cd/13.3.0/arm64/iso-dvd/debian-13.3.0-arm64-DVD-1.iso"
-      },
-      {
-        "name": "13.3.0 arm64 debian netinst",
-        "url": "/debian-cd/13.3.0/arm64/iso-cd/debian-13.3.0-arm64-netinst.iso"
-      },
-      {
-        "name": "13.3.0 amd64 debian-live debian kde",
-        "url": "/debian-cd/13.3.0-live/amd64/iso-hybrid/debian-live-13.3.0-amd64-kde.iso"
-      },
-      {
-        "name": "13.3.0 amd64 debian-live debian lxqt",
-        "url": "/debian-cd/13.3.0-live/amd64/iso-hybrid/debian-live-13.3.0-amd64-lxqt.iso"
-      },
-      {
-        "name": "13.3.0 amd64 debian-live debian mate",
-        "url": "/debian-cd/13.3.0-live/amd64/iso-hybrid/debian-live-13.3.0-amd64-mate.iso"
-      },
-      {
-        "name": "13.3.0 amd64 debian-live debian xfce",
-        "url": "/debian-cd/13.3.0-live/amd64/iso-hybrid/debian-live-13.3.0-amd64-xfce.iso"
-      },
-      {
-        "name": "13.3.0 amd64 debian-live debian",
-        "url": "/debian-cd/13.3.0-live/amd64/iso-hybrid/debian-live-13.3.0-amd64-debian-junior.iso"
-      },
-      {
-        "name": "13.3.0 amd64 debian-live debian standard",
-        "url": "/debian-cd/13.3.0-live/amd64/iso-hybrid/debian-live-13.3.0-amd64-standard.iso"
-      },
-      {
-        "name": "13.3.0 amd64 debian-live debian cinnamon",
-        "url": "/debian-cd/13.3.0-live/amd64/iso-hybrid/debian-live-13.3.0-amd64-cinnamon.iso"
-      },
-      {
-        "name": "13.3.0 amd64 debian-live debian gnome",
-        "url": "/debian-cd/13.3.0-live/amd64/iso-hybrid/debian-live-13.3.0-amd64-gnome.iso"
-      },
-      {
-        "name": "13.3.0 amd64 debian-live debian lxde",
-        "url": "/debian-cd/13.3.0-live/amd64/iso-hybrid/debian-live-13.3.0-amd64-lxde.iso"
-      }
-    ]
-  },
-  "archlinux": {
-    "type": "os",
-    "desc": {
-      "zh": "Arch Linux 软件包",
-      "en": "Arch Linux Packages"
-    },
-    "name": {
-      "zh": "Arch Linux",
-      "en": "Arch Linux"
-    },
-    "files": [
-      {
-        "name": "latest",
-        "url": "/archlinux/iso/latest/archlinux-x86_64.iso"
-      }
-    ]
-  },
-  "centos": {
-    "type": "os",
-    "desc": {
-      "zh": "CentOS Linux 7 镜像",
-      "en": "Mirror of CentOS Linux 7"
-    },
-    "name": {
-      "en": "CentOS (EOL)",
-      "zh": "CentOS (已停止支持)"
-    },
-    "status": "cached",
-    "files": [
-      {
-        "name": "7.9.2009 x86_64 centos Dvd",
-        "url": "/centos-vault/7.9.2009/isos/x86_64/CentOS-7-x86_64-DVD-2207-02.iso"
-      },
-      {
-        "name": "7.9.2009 x86_64 centos Everything",
-        "url": "/centos-vault/7.9.2009/isos/x86_64/CentOS-7-x86_64-Everything-2207-02.iso"
-      },
-      {
-        "name": "7.9.2009 x86_64 centos Minimal",
-        "url": "/centos-vault/7.9.2009/isos/x86_64/CentOS-7-x86_64-Minimal-2207-02.iso"
-      }
-    ]
-  },
-  "rocky": {
-    "type": "os",
-    "desc": {
-      "zh": "一类企业 Linux 发行版",
-      "en": "An enterprise Linux distribution"
-    },
-    "name": {
-      "zh": "Rocky Linux",
-      "en": "Rocky Linux"
-    },
-    "files": [
-      {
-        "name": "8-latest x86_64 Rocky Dvd",
-        "url": "/rocky/8/isos/x86_64/Rocky-8-latest-x86_64-dvd.iso"
-      },
-      {
-        "name": "8-latest x86_64 Rocky Minimal",
-        "url": "/rocky/8/isos/x86_64/Rocky-8-latest-x86_64-minimal.iso"
-      },
-      {
-        "name": "8-latest x86_64 Rocky Boot",
-        "url": "/rocky/8/isos/x86_64/Rocky-8-latest-x86_64-boot.iso"
-      },
-      {
-        "name": "8-latest aarch64 Rocky Minimal",
-        "url": "/rocky/8/isos/aarch64/Rocky-8-latest-aarch64-minimal.iso"
-      },
-      {
-        "name": "8-latest aarch64 Rocky Dvd",
-        "url": "/rocky/8/isos/aarch64/Rocky-8-latest-aarch64-dvd.iso"
-      },
-      {
-        "name": "8-latest aarch64 Rocky Boot",
-        "url": "/rocky/8/isos/aarch64/Rocky-8-latest-aarch64-boot.iso"
-      },
-      {
-        "name": "9-latest aarch64 Rocky Minimal",
-        "url": "/rocky/9/isos/aarch64/Rocky-9-latest-aarch64-minimal.iso"
-      },
-      {
-        "name": "9-latest aarch64 Rocky Dvd",
-        "url": "/rocky/9/isos/aarch64/Rocky-9-latest-aarch64-dvd.iso"
-      },
-      {
-        "name": "9-latest aarch64 Rocky Boot",
-        "url": "/rocky/9/isos/aarch64/Rocky-9-latest-aarch64-boot.iso"
-      },
-      {
-        "name": "9-latest x86_64 Rocky Minimal",
-        "url": "/rocky/9/isos/x86_64/Rocky-9-latest-x86_64-minimal.iso"
-      },
-      {
-        "name": "9-latest x86_64 Rocky Dvd",
-        "url": "/rocky/9/isos/x86_64/Rocky-9-latest-x86_64-dvd.iso"
-      },
-      {
-        "name": "9-latest x86_64 Rocky Boot",
-        "url": "/rocky/9/isos/x86_64/Rocky-9-latest-x86_64-boot.iso"
-      },
-      {
-        "name": "10-latest x86_64 Rocky Minimal",
-        "url": "/rocky/10/isos/x86_64/Rocky-10-latest-x86_64-minimal.iso"
-      },
-      {
-        "name": "10-latest x86_64 Rocky Dvd",
-        "url": "/rocky/10/isos/x86_64/Rocky-10-latest-x86_64-dvd.iso"
-      },
-      {
-        "name": "10-latest x86_64 Rocky Boot",
-        "url": "/rocky/10/isos/x86_64/Rocky-10-latest-x86_64-boot.iso"
-      },
-      {
-        "name": "10-latest aarch64 Rocky Boot",
-        "url": "/rocky/10/isos/aarch64/Rocky-10-latest-aarch64-boot.iso"
-      },
-      {
-        "name": "10-latest aarch64 Rocky Dvd",
-        "url": "/rocky/10/isos/aarch64/Rocky-10-latest-aarch64-dvd.iso"
-      },
-      {
-        "name": "10-latest aarch64 Rocky Minimal",
-        "url": "/rocky/10/isos/aarch64/Rocky-10-latest-aarch64-minimal.iso"
-      }
-    ]
-  },
-  "alpine": {
-    "type": "os",
-    "desc": {
-      "zh": "基于 musl libc 和 busybox 的安全、轻量 Linux 发行版",
-      "en": "A secure and lightweight Linux distribution based on musl libc and busybox"
-    },
-    "name": {
-      "zh": "Alpine Linux",
-      "en": "Alpine Linux"
-    }
-  },
-  "archlinuxcn": {
-    "type": "os",
-    "name": {
-      "en": "Arch Linux CN Community Repository",
-      "zh": "Arch Linux 中文社区仓库"
-    },
-    "desc": {
-      "zh": "由 Arch Linux 中文社区提供的额外软件包",
-      "en": "Extra packages provided by Arch Linux CN Community"
-    }
-  },
-  "CPAN": {
-    "name": {
-      "en": "CPAN",
-      "zh": "CPAN"
-    },
-    "desc": {
-      "en": "Perl language module repository",
-      "zh": "Perl 语言模块仓库"
-    }
-  },
-  "CRAN": {
-    "name": {
-      "en": "CRAN",
-      "zh": "CRAN"
-    },
-    "desc": {
-      "en": "R language executable, source code and documentation, and user-written software packages",
-      "zh": "R 语言的可执行文件、源代码和说明文件，以及用户撰写的软件包"
-    }
-  },
-  "CTAN": {
-    "name": {
-      "en": "CTAN",
-      "zh": "CTAN"
-    },
-    "desc": {
-      "en": "TeX distribution, software and documentation",
-      "zh": "TeX 的各种发行版、软件包和文档"
-    }
-  },
-  "bmclapi": {
-    "name": {
-      "en": "BMCLAPI",
-      "zh": "BMCLAPI"
-    },
-    "desc": {
-      "zh": "Minecraft BMCLAPI",
-      "en": "Minecraft BMCLAPI"
-    }
-  },
-  "openeuler": {
-    "type": "os",
-    "name": {
-      "en": "openEuler",
-      "zh": "openEuler"
-    },
-    "desc": {
-      "en": "Open Source OS for Digital Infrastructure",
-      "zh": "面向数字基础设施的开源操作系统"
-    },
-    "files": [
-      {
-        "name": "openEuler-22.03-LTS-SP4 aarch64 openEuler Netins",
-        "url": "/openeuler/openEuler-22.03-LTS-SP4/ISO/aarch64/openEuler-22.03-LTS-SP4-netinst-aarch64-dvd.iso"
-      },
-      {
-        "name": "openEuler-22.03-LTS-SP4 aarch64 openEuler Everything",
-        "url": "/openeuler/openEuler-22.03-LTS-SP4/ISO/aarch64/openEuler-22.03-LTS-SP4-everything-aarch64-dvd.iso"
-      },
-      {
-        "name": "openEuler-22.03-LTS-SP4 aarch64 openEuler DVD",
-        "url": "/openeuler/openEuler-22.03-LTS-SP4/ISO/aarch64/openEuler-22.03-LTS-SP4-aarch64-dvd.iso"
-      },
-      {
-        "name": "openEuler-22.03-LTS-SP4 aarch64 openEuler Everything Debug",
-        "url": "/openeuler/openEuler-22.03-LTS-SP4/ISO/aarch64/openEuler-22.03-LTS-SP4-everything-debug-aarch64-dvd.iso"
-      },
-      {
-        "name": "openEuler-22.03-LTS-SP4 x86_64 openEuler Netins",
-        "url": "/openeuler/openEuler-22.03-LTS-SP4/ISO/x86_64/openEuler-22.03-LTS-SP4-netinst-x86_64-dvd.iso"
-      },
-      {
-        "name": "openEuler-22.03-LTS-SP4 x86_64 openEuler Everything Debug",
-        "url": "/openeuler/openEuler-22.03-LTS-SP4/ISO/x86_64/openEuler-22.03-LTS-SP4-everything-debug-x86_64-dvd.iso"
-      },
-      {
-        "name": "openEuler-22.03-LTS-SP4 x86_64 openEuler Everything",
-        "url": "/openeuler/openEuler-22.03-LTS-SP4/ISO/x86_64/openEuler-22.03-LTS-SP4-everything-x86_64-dvd.iso"
-      },
-      {
-        "name": "openEuler-22.03-LTS-SP4 x86_64 openEuler DVD",
-        "url": "/openeuler/openEuler-22.03-LTS-SP4/ISO/x86_64/openEuler-22.03-LTS-SP4-x86_64-dvd.iso"
-      },
-      {
-        "name": "openEuler-2403-LTS ppc64le openEuler DVD",
-        "url": "/openeuler/openEuler-24.03-LTS/ISO/ppc64le/openEuler-2403-LTS-ppc64le-dvd.iso"
-      },
-      {
-        "name": "openEuler-24.03-LTS-SP3 aarch64 openEuler Everything",
-        "url": "/openeuler/openEuler-24.03-LTS-SP3/ISO/aarch64/openEuler-24.03-LTS-SP3-everything-aarch64-dvd.iso"
-      },
-      {
-        "name": "openEuler-24.03-LTS-SP3 aarch64 openEuler DVD",
-        "url": "/openeuler/openEuler-24.03-LTS-SP3/ISO/aarch64/openEuler-24.03-LTS-SP3-aarch64-dvd.iso"
-      },
-      {
-        "name": "openEuler-24.03-LTS-SP3 aarch64 openEuler Everything Debug",
-        "url": "/openeuler/openEuler-24.03-LTS-SP3/ISO/aarch64/openEuler-24.03-LTS-SP3-everything-debug-aarch64-dvd.iso"
-      },
-      {
-        "name": "openEuler-24.03-LTS-SP3 aarch64 openEuler Netins",
-        "url": "/openeuler/openEuler-24.03-LTS-SP3/ISO/aarch64/openEuler-24.03-LTS-SP3-netinst-aarch64-dvd.iso"
-      },
-      {
-        "name": "openEuler-24.03-LTS-SP3 x86_64 openEuler Netins",
-        "url": "/openeuler/openEuler-24.03-LTS-SP3/ISO/x86_64/openEuler-24.03-LTS-SP3-netinst-x86_64-dvd.iso"
-      },
-      {
-        "name": "openEuler-24.03-LTS-SP3 x86_64 openEuler Everything Debug",
-        "url": "/openeuler/openEuler-24.03-LTS-SP3/ISO/x86_64/openEuler-24.03-LTS-SP3-everything-debug-x86_64-dvd.iso"
-      },
-      {
-        "name": "openEuler-24.03-LTS-SP3 x86_64 openEuler DVD",
-        "url": "/openeuler/openEuler-24.03-LTS-SP3/ISO/x86_64/openEuler-24.03-LTS-SP3-x86_64-dvd.iso"
-      },
-      {
-        "name": "openEuler-24.03-LTS-SP3 x86_64 openEuler Everything",
-        "url": "/openeuler/openEuler-24.03-LTS-SP3/ISO/x86_64/openEuler-24.03-LTS-SP3-everything-x86_64-dvd.iso"
-      },
-      {
-        "name": "openEuler-24.03-LTS-SP2 riscv64 openEuler Netins",
-        "url": "/openeuler/openEuler-24.03-LTS-SP2/ISO/riscv64/openEuler-24.03-LTS-SP2-netinst-riscv64-dvd.iso"
-      },
-      {
-        "name": "openEuler-24.03-LTS-SP2 riscv64 openEuler DVD",
-        "url": "/openeuler/openEuler-24.03-LTS-SP2/ISO/riscv64/openEuler-24.03-LTS-SP2-riscv64-dvd.iso"
-      },
-      {
-        "name": "openEuler-24.03-LTS-SP2 riscv64 openEuler Everything",
-        "url": "/openeuler/openEuler-24.03-LTS-SP2/ISO/riscv64/openEuler-24.03-LTS-SP2-everything-riscv64-dvd.iso"
-      },
-      {
-        "name": "openEuler-24.03-LTS-SP2 riscv64 openEuler Everything Debug",
-        "url": "/openeuler/openEuler-24.03-LTS-SP2/ISO/riscv64/openEuler-24.03-LTS-SP2-everything-debug-riscv64-dvd.iso"
-      },
-      {
-        "name": "openEuler-24.03-LTS-SP3 loongarch64 openEuler DVD",
-        "url": "/openeuler/openEuler-24.03-LTS-SP3/ISO/loongarch64/openEuler-24.03-LTS-SP3-loongarch64-dvd.iso"
-      },
-      {
-        "name": "openEuler-24.03-LTS-SP3 loongarch64 openEuler Netins",
-        "url": "/openeuler/openEuler-24.03-LTS-SP3/ISO/loongarch64/openEuler-24.03-LTS-SP3-netinst-loongarch64-dvd.iso"
-      },
-      {
-        "name": "openEuler-24.03-LTS-SP3 loongarch64 openEuler Everything",
-        "url": "/openeuler/openEuler-24.03-LTS-SP3/ISO/loongarch64/openEuler-24.03-LTS-SP3-everything-loongarch64-dvd.iso"
-      },
-      {
-        "name": "openEuler-20.03-LTS-SP4 aarch64 openEuler DVD",
-        "url": "/openeuler/openEuler-20.03-LTS-SP4/ISO/aarch64/openEuler-20.03-LTS-SP4-aarch64-dvd.iso"
-      },
-      {
-        "name": "openEuler-20.03-LTS-SP4 aarch64 openEuler Everything",
-        "url": "/openeuler/openEuler-20.03-LTS-SP4/ISO/aarch64/openEuler-20.03-LTS-SP4-everything-aarch64-dvd.iso"
-      },
-      {
-        "name": "openEuler-20.03-LTS-SP4 aarch64 openEuler Everything Debug",
-        "url": "/openeuler/openEuler-20.03-LTS-SP4/ISO/aarch64/openEuler-20.03-LTS-SP4-everything-debug-aarch64-dvd.iso"
-      },
-      {
-        "name": "openEuler-20.03-LTS-SP4 aarch64 openEuler Netins",
-        "url": "/openeuler/openEuler-20.03-LTS-SP4/ISO/aarch64/openEuler-20.03-LTS-SP4-netinst-aarch64-dvd.iso"
-      },
-      {
-        "name": "openEuler-20.03-LTS-SP4 x86_64 openEuler Everything",
-        "url": "/openeuler/openEuler-20.03-LTS-SP4/ISO/x86_64/openEuler-20.03-LTS-SP4-everything-x86_64-dvd.iso"
-      },
-      {
-        "name": "openEuler-20.03-LTS-SP4 x86_64 openEuler Everything Debug",
-        "url": "/openeuler/openEuler-20.03-LTS-SP4/ISO/x86_64/openEuler-20.03-LTS-SP4-everything-debug-x86_64-dvd.iso"
-      },
-      {
-        "name": "openEuler-20.03-LTS-SP4 x86_64 openEuler Netins",
-        "url": "/openeuler/openEuler-20.03-LTS-SP4/ISO/x86_64/openEuler-20.03-LTS-SP4-netinst-x86_64-dvd.iso"
-      },
-      {
-        "name": "openEuler-20.03-LTS-SP4 x86_64 openEuler DVD",
-        "url": "/openeuler/openEuler-20.03-LTS-SP4/ISO/x86_64/openEuler-20.03-LTS-SP4-x86_64-dvd.iso"
-      },
-      {
-        "name": "openEuler-24.03-LTS-SP3 loongarch64 openEuler Everything Debug",
-        "url": "/openeuler/openEuler-24.03-LTS-SP3/ISO/loongarch64/openEuler-24.03-LTS-SP3-everything-debug-loongarch64-dvd.iso"
-      },
-      {
-        "name": "openEuler-22.03-LTS loongarch64 openEuler DVD",
-        "url": "/openeuler/openEuler-22.03-LTS/ISO/loongarch64/openEuler-22.03-LTS-loongarch64-dvd.iso"
-      },
-      {
-        "name": "openEuler-22.03-LTS loongarch64 openEuler Netins",
-        "url": "/openeuler/openEuler-22.03-LTS/ISO/loongarch64/openEuler-22.03-LTS-netinst-loongarch64-dvd.iso"
-      },
-      {
-        "name": "openEuler-22.03-LTS loongarch64 openEuler Everything",
-        "url": "/openeuler/openEuler-22.03-LTS/ISO/loongarch64/openEuler-22.03-LTS-everything-loongarch64-dvd.iso"
-      }
+      { "name": "12 amd64 netinst", "url": "/debian-cd/12/amd64/iso-cd/debian-12-amd64-netinst.iso" },
+      { "name": "12 amd64 dvd", "url": "/debian-cd/12/amd64/iso-dvd/debian-12-amd64-DVD-1.iso" }
     ]
   },
   "debian-security": {
-    "name": {
-      "en": "Debian Security",
-      "zh": "Debian 安全更新"
-    },
-    "desc": {
-      "en": "Debian Security Packages",
-      "zh": "Debian 发行版安全更新软件包"
-    }
+    "name": { "zh": "Debian Security", "en": "Debian Security" },
+    "desc": { "zh": "Debian 安全更新镜像", "en": "Debian security updates mirror" },
+    "type": "none"
   },
-  "ubuntu-releases": {
-    "name": {
-      "en": "Ubuntu Releases",
-      "zh": "Ubuntu 安装介质（原版）"
-    },
-    "desc": {
-      "en": "Installation media of Ubuntu (vanilla)",
-      "zh": "Ubuntu 安装介质（原版）"
-    }
-  },
-  "debian-cd": {
-    "name": {
-      "en": "Debian CD Image",
-      "zh": "Debian CD 镜像"
-    },
-    "desc": {
-      "en": "Debian Linux Installer Image",
-      "zh": "Debian Linux 安装镜像"
-    }
-  },
-  "nginx-src": {
-    "name": {
-      "en": "Nginx-src",
-      "zh": "Nginx-src"
-    },
-    "desc": {
-      "en": "Nginx Source Code",
-      "zh": "Nginx 源代码"
-    }
-  },
-  "nginx": {
-    "desc": {
-      "en": "Nginx Pre-Built Packages",
-      "zh": "Nginx 预构建软件包仓库"
-    }
-  },
-  "kali-images": {
-    "name": {
-      "en": "Kali Linux Installation Media",
-      "zh": "Kali Linux 安装镜像"
-    },
-    "desc": {
-      "en": "Kali Linux Installation Media",
-      "zh": "Kali Linux 安装镜像"
-    }
-  },
-  "epel": {
-    "name": {
-      "en": "EPEL",
-      "zh": "EPEL"
-    },
-    "desc": {
-      "en": "Extra Packages for Enterprise Linux",
-      "zh": "Extra Packages for Enterprise Linux"
-    }
-  },
-  "manjaro": {
-    "name": {
-      "en": "Manjaro",
-      "zh": "Manjaro"
-    },
-    "desc": {
-      "en": "A user-friendly Linux distribution based on the independently developed Arch operating system",
-      "zh": "基于独立开发的 Arch Linux 对用户友好的 Linux 发行版"
-    }
-  },
-  "kali": {
-    "name": {
-      "en": "Kali Linux",
-      "zh": "Kali Linux"
-    },
-    "desc": {
-      "en": "Kali Linux repositories",
-      "zh": "Kali Linux 软件包仓库"
-    },
+  "archlinux": {
+    "name": { "zh": "Arch Linux", "en": "Arch Linux" },
+    "desc": { "zh": "Arch Linux 软件包镜像", "en": "Arch Linux package archive mirror" },
+    "type": "os",
     "files": [
-      {
-        "name": "2025.4 purple-amd64 Kali DVD",
-        "url": "/kali-images/current/kali-linux-2025.4-installer-purple-amd64.iso"
-      },
-      {
-        "name": "2025.4 amd64 Kali DVD",
-        "url": "/kali-images/current/kali-linux-2025.4-installer-amd64.iso"
-      },
-      {
-        "name": "2025.4 amd64 Kali Netinst",
-        "url": "/kali-images/current/kali-linux-2025.4-installer-netinst-amd64.iso"
-      },
-      {
-        "name": "2025.4 arm64 Kali Netinst",
-        "url": "/kali-images/current/kali-linux-2025.4-installer-netinst-arm64.iso"
-      },
-      {
-        "name": "2025.4 arm64 Kali DVD",
-        "url": "/kali-images/current/kali-linux-2025.4-installer-arm64.iso"
-      }
+      { "name": "latest iso", "url": "/archlinux/iso/latest/archlinux-x86_64.iso" }
     ]
   },
-  "GNU": {
-    "name": {
-      "en": "GNU Softwares",
-      "zh": "GNU 软件包"
-    },
-    "desc": {
-      "en": "GNU Softwares (Binaries, Documentation & Source Code)",
-      "zh": "GNU 软件 （二进制、文档与源码包）"
-    }
+  "archlinuxcn": {
+    "name": { "zh": "Arch Linux CN", "en": "Arch Linux CN" },
+    "desc": { "zh": "Arch Linux 中文社区仓库镜像", "en": "Arch Linux CN community repository mirror" },
+    "type": "none"
   },
-  "centos-vault": {
-    "name": {
-      "en": "CentOS Vault",
-      "zh": "CentOS Vault"
-    },
-    "desc": {
-      "en": "Package repo of archived CentOS versions",
-      "zh": "已归档 CentOS 版本软件包源"
-    }
+  "centos": {
+    "name": { "zh": "CentOS", "en": "CentOS" },
+    "desc": { "zh": "CentOS 软件包镜像", "en": "CentOS package archive mirror" },
+    "type": "os"
   },
-  "mysql": {
-    "desc": {
-      "zh": "Mysql 软件仓库",
-      "en": "Mysql Softwares"
-    },
-    "name": {
-      "en": "MySQL",
-      "zh": "MySQL"
-    }
+  "epel": {
+    "name": { "zh": "EPEL", "en": "EPEL" },
+    "desc": { "zh": "Fedora EPEL 额外软件包镜像", "en": "Fedora EPEL extra packages mirror" },
+    "type": "none"
+  },
+  "fedora": {
+    "name": { "zh": "Fedora", "en": "Fedora" },
+    "desc": { "zh": "Fedora 软件包镜像", "en": "Fedora package archive mirror" },
+    "type": "os"
+  },
+  "rockylinux": {
+    "name": { "zh": "Rocky Linux", "en": "Rocky Linux" },
+    "desc": { "zh": "Rocky Linux 软件包镜像", "en": "Rocky Linux package archive mirror" },
+    "type": "os",
+    "files": [
+      { "name": "9 dvd x86_64", "url": "/rocky/9/isos/x86_64/Rocky-9-x86_64-dvd.iso" },
+      { "name": "9 boot x86_64", "url": "/rocky/9/isos/x86_64/Rocky-9-x86_64-boot.iso" }
+    ]
+  },
+  "alpine": {
+    "name": { "zh": "Alpine Linux", "en": "Alpine Linux" },
+    "desc": { "zh": "Alpine Linux 软件包镜像", "en": "Alpine Linux package archive mirror" },
+    "type": "os",
+    "files": [
+      { "name": "standard x86_64", "url": "/alpine/latest-stable/releases/x86_64/alpine-standard-latest-x86_64.iso" }
+    ]
+  },
+  "opensuse": {
+    "name": { "zh": "openSUSE", "en": "openSUSE" },
+    "desc": { "zh": "openSUSE 软件包镜像", "en": "openSUSE package archive mirror" },
+    "type": "os"
+  },
+  "kali": {
+    "name": { "zh": "Kali Linux", "en": "Kali Linux" },
+    "desc": { "zh": "Kali Linux 软件包镜像", "en": "Kali Linux package archive mirror" },
+    "type": "os",
+    "files": [
+      { "name": "installer amd64", "url": "/kali-images/kali-2024.1/kali-linux-2024.1-installer-amd64.iso" }
+    ]
+  },
+  "manjaro": {
+    "name": { "zh": "Manjaro", "en": "Manjaro" },
+    "desc": { "zh": "Manjaro Linux 软件包镜像", "en": "Manjaro Linux package archive mirror" },
+    "type": "os"
+  },
+  "openwrt": {
+    "name": { "zh": "OpenWrt", "en": "OpenWrt" },
+    "desc": { "zh": "OpenWrt 软件包镜像", "en": "OpenWrt package archive mirror" },
+    "type": "os"
+  },
+  "pypi": {
+    "name": { "zh": "PyPI", "en": "PyPI" },
+    "desc": { "zh": "Python 包索引镜像", "en": "Python Package Index mirror" },
+    "type": "none"
+  },
+  "homebrew": {
+    "name": { "zh": "Homebrew", "en": "Homebrew" },
+    "desc": { "zh": "Homebrew 软件包镜像", "en": "Homebrew package mirror" },
+    "type": "none"
+  },
+  "homebrew-bottles": {
+    "name": { "zh": "Homebrew Bottles", "en": "Homebrew Bottles" },
+    "desc": { "zh": "Homebrew 预编译包镜像", "en": "Homebrew pre-built bottles mirror" },
+    "type": "none"
+  },
+  "crates.io-index": {
+    "name": { "zh": "crates.io Index", "en": "crates.io Index" },
+    "desc": { "zh": "Rust crates.io 索引镜像", "en": "Rust crates.io index mirror" },
+    "type": "none"
+  },
+  "kicad": {
+    "name": { "zh": "KiCad", "en": "KiCad" },
+    "desc": { "zh": "KiCad 软件包镜像", "en": "KiCad package mirror" },
+    "type": "none"
+  },
+  "ros": {
+    "name": { "zh": "ROS", "en": "ROS" },
+    "desc": { "zh": "ROS 软件包镜像", "en": "ROS package mirror" },
+    "type": "none"
+  },
+  "linux.git": {
+    "name": { "zh": "Linux Kernel Git", "en": "Linux Kernel Git" },
+    "desc": { "zh": "Linux 内核 Git 仓库镜像", "en": "Linux kernel git repository mirror" },
+    "type": "none"
+  },
+  "gentoo-portage.git": {
+    "name": { "zh": "Gentoo Portage Git", "en": "Gentoo Portage Git" },
+    "desc": { "zh": "Gentoo Portage Git 仓库镜像", "en": "Gentoo Portage git repository mirror" },
+    "type": "none"
+  },
+  "gentoo-zh.git": {
+    "name": { "zh": "Gentoo 中文 Git", "en": "Gentoo CN Git" },
+    "desc": { "zh": "Gentoo 中文社区 Git 仓库镜像", "en": "Gentoo Chinese community git repository mirror" },
+    "type": "none"
+  },
+  "ubuntu-releases": {
+    "name": { "zh": "Ubuntu Releases", "en": "Ubuntu Releases" },
+    "desc": { "zh": "Ubuntu 发行版 ISO 下载", "en": "Ubuntu release ISO downloads" },
+    "type": "os"
+  },
+  "blender": {
+    "name": { "zh": "Blender", "en": "Blender" },
+    "desc": { "zh": "Blender 软件镜像", "en": "Blender software mirror" },
+    "type": "none"
+  },
+  "bmclapi": {
+    "name": { "zh": "BMCLAPI", "en": "BMCLAPI" },
+    "desc": { "zh": "BMCLAPI Minecraft 资源镜像", "en": "BMCLAPI Minecraft resource mirror" },
+    "type": "none"
+  },
+  "espressif": {
+    "name": { "zh": "Espressif", "en": "Espressif" },
+    "desc": { "zh": "乐鑫 ESP-IDF 开发框架镜像", "en": "Espressif ESP-IDF framework mirror" },
+    "type": "none"
   },
   "github-release": {
-    "desc": {
-      "zh": "一些项目的 Github Release 镜像",
-      "en": "Images of some projects' Github releases"
-    },
-    "name": {
-      "zh": "Github Releases",
-      "en": "Github Releases"
-    },
-    "type": "github-release"
+    "name": { "zh": "GitHub Releases", "en": "GitHub Releases" },
+    "desc": { "zh": "GitHub Release 文件镜像", "en": "GitHub Release file mirror" },
+    "type": "none"
   },
-  "lyx": {
-    "name": {
-      "zh": "LyX",
-      "en": "LyX"
-    },
-    "desc": {
-      "zh": "一个所见即所得的 LaTeX 编辑器",
-      "en": "A LaTeX editer"
-    }
+  "maven": {
+    "name": { "zh": "Maven", "en": "Maven" },
+    "desc": { "zh": "Apache Maven 仓库镜像", "en": "Apache Maven repository mirror" },
+    "type": "none"
   },
-  "Adoptium": {
-    "desc": {
-      "en": "Prebuild OpenJDK binaries for free",
-      "zh": "免费的预编译 OpenJDK"
-    }
+  "videolan-ftp": {
+    "name": { "zh": "VideoLAN FTP", "en": "VideoLAN FTP" },
+    "desc": { "zh": "VideoLAN (VLC) FTP 镜像", "en": "VideoLAN (VLC) FTP mirror" },
+    "type": "none"
+  },
+  "wsl-distributions": {
+    "name": { "zh": "WSL Distributions", "en": "WSL Distributions" },
+    "desc": { "zh": "Windows Subsystem for Linux 发行版镜像", "en": "WSL distribution images mirror" },
+    "type": "none"
+  },
+  "zerotier": {
+    "name": { "zh": "ZeroTier", "en": "ZeroTier" },
+    "desc": { "zh": "ZeroTier 下载镜像", "en": "ZeroTier download mirror" },
+    "type": "none"
   }
 }

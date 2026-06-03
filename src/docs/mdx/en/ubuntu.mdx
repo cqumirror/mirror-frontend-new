@@ -1,95 +1,243 @@
-import ConfigGenerator from '../../../components/config-generator/ConfigGenerator'
+## Ubuntu Linux Mirror Usage Guide
 
-export const ubuntuVersionList = [
-  "24.04 LTS",
-  "23.04",
-  "22.10",
-  "22.04 LTS",
-  "20.04 LTS",
-  "18.04 LTS",
-  "16.04 LTS",
-  "14.04 LTS",
-];
+## URL
 
-export const ubuntuVersionMap = {
-  "24.04 LTS": "noble",
-  "23.04": "lunar",
-  "22.10": "kinetic",
-  "22.04 LTS": "jammy",
-  "20.04 LTS": "focal",
-  "18.04 LTS": "bionic",
-  "16.04 LTS": "xenial",
-  "14.04 LTS": "trusty",
-};
+https://mirrors.cqu.edu.cn/ubuntu/
 
-export const defaultVersion = "24.04 LTS";
+## Description
 
-export const GenUbuntuConfig = (version) => {
-  const ubuntuName = ubuntuVersionMap[version] || "noble";
-  return `# Source mirrors are commented out by default to improve apt update speed. Uncomment if needed.
-deb https://mirrors.jcut.edu.cn/ubuntu/ ${ubuntuName} main restricted universe multiverse
-# deb-src https://mirrors.jcut.edu.cn/ubuntu/ ${ubuntuName} main restricted universe multiverse
-deb https://mirrors.jcut.edu.cn/ubuntu/ ${ubuntuName}-updates main restricted universe multiverse
-# deb-src https://mirrors.jcut.edu.cn/ubuntu/ ${ubuntuName}-updates main restricted universe multiverse
-deb https://mirrors.jcut.edu.cn/ubuntu/ ${ubuntuName}-backports main restricted universe multiverse
-# deb-src https://mirrors.jcut.edu.cn/ubuntu/ ${ubuntuName}-backports main restricted universe multiverse
-deb https://mirrors.jcut.edu.cn/ubuntu/ ${ubuntuName}-security main restricted universe multiverse
-# deb-src https://mirrors.jcut.edu.cn/ubuntu/ ${ubuntuName}-security main restricted universe multiverse
-# Proposed repository, not recommended to enable
-# deb https://mirrors.jcut.edu.cn/ubuntu/ ${ubuntuName}-proposed main restricted universe multiverse
-# deb-src https://mirrors.jcut.edu.cn/ubuntu/ ${ubuntuName}-proposed main restricted universe multiverse`;
-};
+Ubuntu software repository
 
-## Ubuntu Repository Usage Guide
+## Supported Architectures
 
-### URL
+x86_64
 
-[https://mirrors.jcut.edu.cn/ubuntu/](https://mirrors.jcut.edu.cn/ubuntu/)
+## Supported Versions
 
-### Description
+Release
 
-*Ubuntu* software repository.
+For details, please refer to [Ubuntu Wiki](http://wiki.ubuntu.com/Releases)
 
-### Supported Architectures
+## Usage
 
-amd64 (X86_64), i386
+### Simple Method
 
-### Supported Versions
 
-All currently supported versions of *Ubuntu*, including development versions. For specific versions, see [https://wiki.ubuntu.com/Releases](https://wiki.ubuntu.com/Releases)
+This method is only applicable to the Desktop edition.
 
----
 
-### Usage Instructions
+1. Click the menu on the `left dock` to enter the `Gnome menu`
 
-#### Method 1
+2. Search for `software` and open the `Software & Updates` application
 
-Generally, it is sufficient to replace the default repository address `http://archive.ubuntu.com/` with `http://mirrors.jcut.edu.cn/` in the `/etc/apt/sources.list` file.
+3. In the dialog that opens, use the dropdown menu on the **first tab** (`Download from`) to select `Other Sites`. In the new dialog, select the China list and choose `mirrors.cqu.edu.cn`, then click `Choose Server`
 
-You can use the following command:
+4. Click Close. You will be prompted to refresh the apt cache. Select **Yes** to refresh the apt cache, and it will be ready to use
 
-```shell
-sudo sed -i 's|archive.ubuntu.com|mirrors.jcut.edu.cn|g' /etc/apt/sources.list
-```
+### General Method
 
-Starting from *Ubuntu 24.04 LTS*, DEB822 format is used instead of the traditional One-Line-Style format. The corresponding file to modify is `/etc/apt/sources.list.d/ubuntu.sources`. You can also use the following command:
 
-```shell
-sudo sed -i 's/archive.ubuntu.com/mirrors.jcut.edu.cn/g' /etc/apt/sources.list.d/ubuntu.sources
-```
+Before **Ubuntu 24.04**, Ubuntu's software source configuration file used the traditional **One-Line-Style** format, located at `/etc/apt/sources.list`. Starting from **Ubuntu 24.04**, Ubuntu's software source configuration file has changed to the [DEB822 format](#deb822-format), located at `/etc/apt/sources.list.d/ubuntu.sources`.
 
-#### Method 2
 
-Directly edit `/etc/apt/sources.list` (requires `sudo`).
+The following commands are for versions **before Ubuntu 24.04**. For **Ubuntu 24.04**, `/etc/apt/sources.list` will be an **empty file** and needs to be **filled directly** with the appropriate software source configuration, while **deleting** `/etc/apt/sources.list.d/ubuntu.sources` to prevent duplicate configuration. Therefore, it is recommended to **use the [DEB822 format](#deb822-format) directly**.
 
-<ConfigGenerator promptString="Please select your Ubuntu version:" versionList={ubuntuVersionList} defaultVersion={defaultVersion} configGen={GenUbuntuConfig} language="bash" />
 
-#### Method 3 (One-click Script)
+
+First, back up the `sources.list` file
 
 ```bash
-# Using curl
-bash <(curl -sSL http://mirrors.jcut.edu.cn/mirrors.sh)
-# Using wget
-bash <(wget -qO- http://mirrors.jcut.edu.cn/mirrors.sh)
+sudo cp /etc/apt/sources.list /etc/apt/sources.list.bak
+```
 
-## Either method above works
+Then run
+
+```bash
+sudo nano /etc/apt/sources.list
+```
+
+Use `ctrl` + `\` to search for `archive.ubuntu.com`, and replace it with `mirrors.cqu.edu.cn`, press Enter to submit, then press `shift` + `a` (i.e., `A`) to replace all occurrences.
+Press `Ctrl` + `o` to write changes, then press `ctrl` + `x` to exit.
+
+> If the source address is `cn.archive.ubuntu.com`, please replace `cn.archive.ubuntu.com` with `mirrors.cqu.edu.cn`
+
+The result should typically look like this:
+
+For Ubuntu 18.04 (bionic)
+
+```bash
+deb http://mirrors.cqu.edu.cn/ubuntu/ bionic main restricted universe multiverse
+# deb-src http://mirrors.cqu.edu.cn/ubuntu/ bionic main restricted universe multiverse
+deb http://mirrors.cqu.edu.cn/ubuntu/ bionic-updates main restricted universe multiverse
+# deb-src http://mirrors.cqu.edu.cn/ubuntu/ bionic-updates main restricted universe multiverse
+deb http://mirrors.cqu.edu.cn/ubuntu/ bionic-backports main restricted universe multiverse
+# deb-src http://mirrors.cqu.edu.cn/ubuntu/ bionic-backports main restricted universe multiverse
+deb http://mirrors.cqu.edu.cn/ubuntu/ bionic-security main restricted universe multiverse
+# deb-src http://mirrors.cqu.edu.cn/ubuntu/ bionic-security main restricted universe multiverse
+
+# deb http://mirrors.cqu.edu.cn/ubuntu/ bionic-proposed main restricted universe multiverse
+# deb-src http://mirrors.cqu.edu.cn/ubuntu/ bionic-proposed main restricted universe multiverse
+```
+
+For Ubuntu 20.04 (focal)
+
+```bash
+deb http://mirrors.cqu.edu.cn/ubuntu/ focal main restricted universe multiverse
+# deb-src http://mirrors.cqu.edu.cn/ubuntu/ focal main restricted universe multiverse
+deb http://mirrors.cqu.edu.cn/ubuntu/ focal-updates main restricted universe multiverse
+# deb-src http://mirrors.cqu.edu.cn/ubuntu/ focal-updates main restricted universe multiverse
+deb http://mirrors.cqu.edu.cn/ubuntu/ focal-backports main restricted universe multiverse
+# deb-src http://mirrors.cqu.edu.cn/ubuntu/ focal-backports main restricted universe multiverse
+deb http://mirrors.cqu.edu.cn/ubuntu/ focal-security main restricted universe multiverse
+# deb-src http://mirrors.cqu.edu.cn/ubuntu/ focal-security main restricted universe multiverse
+
+# deb http://mirrors.cqu.edu.cn/ubuntu/ focal-proposed main restricted universe multiverse
+# deb-src http://mirrors.cqu.edu.cn/ubuntu/ focal-proposed main restricted universe multiverse
+```
+
+For Ubuntu 22.04 (jammy)
+
+```bash
+deb http://mirrors.cqu.edu.cn/ubuntu/ jammy main restricted universe multiverse
+# deb-src http://mirrors.cqu.edu.cn/ubuntu/ jammy main restricted universe multiverse
+deb http://mirrors.cqu.edu.cn/ubuntu/ jammy-updates main restricted universe multiverse
+# deb-src http://mirrors.cqu.edu.cn/ubuntu/ jammy-updates main restricted universe multiverse
+deb http://mirrors.cqu.edu.cn/ubuntu/ jammy-backports main restricted universe multiverse
+# deb-src http://mirrors.cqu.edu.cn/ubuntu/ jammy-backports main restricted universe multiverse
+deb http://mirrors.cqu.edu.cn/ubuntu/ jammy-security main restricted universe multiverse
+# deb-src http://mirrors.cqu.edu.cn/ubuntu/ jammy-security main restricted universe multiverse
+
+# deb http://mirrors.cqu.edu.cn/ubuntu/ jammy-proposed main restricted universe multiverse
+# deb-src http://mirrors.cqu.edu.cn/ubuntu/ jammy-proposed main restricted universe multiverse
+```
+
+For Ubuntu 24.04 (noble) (recommended to use [DEB822 format](#deb822-format))
+
+```bash
+deb https://mirrors.cqu.edu.cn/ubuntu/ noble main restricted universe multiverse
+# deb-src https://mirrors.cqu.edu.cn/ubuntu/ noble main restricted universe multiverse
+deb https://mirrors.cqu.edu.cn/ubuntu/ noble-updates main restricted universe multiverse
+# deb-src https://mirrors.cqu.edu.cn/ubuntu/ noble-updates main restricted universe multiverse
+deb https://mirrors.cqu.edu.cn/ubuntu/ noble-backports main restricted universe multiverse
+# deb-src https://mirrors.cqu.edu.cn/ubuntu/ noble-backports main restricted universe multiverse
+deb https://mirrors.cqu.edu.cn/ubuntu/ noble-security main restricted universe multiverse
+# deb-src https://mirrors.cqu.edu.cn/ubuntu/ noble-security main restricted universe multiverse
+
+# deb https://mirrors.cqu.edu.cn/ubuntu/ noble-proposed main restricted universe multiverse
+# # deb-src https://mirrors.cqu.edu.cn/ubuntu/ noble-proposed main restricted universe multiverse
+```
+
+Then run
+
+```bash
+sudo apt update
+```
+
+Refresh the apt cache to apply changes.
+
+Run
+
+```bash
+sudo apt upgrade
+```
+
+to update packages.
+
+### DEB822 Format
+
+The following commands are only for **Ubuntu 24.04 and later** versions.
+
+First, back up the `ubuntu.sources` file
+
+```bash
+sudo cp /etc/apt/sources.list.d/ubuntu.sources /etc/apt/sources.list.d/ubuntu.sources.bak
+```
+
+Then run
+
+```bash
+sudo nano /etc/apt/sources.list.d/ubuntu.sources
+```
+
+Replace its contents with:
+
+For Ubuntu 24.04 (noble)
+
+```bash
+Types: deb
+URIs: https://mirrors.cqu.edu.cn/ubuntu
+Suites: noble noble-updates noble-backports
+Components: main restricted universe multiverse
+Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+
+# Source mirrors are commented out by default to speed up apt update; uncomment if needed
+# Types: deb-src
+# URIs: https://mirrors.cqu.edu.cn/ubuntu
+# Suites: noble noble-updates noble-backports
+# Components: main restricted universe multiverse
+# Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+
+# The following security update source includes both official and mirror configurations; modify as needed
+# Types: deb
+# URIs: https://mirrors.cqu.edu.cn/ubuntu
+# Suites: noble-security
+# Components: main restricted universe multiverse
+# Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+
+# # Types: deb-src
+# # URIs: https://mirrors.cqu.edu.cn/ubuntu
+# # Suites: noble-security
+# # Components: main restricted universe multiverse
+# # Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+
+Types: deb
+URIs: http://security.ubuntu.com/ubuntu/
+Suites: noble-security
+Components: main restricted universe multiverse
+Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+
+# Types: deb-src
+# URIs: http://security.ubuntu.com/ubuntu/
+# Suites: noble-security
+# Components: main restricted universe multiverse
+# Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+
+# Pre-release software source, not recommended to enable
+# Types: deb
+# URIs: https://mirrors.cqu.edu.cn/ubuntu
+# Suites: noble-proposed
+# Components: main restricted universe multiverse
+# Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+
+# # Types: deb-src
+# # URIs: https://mirrors.cqu.edu.cn/ubuntu
+# # Suites: noble-proposed
+# # Components: main restricted universe multiverse
+# # Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+```
+
+Press `Ctrl` + `o` to write changes (press `Enter` to confirm the filename), then press `ctrl` + `x` to exit.
+
+Then run
+
+```bash
+sudo apt update
+```
+
+Refresh the apt cache to apply changes.
+
+Run
+
+```bash
+sudo apt upgrade
+```
+
+## Related Links
+
+- [Official Homepage](https://www.ubuntu.com/)
+- [Documentation](https://help.ubuntu.com/)
+- [Wiki](https://wiki.ubuntu.com/)
+- [Mailing Lists](https://community.ubuntu.com/contribute/support/mailinglists/)
+- [Ask Ubuntu](https://askubuntu.com/)
+- [Forum](https://ubuntuforums.org/)
+- [Chinese Forum](https://forum.ubuntu.org.cn/)

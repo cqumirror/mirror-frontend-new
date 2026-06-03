@@ -128,7 +128,7 @@ const Header: React.FC = () => {
               role="link"
               aria-label="返回首页"
             >
-              <img src="/favicon.svg" alt="JCUT Mirror" style={{ width: 26, height: 26 }} />
+              <img src="/favicon.svg" alt="CQU Mirror" style={{ width: 26, height: 26 }} />
               <Typography
                 variant="h6"
                 sx={{
@@ -139,7 +139,7 @@ const Header: React.FC = () => {
                   display: 'block',
                 }}
               >
-                JCUT
+                CQU
                 <Typography component="span" sx={{ color: 'primary.main', fontWeight: 800 }}>
                   Mirror
                 </Typography>
@@ -260,7 +260,7 @@ const Header: React.FC = () => {
               fontFamily: '"JetBrains Mono", monospace',
             }}
           >
-            JCUT Mirror
+            CQU Mirror
           </Typography>
         </Box>
         <Divider />

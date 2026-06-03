@@ -1,0 +1,32 @@
+## Linux.git Usage Guide
+
+## URL
+https://mirrors.cqu.edu.cn/git/linux.git
+
+https://mirrors.cqu.edu.cn/git/linux-stable.git
+
+## Description
+
+The Linux kernel source code repository. Currently, we mirror both the master branch and the stable branch.
+
+## Usage
+
+### Direct Clone
+
+You can clone the Linux mainline repository using the following command:
+
+```bash
+git clone https://mirrors.cqu.edu.cn/git/linux.git
+```
+
+### Incremental Fetch
+
+If you want to clone the mainline Linux kernel from the CQU mirror and then fetch incremental changes from other sources to speed up obtaining Linux kernel ported versions, you can follow these steps (using the Raspberry Pi kernel as an example):
+
+```bash
+git clone https://mirrors.cqu.edu.cn/git/linux.git
+cd linux
+git remote add raspberrypi https://github.com/raspberrypi/linux.git
+git fetch raspberrypi rpi-6.1.y # Change the branch as needed
+git checkout rpi-6.1.y
+```

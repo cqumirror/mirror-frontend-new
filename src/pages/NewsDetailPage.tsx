@@ -141,7 +141,7 @@ const NewsDetailPage: React.FC = () => {
       ? '新闻详情'
       : 'News';
 
-  const pageTitle = `${displayTitle} - 荆楚理工学院开源软件镜像站 JCUT Mirror`;
+  const pageTitle = `${displayTitle} - 重庆大学开源软件镜像站 CQU Mirror`;
 
   if (notFound) {
     return (

@@ -1,71 +1,61 @@
-import ConfigGenerator from '../../../components/config-generator/ConfigGenerator'
+## Alpine Linux Mirror Usage Guide
 
-export const alpineVersionList = [
-  "latest-stable",
-  "v3.21",
-  "v3.20",
-  "v3.19",
-  "v3.18",
-  "v3.17",
-];
+## Address
 
-export const defaultVersion = "latest-stable";
+https://mirrors.cqu.edu.cn/alpine
 
-export const GenAlpineConfig = (version) => {
-  return `https://mirrors.jcut.edu.cn/alpine/${version}/main
-https://mirrors.jcut.edu.cn/alpine/${version}/community`;
-};
+## Description
 
-## Alpine Mirror Usage Guide
+Alpine Linux package repository. Alpine is a lightweight distribution that uses busybox and musl libc.
 
-### URL
+## Supported Architectures
 
-https://mirrors.jcut.edu.cn/alpine/
+x86_64
 
-### Description
+## Supported Versions
 
-Alpine Linux software repository.
+- `latest-release`
+- `edge`
 
-### Supported Architectures
+## Usage
 
-x86_64, aarch64, loongarch64
+Alpine has three repositories:
 
----
+- **main** contains software directly supported and maintained by the Alpine core and primary teams. It also has official special documentation and is always available for all releases. If certain packages are no longer maintained upstream, alternatives will be provided. Packages are generally chosen for their upstream responsibility and stability. Packages from community (or rarely testing) are accepted and moved to the main repository.
+- **community** contains packages made by users in collaboration with official developers, following the Alpine package workflow. They are supported by these contributors and may stop being updated if the contributors leave; they may also be removed in future releases due to lack of upstream support. Accepted testing packages are moved to the community repository.
+- **testing** is where new packages live. These are made by any Alpine community contributor. Testing is not linked to any release. The testing repository is only available in the `edge` version. Accepted testing packages will be moved to the community repository or (rarely) the main repository.
 
-### Usage Instructions
+The package repositories used for retrieving installation files are specified in the file `/etc/apk/repositories`. Each line in this file specifies the location of a package repository and an optional label. The location can be a URL or a path to a directory on the local filesystem. Labeled repositories are prefixed with the specifier `@tag`, followed by a space and the repository location.
 
-#### Method 1: One-line Replacement (Recommended)
+The default looks like:
 
-Run the following command to replace the upstream URL in your existing `/etc/apk/repositories`:
-
-```shell
-sed -i 's/dl-cdn.alpinelinux.org/mirrors.jcut.edu.cn/g' /etc/apk/repositories
+```txt
+#/media/cdrom/apks
+http://dl-cdn.alpinelinux.org/alpine/v3.18/main
+http://dl-cdn.alpinelinux.org/alpine/v3.18/community
 ```
 
-#### Method 2: Edit the Config File Directly
+Switch to the Chongqing University open-source mirror:
 
-Select your Alpine version below, then **overwrite** the contents of `/etc/apk/repositories` with the generated output:
-
-<ConfigGenerator promptString="Select your Alpine Linux version:" versionList={alpineVersionList} defaultVersion={defaultVersion} configGen={GenAlpineConfig} language="text" />
-
-After copying, open the file with your editor:
-
-```shell
-sudo vi /etc/apk/repositories
-# or
-sudo nano /etc/apk/repositories
+```bash
+sed -i 's|dl-cdn.alpinelinux.org|mirrors.cqu.edu.cn|g' /etc/apk/repositories
 ```
 
-Replace the file contents with the generated config above, save, then run:
+If you want to add the testing repository, add the following line, replacing `<release-ver>` with the actual value:
 
-```shell
+```bash
+http://mirrors.cqu.edu.cn/apline/<release-ver>/testing
+```
+
+Then run:
+
+```bash
 apk update
 ```
 
----
+to update the index.
 
-### Notes
+## Related Links
 
-`latest-stable` automatically points to the current latest stable release, which is suitable when you do not need to pin a specific version. If you want to prevent unexpected upgrades, select a specific version number (e.g. `v3.21`).
-
-After modifying `/etc/apk/repositories`, always run `apk update` to apply the changes.
+- [Official Homepage](https://www.alpinelinux.org/)
+- [Documentation](https://wiki.alpinelinux.org/)

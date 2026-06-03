@@ -7,14 +7,14 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const MIRROR_ORIGIN = 'https://mirrors.jcut.edu.cn';
+const MIRROR_ORIGIN = 'https://mirrors.cqu.edu.cn';
 
 type BypassReq = { url?: string; headers: Record<string, string | string[] | undefined> };
 
 const proxyConfig = {
-  '/jobs': { target: MIRROR_ORIGIN, changeOrigin: true },
+  '/static': { target: MIRROR_ORIGIN, changeOrigin: true },
   '/api/is_campus_network': { target: MIRROR_ORIGIN, changeOrigin: true },
-  '^/(?!@|__vite|node_modules|src|assets|jobs)[a-zA-Z0-9_-]+/': {
+  '^/(?!@|__vite|node_modules|src|assets|static)[a-zA-Z0-9_-]+/': {
     target: MIRROR_ORIGIN,
     changeOrigin: true,
     bypass(req: BypassReq) {

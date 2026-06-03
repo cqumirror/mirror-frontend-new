@@ -117,7 +117,7 @@ const ErrorPage: React.FC<ErrorPageProps> = ({ code = 404 }) => {
   const desc = t(descKey, { defaultValue: '' }) || t('error.descDefault');
   const canRefresh = REFRESHABLE_CODES.has(code);
 
-  const pageTitle = `${code} - JCUT Mirror`;
+  const pageTitle = `${code} - CQU Mirror`;
 
   return (
     <>
