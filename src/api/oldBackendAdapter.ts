@@ -15,6 +15,9 @@ import type { LocalMeta } from './transform';
 
 import type { Mirror, MirrorFile, MirrorStatus } from '@/types';
 
+// 数据源地址：本地开发走 Vite proxy（相对路径），Cloudflare 等外部部署需指向 CQU 服务器
+const API_BASE = import.meta.env.VITE_API_BASE ?? '';
+
 // ── 旧后端原始类型 ─────────────────────────────────────────────────────────
 
 /** 旧版 tunasync.json 条目 */
@@ -128,7 +131,7 @@ function sanitizeFiles(files: unknown): MirrorFile[] {
  */
 export async function fetchOldTunasyncData(): Promise<OldTunasyncJob[]> {
   try {
-    const res = await fetch('/static/tunasync.json', { cache: 'no-cache' });
+    const res = await fetch(`${API_BASE}/static/tunasync.json`, { cache: 'no-cache' });
     if (!res.ok) throw new Error(`tunasync.json HTTP ${res.status}`);
     const data = (await res.json()) as unknown;
     if (!Array.isArray(data)) {
@@ -146,7 +149,7 @@ export async function fetchOldTunasyncData(): Promise<OldTunasyncJob[]> {
  */
 export async function fetchOldIsoData(): Promise<OldIsoEntry[]> {
   try {
-    const res = await fetch('/static/isoinfo.json', { cache: 'no-cache' });
+    const res = await fetch(`${API_BASE}/static/isoinfo.json`, { cache: 'no-cache' });
     if (!res.ok) throw new Error(`isoinfo.json HTTP ${res.status}`);
     const data = (await res.json()) as unknown;
     if (!Array.isArray(data)) {
@@ -164,7 +167,7 @@ export async function fetchOldIsoData(): Promise<OldIsoEntry[]> {
  */
 export async function fetchOldNoticeData(): Promise<OldNoticeData | null> {
   try {
-    const res = await fetch('/static/notice.json', { cache: 'no-cache' });
+    const res = await fetch(`${API_BASE}/static/notice.json`, { cache: 'no-cache' });
     if (!res.ok) throw new Error(`notice.json HTTP ${res.status}`);
     return (await res.json()) as OldNoticeData;
   } catch (e) {
