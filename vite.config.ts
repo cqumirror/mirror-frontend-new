@@ -5,6 +5,8 @@ import remarkGfm from 'remark-gfm';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { cloudflare } from "@cloudflare/vite-plugin";
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const MIRROR_ORIGIN = 'https://mirrors.cqu.edu.cn';
@@ -30,7 +32,11 @@ const proxyConfig = {
 };
 
 export default defineConfig({
-  plugins: [react(), mdx({ providerImportSource: '@mdx-js/react', remarkPlugins: [remarkGfm] })],
+  plugins: [
+    react(),
+    mdx({ providerImportSource: '@mdx-js/react', remarkPlugins: [remarkGfm] }),
+    cloudflare()
+  ],
 
   resolve: {
     alias: { '@': resolve(__dirname, 'src') },

@@ -140,3 +140,8 @@ vite.config.ts.timestamp-*
 
 .idea/CLAUDE.md
 /.idea/
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
