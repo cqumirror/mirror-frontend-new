@@ -2,7 +2,7 @@
   "__inputs": [],
   "__requires": [],
   "annotations": { "list": [] },
-  "description": "JCUT Mirror 系统监控面板",
+  "description": "CQU Mirror 系统监控面板",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -198,11 +198,11 @@
   ],
   "refresh": "30s",
   "schemaVersion": 38,
-  "tags": ["jcut", "mirror", "system"],
+  "tags": ["cqu", "mirror", "system"],
   "time": { "from": "now-1h", "to": "now" },
   "timepicker": {},
   "timezone": "Asia/Shanghai",
-  "title": "JCUT Mirror — System Overview",
-  "uid": "jcut-mirror-system",
+  "title": "CQU Mirror — System Overview",
+  "uid": "cqu-mirror-system",
   "version": 1
 }

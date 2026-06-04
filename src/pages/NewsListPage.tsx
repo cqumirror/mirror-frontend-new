@@ -18,7 +18,7 @@ const NewsListPage: React.FC = () => {
   const { locale } = useLocaleStore();
   // getNewsList() 通过 import.meta.glob eager 在构建时固定，运行时不会变化，
   // 空依赖数组是有意为之
-  const news = useMemo(() => getNewsList(), []);
+  const news = useMemo(() => getNewsList(locale), [locale]);
 
   const title = t('news.title') + ' - 重庆大学开源软件镜像站 CQU Mirror';
 
@@ -85,7 +85,7 @@ const NewsListPage: React.FC = () => {
                 }}
               >
                 <Box sx={{ flex: 1, minWidth: 0 }}>
-                  {/* 日期 + 标签行 */}
+                  {/* 日期 + 作者 + 标签行 */}
                   <Box
                     sx={{
                       display: 'flex',
@@ -104,6 +104,17 @@ const NewsListPage: React.FC = () => {
                     >
                       {item.date}
                     </Typography>
+                    {item.author && (
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: 'text.secondary',
+                          fontWeight: 500,
+                        }}
+                      >
+                        {item.author}
+                      </Typography>
+                    )}
                     {item.tags?.map((tag) => (
                       <Chip
                         key={tag}
@@ -129,7 +140,7 @@ const NewsListPage: React.FC = () => {
                       transition: 'color 0.15s',
                     }}
                   >
-                    {locale === 'zh' ? item.title : (item.titleEn ?? item.title)}
+                    {item.title}
                   </Typography>
 
                   {/* 摘要 */}
@@ -141,7 +152,7 @@ const NewsListPage: React.FC = () => {
                       maxWidth: 600,
                     }}
                   >
-                    {locale === 'zh' ? item.summary : (item.summaryEn ?? item.summary)}
+                    {item.summary}
                   </Typography>
                 </Box>
 

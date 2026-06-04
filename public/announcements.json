@@ -1,1 +1,51 @@
-[]
+[
+  {
+    "id": "welcome-enrollment",
+    "type": "success",
+    "pinned": true,
+    "dismissible": false,
+    "date": "2024-09-01",
+    "title": { "zh": "欢迎报考重庆大学", "en": "Welcome to Apply to Chongqing University" },
+    "content": { "zh": "详询重庆大学本科招生网", "en": "Visit the undergraduate admissions website for details" },
+    "link": {
+      "url": "https://zhaosheng.cqu.edu.cn",
+      "label": { "zh": "招生网", "en": "Admissions" }
+    }
+  },
+  {
+    "id": "ban-p2p-tools",
+    "type": "warning",
+    "pinned": true,
+    "dismissible": false,
+    "date": "2023-03-27",
+    "title": { "zh": "请勿使用多线程下载器", "en": "Multi-threaded downloaders are prohibited" },
+    "content": { "zh": "受带宽限制，IDM、aria2等多线程下载器不允许用于镜像站内容下载，请悉知。", "en": "Due to bandwidth limitations, multi-threaded downloaders such as IDM and aria2 are not allowed for downloading from the mirror site." },
+    "link": null
+  },
+  {
+    "id": "ban-p2p-tools",
+    "type": "error",
+    "pinned": true,
+    "dismissible": false,
+    "date": "2023-03-27",
+    "title": { "zh": "请勿使用多线程下载器", "en": "Multi-threaded downloaders are prohibited" },
+    "content": {
+      "zh": "受带宽限制，IDM、aria2等多线程下载器不允许用于镜像站内容下载，请悉知。",
+      "en": "Due to bandwidth limitations, multi-threaded downloaders such as IDM and aria2 are not allowed for downloading from the mirror site."
+    },
+    "link": null
+  },
+  {
+    "id": "ban-p2p-tools",
+    "type": "info",
+    "pinned": true,
+    "dismissible": false,
+    "date": "2023-03-27",
+    "title": { "zh": "请勿使用多线程下载器", "en": "Multi-threaded downloaders are prohibited" },
+    "content": {
+      "zh": "受带宽限制，IDM、aria2等多线程下载器不允许用于镜像站内容下载，请悉知。",
+      "en": "Due to bandwidth limitations, multi-threaded downloaders such as IDM and aria2 are not allowed for downloading from the mirror site."
+    },
+    "link": null
+  }
+]

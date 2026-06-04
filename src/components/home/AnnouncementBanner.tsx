@@ -61,10 +61,10 @@ const SEVERITY_COLOR: Record<
   { bg: string; bgDark: string; accent: string; text: string }
 > = {
   info: {
-    bg: 'rgba(59,130,246,0.07)',
-    bgDark: 'rgba(59,130,246,0.12)',
-    accent: '#3B82F6',
-    text: '#1D4ED8',
+    bg: 'rgba(0,103,182,0.07)',
+    bgDark: 'rgba(0,103,182,0.12)',
+    accent: '#0067B6',
+    text: '#004A87',
   },
   warning: {
     bg: 'rgba(245,158,11,0.08)',
@@ -101,7 +101,7 @@ const AnnouncementBanner: React.FC = () => {
       .then((data: Announcement[]) => {
         const dis = loadDismissed();
         const filtered = data
-          .filter((a) => (a.pinned || isRecent(a.date)) && !dis.has(a.id))
+          .filter((a) => (a.pinned || isRecent(a.date)) && (a.dismissible ? !dis.has(a.id) : true))
           .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
         setItems(filtered);
         setDismissed(dis);
@@ -111,20 +111,20 @@ const AnnouncementBanner: React.FC = () => {
       });
   }, []);
 
-  const visible = items.filter((a) => !dismissed.has(a.id));
+  const visible = items.filter((a) => (a.dismissible ? !dismissed.has(a.id) : true));
   if (visible.length === 0) return null;
 
-  const current = visible[Math.min(index, visible.length - 1)];
-  const colors = SEVERITY_COLOR[current.type];
-  const total = visible.length;
+  const PAGE_SIZE = 2;
+  const totalPages = Math.ceil(visible.length / PAGE_SIZE);
+  const safeIndex = Math.min(index, totalPages - 1);
+  const pageItems = visible.slice(safeIndex * PAGE_SIZE, safeIndex * PAGE_SIZE + PAGE_SIZE);
 
-  const handleDismiss = () => {
+  const handleDismiss = (id: string) => {
     const next = new Set(dismissed);
-    next.add(current.id);
+    next.add(id);
     saveDismissed(next);
     setDismissed(next);
-    // 关闭后 index 可能越界，向前收缩
-    setIndex((i) => Math.max(0, Math.min(i, total - 2)));
+    setIndex((i) => Math.max(0, Math.min(i, Math.ceil((visible.length - 1) / PAGE_SIZE) - 1)));
   };
 
   const handleLink = (url: string) => {
@@ -135,16 +135,107 @@ const AnnouncementBanner: React.FC = () => {
     }
   };
 
+  const renderAnnouncement = (item: Announcement, idx: number) => {
+    const c = SEVERITY_COLOR[item.type];
+    return (
+        <Box
+          key={item.id}
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1.5,
+            minWidth: 0,
+            minHeight: 40,
+            py: 0.3,
+            px: { xs: 0.5, sm: 1 },
+            bgcolor: (theme) => (theme.palette.mode === 'dark' ? c.bgDark : c.bg),
+            borderLeft: `3px solid ${c.accent}`,
+            mt: idx > 0 ? 0.5 : 0,
+            borderRadius: 0.5,
+          }}
+        >
+          {/* 图标 */}
+          <MegaphoneIcon sx={{ fontSize: 15, color: c.accent, flexShrink: 0 }} />
+          {/* 置顶徽章 */}
+          {item.pinned && (
+            <Chip
+              label={t('news.pinned')}
+              size="small"
+              sx={{
+                height: 18,
+                fontSize: '0.62rem',
+                fontWeight: 700,
+                bgcolor: c.accent,
+                color: '#fff',
+                flexShrink: 0,
+                '& .MuiChip-label': { px: 0.8 },
+              }}
+            />
+          )}
+
+          {/* 标题 + 正文 */}
+          <Typography
+            variant="body2"
+            sx={{
+              flex: 1,
+              minWidth: 0,
+              fontSize: '0.82rem',
+              color: (theme) => (theme.palette.mode === 'dark' ? 'text.primary' : c.text),
+              lineHeight: 1.4,
+            }}
+          >
+            <Box component="span" sx={{ fontWeight: 700, mr: 0.8 }}>
+              {item.title[locale]}
+            </Box>
+            <Box component="span" sx={{ opacity: 0.75 }}>
+              {item.content[locale]}
+            </Box>
+          </Typography>
+
+          {/* 详情链接 */}
+          {item.link && (
+            <Link
+              component="button"
+              onClick={() => handleLink(item.link?.url ?? '')}
+              underline="hover"
+              sx={{
+                fontSize: '0.78rem',
+                color: c.accent,
+                fontWeight: 600,
+                flexShrink: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 0.3,
+                border: 'none',
+                bgcolor: 'transparent',
+                cursor: 'pointer',
+                lineHeight: 1,
+              }}
+            >
+              {item.link.label[locale]}
+              <LinkIcon sx={{ fontSize: 11 }} />
+            </Link>
+          )}
+
+          {/* 关闭按钮 */}
+          {item.dismissible && (
+            <IconButton
+              size="small"
+              onClick={() => handleDismiss(item.id)}
+              sx={{ p: 0.4, flexShrink: 0, opacity: 0.6, '&:hover': { opacity: 1 } }}
+              aria-label="关闭公告"
+            >
+              <CloseIcon sx={{ fontSize: 14 }} />
+            </IconButton>
+          )}
+        </Box>
+    );
+  };
+
   return (
     <Box
       sx={{
         width: '100%',
-        bgcolor: (theme) => (theme.palette.mode === 'dark' ? colors.bgDark : colors.bg),
-        borderBottom: '1px solid',
-        borderColor: (theme) =>
-          theme.palette.mode === 'dark' ? `${colors.accent}30` : `${colors.accent}25`,
-        // 置顶公告左侧加粗色条
-        borderLeft: current.pinned ? `3px solid ${colors.accent}` : 'none',
         position: 'relative',
       }}
     >
@@ -154,90 +245,32 @@ const AnnouncementBanner: React.FC = () => {
           mx: 'auto',
           px: { xs: 2, md: 3 },
           py: 0,
-          height: { xs: 'auto', sm: 40 },
-          minHeight: 40,
           display: 'flex',
           alignItems: 'center',
           gap: 1.5,
-          flexWrap: { xs: 'wrap', sm: 'nowrap' },
         }}
       >
-        {/* 图标 */}
-        <MegaphoneIcon sx={{ fontSize: 15, color: colors.accent, flexShrink: 0 }} />
-
-        {/* 置顶徽章 */}
-        {current.pinned && (
-          <Chip
-            label={t('news.pinned')}
-            size="small"
-            sx={{
-              height: 18,
-              fontSize: '0.62rem',
-              fontWeight: 700,
-              bgcolor: colors.accent,
-              color: '#fff',
-              flexShrink: 0,
-              '& .MuiChip-label': { px: 0.8 },
-            }}
-          />
-        )}
-
-        {/* 标题 + 正文（单行，超出省略） */}
-        <Typography
-          variant="body2"
+        {/* 公告列表（每页最多 2 条，纵向排列） */}
+        <Box
+          key={safeIndex}
           sx={{
             flex: 1,
             minWidth: 0,
-            fontSize: '0.82rem',
-            lineHeight: '40px',
-            overflow: 'hidden',
-            whiteSpace: 'nowrap',
-            textOverflow: 'ellipsis',
-            color: (theme) => (theme.palette.mode === 'dark' ? 'text.primary' : colors.text),
+            display: 'flex',
+            flexDirection: 'column',
           }}
         >
-          <Box component="span" sx={{ fontWeight: 700, mr: 0.8 }}>
-            {current.title[locale]}
-          </Box>
-          <Box component="span" sx={{ opacity: 0.75 }}>
-            {current.content[locale]}
-          </Box>
-        </Typography>
+          {pageItems.map((item, idx) => renderAnnouncement(item, idx))}
+        </Box>
 
-        {/* 详情链接 */}
-        {current.link && (
-          <Link
-            component="button"
-            onClick={() => handleLink(current.link?.url ?? '')}
-            underline="hover"
-            sx={{
-              fontSize: '0.78rem',
-              color: colors.accent,
-              fontWeight: 600,
-              flexShrink: 0,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 0.3,
-              border: 'none',
-              bgcolor: 'transparent',
-              cursor: 'pointer',
-              lineHeight: 1,
-            }}
-          >
-            {current.link.label[locale]}
-            <LinkIcon sx={{ fontSize: 11 }} />
-          </Link>
-        )}
-
-        {/* 多条翻页 */}
-        {total > 1 && (
+        {/* 多页翻页 */}
+        {totalPages > 1 && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.2, flexShrink: 0 }}>
             <IconButton
               size="small"
               sx={{ p: 0.3 }}
-              onClick={() => setIndex((i) => (i - 1 + total) % total)}
-              disabled={total <= 1}
-              aria-label="上一条公告"
+              onClick={() => setIndex((i) => (i - 1 + totalPages) % totalPages)}
+              aria-label="上一页公告"
             >
               <PrevIcon sx={{ fontSize: 16 }} />
             </IconButton>
@@ -250,30 +283,17 @@ const AnnouncementBanner: React.FC = () => {
                 textAlign: 'center',
               }}
             >
-              {Math.min(index, total - 1) + 1}/{total}
+              {safeIndex + 1}/{totalPages}
             </Typography>
             <IconButton
               size="small"
               sx={{ p: 0.3 }}
-              onClick={() => setIndex((i) => (i + 1) % total)}
-              disabled={total <= 1}
-              aria-label="下一条公告"
+              onClick={() => setIndex((i) => (i + 1) % totalPages)}
+              aria-label="下一页公告"
             >
               <NextIcon sx={{ fontSize: 16 }} />
             </IconButton>
           </Box>
-        )}
-
-        {/* 关闭按钮 */}
-        {current.dismissible && (
-          <IconButton
-            size="small"
-            onClick={handleDismiss}
-            sx={{ p: 0.4, flexShrink: 0, opacity: 0.6, '&:hover': { opacity: 1 } }}
-            aria-label="关闭公告"
-          >
-            <CloseIcon sx={{ fontSize: 14 }} />
-          </IconButton>
         )}
       </Box>
     </Box>

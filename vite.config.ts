@@ -13,7 +13,7 @@ type BypassReq = { url?: string; headers: Record<string, string | string[] | und
 
 const proxyConfig = {
   '/static': { target: MIRROR_ORIGIN, changeOrigin: true },
-  '/api/is_campus_network': { target: MIRROR_ORIGIN, changeOrigin: true },
+  '/api/getip': { target: MIRROR_ORIGIN, changeOrigin: true },
   '^/(?!@|__vite|node_modules|src|assets|static)[a-zA-Z0-9_-]+/': {
     target: MIRROR_ORIGIN,
     changeOrigin: true,

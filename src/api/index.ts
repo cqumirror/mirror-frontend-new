@@ -5,36 +5,12 @@
 //   GET /static/tunasync.json       → OldTunasyncJob[]（旧后端静态 JSON）
 //   GET /local_data.json            → LocalMeta（本地补充元数据，随前端构建发布）
 //   transformOldJobs()              → Mirror[]（前端完成格式转换）
-//
-// GET /api/is_campus_network 由 nginx 直接判断客户端 IP 并返回
-
-import axios, { type AxiosInstance } from 'axios';
+//   GET /api/getip                  → { is_cqu: 1|0 } 校园网检测
 
 import type { Mirror, CampusNetworkStatus } from '../types';
 
 import { fetchOldTunasyncData, transformOldJobs } from './oldBackendAdapter';
 import type { LocalMeta } from './transform';
-
-// ── 工厂：每个域一个独立 axios 实例，避免每次 get 都传 baseURL ─────────────
-function createClient(baseURL: string): AxiosInstance {
-  const client = axios.create({
-    baseURL,
-    timeout: 15_000,
-    headers: { 'Content-Type': 'application/json' },
-  });
-  client.interceptors.response.use(
-    (res) => res,
-    (err) => {
-      const msg = err instanceof Error ? err.message : String(err);
-      console.error(`[API ${baseURL}]`, msg);
-      return Promise.reject(err);
-    }
-  );
-  return client;
-}
-
-// 校园网检测（nginx 直接返回）
-const internal = createClient('/api');
 
 // ── 本地元数据缓存（只需加载一次）────────────────────────────────────────────
 // 缓存 Promise 本身而非结果，避免并发请求时重复发起网络请求（竞态）
@@ -95,10 +71,18 @@ export const fetchMirrorByName = async (name: string): Promise<Mirror> => {
 
 /**
  * 判断客户端网络类型
- * GET /api/is_campus_network → "1"(校内) | "0"(校外) | "6"(IPv6)
+ * GET /api/getip → { is_cqu: 1|0, remote_addr: "..." }
+ * is_cqu=1 → 校内 "1" | 非校内且 remote_addr 为纯 IPv6 → "6" | 其他 → "0"
+ * 注：IPv4 地址在 IPv6 环境下显示为 "::ffff:x.x.x.x"，不算 IPv6
  */
 export const fetchCampusNetworkStatus = async (): Promise<CampusNetworkStatus> => {
-  const { data } = await internal.get<CampusNetworkStatus>('/is_campus_network');
-  const val = String(data).trim() as CampusNetworkStatus;
-  return (['1', '0', '6'] as const).includes(val) ? val : '0';
+  const API_BASE = import.meta.env.VITE_API_BASE ?? '';
+  const res = await fetch(`${API_BASE}/api/getip`, { cache: 'no-cache' });
+  if (!res.ok) throw new Error(`getip HTTP ${res.status}`);
+  const json = (await res.json()) as { is_cqu?: number; remote_addr?: string };
+  if (json.is_cqu === 1) return '1';
+  const addr = json.remote_addr ?? '';
+  // 纯 IPv6：含 ":" 但不是 "::ffff:" 开头的 IPv4-mapped 地址
+  if (addr.includes(':') && !addr.startsWith('::ffff:')) return '6';
+  return '0';
 };

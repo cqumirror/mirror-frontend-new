@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { getNewsList } from '../../news';
 import { useLocaleStore } from '../../stores/mirrorStore';
 
-const MAX_ITEMS = 3;
+const MAX_ITEMS = 4;
 
 const NewsWidget: React.FC = () => {
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ const NewsWidget: React.FC = () => {
   const { locale } = useLocaleStore();
   // getNewsList() 通过 import.meta.glob eager 在构建时固定，运行时不会变化，
   // 空依赖数组是有意为之，避免每次渲染都重新执行（尽管它是纯函数）
-  const news = useMemo(() => getNewsList().slice(0, MAX_ITEMS), []);
+  const news = useMemo(() => getNewsList(locale).slice(0, MAX_ITEMS), [locale]);
 
   if (news.length === 0) return null;
 
@@ -99,10 +99,10 @@ const NewsWidget: React.FC = () => {
                   transition: 'color 0.15s',
                 }}
               >
-                {locale === 'zh' ? item.title : (item.titleEn ?? item.title)}
+                {item.title}
               </Typography>
 
-              {/* 日期 + 标签 */}
+              {/* 日期 + 作者 + 标签 */}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, flexWrap: 'wrap' }}>
                 <Typography
                   variant="caption"
@@ -113,6 +113,17 @@ const NewsWidget: React.FC = () => {
                 >
                   {item.date}
                 </Typography>
+                {item.author && (
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: 'text.secondary',
+                      fontWeight: 500,
+                    }}
+                  >
+                    {item.author}
+                  </Typography>
+                )}
                 {item.tags?.slice(0, 2).map((tag) => (
                   <Chip
                     key={tag}

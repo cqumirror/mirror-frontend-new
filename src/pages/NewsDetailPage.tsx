@@ -2,7 +2,7 @@
 // 新闻详情页 /news/:slug
 
 import { MDXProvider } from '@mdx-js/react';
-import { ArrowBack as BackIcon } from '@mui/icons-material';
+import { ArrowBack as BackIcon, Person as PersonIcon } from '@mui/icons-material';
 import {
   Box,
   Container,
@@ -129,14 +129,12 @@ const NewsDetailPage: React.FC = () => {
   const { t } = useTranslation();
   const { locale } = useLocaleStore();
 
-  const meta = slug ? getNewsItem(slug) : undefined;
-  const ArticleComponent = slug ? getNewsArticle(slug) : null;
+  const meta = slug ? getNewsItem(slug, locale) : undefined;
+  const ArticleComponent = slug ? getNewsArticle(slug, locale) : null;
   const notFound = !ArticleComponent && !meta;
 
   const displayTitle = meta
-    ? locale === 'zh'
-      ? meta.title
-      : (meta.titleEn ?? meta.title)
+    ? meta.title
     : locale === 'zh'
       ? '新闻详情'
       : 'News';
@@ -221,6 +219,20 @@ const NewsDetailPage: React.FC = () => {
               >
                 {meta.date}
               </Typography>
+              {meta.author && (
+                <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.3 }}>
+                  <PersonIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: 'text.secondary',
+                      fontWeight: 500,
+                    }}
+                  >
+                    {meta.author}
+                  </Typography>
+                </Box>
+              )}
               {meta.tags?.map((tag) => (
                 <Chip
                   key={tag}
@@ -249,7 +261,7 @@ const NewsDetailPage: React.FC = () => {
                 lineHeight: 1.7,
               }}
             >
-              {locale === 'zh' ? meta.summary : (meta.summaryEn ?? meta.summary)}
+              {meta.summary}
             </Typography>
 
             <Divider sx={{ mt: 3 }} />

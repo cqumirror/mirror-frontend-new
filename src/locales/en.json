@@ -200,7 +200,7 @@
   },
   "footer": {
     "description": "An open-source software mirror operated by Lanunion of Chongqing University, providing fast software download services for users on and off campus.\nIn accordance with applicable laws and regulations, this site does not serve users in the European Union.\nThis site does not serve users who abuse mirror resources, and will employ multiple technical measures to counter abuse and malicious attacks.",
-    "links": "Links",
+    "friendLinks": "Friend Links",
     "contact": "Contact",
     "github": "GitHub",
     "copyright": "© {{year}} CQU Mirror. All rights reserved.",

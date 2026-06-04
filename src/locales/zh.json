@@ -200,7 +200,7 @@
   },
   "footer": {
     "description": "本站在重庆大学信息化办公室的支持下创办，由重庆大学蓝盟运营维护，为校内外用户提供快速的软件下载服务。\n根据相关法律法规，本站不对欧盟用户提供服务。\n本站不对特定滥用镜像站资源的用户提供服务，将采用多种技术措施反制滥用与恶意攻击行为。",
-    "links": "友情链接",
+    "friendLinks": "友情链接",
     "contact": "联系我们",
     "github": "GitHub",
     "copyright": "© {{year}} CQU Mirror. All rights reserved.",

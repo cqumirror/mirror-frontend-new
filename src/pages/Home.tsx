@@ -500,7 +500,6 @@ const Home: React.FC = () => {
             minWidth: 300,
             maxWidth: 350,
             borderRadius: 1,
-            // 毛玻璃效果
             backdropFilter: 'blur(12px)',
             WebkitBackdropFilter: 'blur(12px)',
             background: (theme) =>
@@ -510,7 +509,6 @@ const Home: React.FC = () => {
                 ? '1px solid rgba(255, 255, 255, 0.1)'
                 : '1px solid rgba(0, 0, 0, 0.05)',
             boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-            // 左侧色条
             borderLeft: '3px solid #3B82F6',
             overflow: 'hidden',
             position: 'relative',
@@ -532,7 +530,6 @@ const Home: React.FC = () => {
               <CloseIcon sx={{ fontSize: 18 }} />
             </IconButton>
           </Box>
-          {/* 底部进度条 */}
           <Box
             sx={{
               height: 3,

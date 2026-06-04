@@ -9,11 +9,11 @@ import { createTheme } from '@mui/material/styles';
 export const lightTheme = createTheme({
   palette: {
     mode: 'light',
-    primary: { main: '#3B82F6', light: '#60A5FA', dark: '#1D4ED8' },
+    primary: { main: '#0067B6', light: '#3388CC', dark: '#004A87' },
     success: { main: '#10B981', light: '#34D399', dark: '#059669' },
     warning: { main: '#F59E0B', light: '#FCD34D', dark: '#D97706' },
     error: { main: '#EF4444', light: '#F87171', dark: '#DC2626' },
-    info: { main: '#3B82F6', light: '#60A5FA', dark: '#1D4ED8' },
+    info: { main: '#0067B6', light: '#3388CC', dark: '#004A87' },
     background: {
       default: '#F8FAFC',
       paper: '#FFFFFF',
@@ -70,7 +70,7 @@ export const lightTheme = createTheme({
         root: { borderRadius: 6, fontWeight: 600 },
         contained: {
           boxShadow: 'none',
-          '&:hover': { boxShadow: '0 2px 8px rgba(59,130,246,0.3)' },
+          '&:hover': { boxShadow: '0 2px 8px rgba(0,103,182,0.3)' },
         },
       },
     },
@@ -92,11 +92,11 @@ export const lightTheme = createTheme({
 export const darkTheme = createTheme({
   palette: {
     mode: 'dark',
-    primary: { main: '#60A5FA', light: '#93C5FD', dark: '#3B82F6' },
+    primary: { main: '#3388CC', light: '#66AADD', dark: '#0067B6' },
     success: { main: '#34D399', light: '#6EE7B7', dark: '#10B981' },
     warning: { main: '#FBBF24', light: '#FDE68A', dark: '#F59E0B' },
     error: { main: '#F87171', light: '#FCA5A5', dark: '#EF4444' },
-    info: { main: '#60A5FA', light: '#93C5FD', dark: '#3B82F6' },
+    info: { main: '#3388CC', light: '#66AADD', dark: '#0067B6' },
     background: {
       default: '#0F172A',
       paper: '#1E293B',
@@ -153,7 +153,7 @@ export const darkTheme = createTheme({
         root: { borderRadius: 6, fontWeight: 600 },
         contained: {
           boxShadow: 'none',
-          '&:hover': { boxShadow: '0 2px 8px rgba(96,165,250,0.3)' },
+          '&:hover': { boxShadow: '0 2px 8px rgba(51,136,204,0.3)' },
         },
       },
     },

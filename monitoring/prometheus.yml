@@ -8,7 +8,7 @@ global:
   evaluation_interval: 15s
   # 外部标签（写入远程存储时携带，方便多实例区分）
   external_labels:
-    site: 'jcut-mirror'
+    site: 'cqu-mirror'
 
 # ── 规则文件（如有告警规则可在此引入）────────────────────────────────────────
 rule_files:

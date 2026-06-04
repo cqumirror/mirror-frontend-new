@@ -1,0 +1,22 @@
+export const meta = {
+    title: "Announcement on Trimming Kernel Repository",
+    date: "2023-11-04",
+    author: "weearc",
+    summary: "The kernel repository has low traffic, so storage will be removed and switched to reverse proxy.",
+    tags: ["Announcement", "Removal"],
+}
+
+Statistics show that the kernel repository has low traffic, concentrated mainly on mainline tarballs. Due to limited disk array redundancy, we have decided to temporarily remove the kernel repository from local storage and switch to a reverse proxy. In the future, we will further trim the original repository mirrors based on actual usage, with unmirrored content served via reverse proxy.
+
+Affected repositories:
+
+- /kernel/
+
+Current status:
+
+- Public access removed
+- Storage removed
+
+Resolution:
+
+- Reverse proxy; sync status does not currently affect usability

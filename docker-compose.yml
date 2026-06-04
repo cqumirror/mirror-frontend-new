@@ -125,7 +125,7 @@ services:
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
     environment:
       - TZ=Asia/Shanghai
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-jcutmirror_admin}  # 请在 .env 中覆盖
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-cqu_mirror_admin}  # 请在 .env 中覆盖
       - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s/grafana/
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
       # 允许 React 状态页通过 iframe 嵌入 Grafana 面板

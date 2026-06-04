@@ -1,0 +1,32 @@
+export const meta = {
+    title: "Removal of Some Mirrors",
+    date: "2019-05-23",
+    author: "weearc",
+    summary: "Removed pypi, ezgo, aosp.bak, openwrt and other mirrors due to insufficient disk space.",
+    tags: ["Announcement", "Removal"],
+}
+
+Due to insufficient disk space again, we need to remove some mirrors. The following decisions have been made:
+
+Removed:
+
+- PyPI (permanently)
+- ezgo Linux
+- aosp.bak
+- openwrt
+
+Sync updates suspended:
+
+- manjaro
+- aosc
+
+However, users of the above mirrors need not worry:
+
+1. PyPI has always been redirecting to TUNA
+2. For ezgo, please visit [USTC mirror](http://mirrors.ustc.edu.cn)
+3. AOSP users, please visit [TUNA](http://mirrors.tuna.tsinghua.edu.cn)
+4. OpenWrt users, please visit [LEDE](http://lede.org)
+5. For manjaro, we will set up a reverse proxy to [TUNA](http://mirrors.tuna.tsinghua.edu.cn)
+6. aosc updates are suspended due to similarly low usage.
+
+We sincerely apologize for any inconvenience.

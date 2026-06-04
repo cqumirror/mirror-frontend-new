@@ -1,14 +1,14 @@
-# JCUT Mirror — University Open Source Mirror Frontend
+# CQU Mirror — University Open Source Mirror Frontend
 
-[![CI](https://github.com/JCIOTeam/jcutmirror-new/actions/workflows/ci.yml/badge.svg)](https://github.com/JCIOTeam/jcutmirror-new/actions/workflows/ci.yml)
+[![CI](https://github.com/cqumirror/mirror-frontend-new/actions/workflows/ci.yml/badge.svg)](https://github.com/cqumirror/mirror-frontend-new/actions/workflows/ci.yml)
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0--or--later-blue.svg)](https://opensource.org/licenses/GPL-3.0)
 [![Node](https://img.shields.io/badge/Node-%3E%3D20-green.svg)]()
 
 [中文文档](README.md)
 
-A modern mirror site frontend built with React + TypeScript + Material UI, designed to work with [tunasync-rs](https://github.com/JCIOTeam/tunasync-rs) (recommended) or [tunasync](https://github.com/tuna/tunasync) out of the box.
+A modern mirror site frontend built with React + TypeScript + Material UI, designed to work with [tunasync-rs](https://github.com/cqumirror/tunasync-rs) (recommended) or [tunasync](https://github.com/tuna/tunasync) out of the box.
 
-**Live site**: [https://mirrors.jcut.edu.cn](https://mirrors.jcut.edu.cn)
+**Live site**: [https://mirrors.cqu.edu.cn](https://mirrors.cqu.edu.cn)
 
 ---
 
@@ -61,13 +61,13 @@ tunasync manager →  Provides HTTP API (default :12345/jobs)
 
 ### Recommended: tunasync-rs (Rust rewrite)
 
-> **Recommended**: [tunasync-rs](https://github.com/JCIOTeam/tunasync-rs) is a Rust rewrite of tunasync, optimized specifically for this project with better compatibility. Use it for the best experience.
+> **Recommended**: [tunasync-rs](https://github.com/cqumirror/tunasync-rs) is a Rust rewrite of tunasync, optimized specifically for this project with better compatibility. Use it for the best experience.
 
 | Feature | tunasync-rs | Official tunasync (Go) |
 |---------|------------|----------------------|
 | Language | Rust | Go |
 | Compatibility with this project | ✅ Deeply integrated | Basically compatible |
-| Repository | [JCIOTeam/tunasync-rs](https://github.com/JCIOTeam/tunasync-rs) | [tuna/tunasync](https://github.com/tuna/tunasync) |
+| Repository | [cqumirror/tunasync-rs](https://github.com/cqumirror/tunasync-rs) | [tuna/tunasync](https://github.com/tuna/tunasync) |
 
 The tunasync manager needs to be **deployed separately** (it can run on the host directly). The `backend` service in this project's `docker-compose.yml` points to the tunasync manager.
 
@@ -79,14 +79,14 @@ The tunasync manager needs to be **deployed separately** (it can run on the host
 
 - Node.js >= 20.0.0, npm >= 10.0.0 (for development)
 - Docker + Docker Compose (Compose v2 recommended)
-- tunasync manager running (recommended: [tunasync-rs](https://github.com/JCIOTeam/tunasync-rs), default port `:12345`)
+- tunasync manager running (recommended: [tunasync-rs](https://github.com/cqumirror/tunasync-rs), default port `:12345`)
 - Mirror data directory (e.g. `/data/mirrors/`)
 
 ### Step 1: Clone and Configure
 
 ```bash
-git clone https://github.com/JCIOTeam/jcutmirror-new.git
-cd jcutmirror-new
+git clone https://github.com/cqumirror/mirror-frontend-new.git
+cd mirror-frontend-new
 ```
 
 Copy the environment variable example and modify as needed:
@@ -276,11 +276,11 @@ crontab -e
 Add the following (runs daily at 4:00 AM, logs to `/var/log/mirror_updater.log`):
 
 ```cron
-0 4 * * * python3 /opt/jcutmirror/scripts/mirror_config_updater.py \
+0 4 * * * python3 /opt/mirror-frontend-new/scripts/mirror_config_updater.py \
   --data-dir /data/mirrors \
-  --config /opt/jcutmirror/public/local_data.json \
+  --config /opt/mirror-frontend-new/public/local_data.json \
   --apply >> /var/log/mirror_updater.log 2>&1 \
-  && docker compose -f /opt/jcutmirror/docker-compose.yml up -d --build frontend
+  && docker compose -f /opt/mirror-frontend-new/docker-compose.yml up -d --build frontend
 ```
 
 This command does two things: updates the JSON, then rebuilds the frontend container on success.
@@ -296,7 +296,7 @@ After=network.target
 
 [Service]
 Type=oneshot
-WorkingDirectory=/opt/jcutmirror
+WorkingDirectory=/opt/mirror-frontend-new
 ExecStart=/usr/bin/python3 scripts/mirror_config_updater.py \
   --data-dir /data/mirrors \
   --config public/local_data.json \

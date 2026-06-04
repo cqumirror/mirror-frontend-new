@@ -11,24 +11,64 @@ import {
   Grid,
   IconButton,
   Tooltip,
+  useTheme,
 } from '@mui/material';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link as RouterLink } from 'react-router-dom';
+import { useLocaleStore } from '../../stores/mirrorStore';
+
+// 2x2 网格卡片数据
+const GRID_CARDS = [
+  {
+    title: '指导单位',
+    titleEn: 'Guided By',
+    href: 'https://net.cqu.edu.cn/',
+    imgLight: '/img/guide-placeholder.png',
+    imgDark: '/img/guide-placeholder-dark.png',
+    alt: '重庆大学信息化办公室',
+  },
+  {
+    title: '运营维护',
+    titleEn: 'Maintained By',
+    href: 'https://lanunion.cqu.edu.cn/',
+    imgLight: '/img/maintain-placeholder.png',
+    imgDark: '/img/maintain-placeholder-dark.png',
+    alt: '重庆大学蓝盟',
+  },
+  {
+    title: '联系我们',
+    titleEn: 'Contact Us',
+    links: [
+      { icon: <EmailIcon fontSize="small" />, label: 'Mail', href: 'mailto:cqumirror@gmail.com' },
+      { icon: <GitHubIcon fontSize="small" />, label: 'GitHub', href: 'https://github.com/cqumirror/feedback' },
+    ],
+  },
+  // {
+  //   title: '赞助',
+  //   titleEn: 'Sponsors',
+  //   img: '/img/sponsor-1.jpg',
+  //   alt: '上海睿尔智创网络科技有限公司',
+  //   href: 'https://www.rezcwl.com',
+  //   sponsorText: '感谢上海睿尔智创网络科技有限公司为本站提供部分存储设施。',
+  // },
+];
+
+// 友情链接数据
+const FRIEND_LINKS = [
+  { label: { zh: '校园网联合镜像站', en: 'CERNET Mirror' }, href: 'https://mirrors.cernet.edu.cn' },
+  { label: { zh: '清华 TUNA 镜像站', en: 'TUNA Mirror' }, href: 'https://mirrors.tuna.tsinghua.edu.cn' },
+  { label: { zh: '重庆大学蓝盟', en: 'CQU Lanunion' }, href: 'https://lanunion.cqu.edu.cn/' },
+];
 
 /**
  * 站点页脚
  */
 const Footer: React.FC = () => {
   const { t } = useTranslation();
+  const { locale } = useLocaleStore();
+  const theme = useTheme();
   const year = new Date().getFullYear();
-
-  const friendLinks = [
-    { name: '重庆大学信息化办公室', url: 'https://net.cqu.edu.cn/' },
-    { name: '重大蓝盟', url: 'http://lanunion.cqu.edu.cn/' },
-    { name: 'TUNA Mirror', url: 'https://mirrors.tuna.tsinghua.edu.cn' },
-    { name: 'USTC Mirror', url: 'https://mirrors.ustc.edu.cn' },
-  ];
+  const isDark = theme.palette.mode === 'dark';
 
   return (
     <Box
@@ -45,15 +85,12 @@ const Footer: React.FC = () => {
       <Container maxWidth="lg">
         <Grid container spacing={4} sx={{ mb: 4 }}>
           {/* 左列：Logo + 简介 */}
-          <Grid size={{ xs: 12, md: 4 }}>
+          <Grid size={{ xs: 12, md: 5 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
               <img
                 src="/favicon.svg"
                 alt="CQU Mirror Logo"
-                style={{
-                  width: 22,
-                  height: 22,
-                }}
+                style={{ width: 22, height: 22 }}
               />
               <Typography
                 variant="h6"
@@ -66,11 +103,7 @@ const Footer: React.FC = () => {
                 CQU
                 <Typography
                   component="span"
-                  sx={{
-                    color: 'primary.main',
-                    fontWeight: 800,
-                    fontSize: '1rem',
-                  }}
+                  sx={{ color: 'primary.main', fontWeight: 800, fontSize: '1rem' }}
                 >
                   Mirror
                 </Typography>
@@ -87,8 +120,7 @@ const Footer: React.FC = () => {
             >
               {t('footer.description')}
             </Typography>
-            {/* 社交链接 */}
-            <Box sx={{ display: 'flex', gap: 0.5 }}>
+            <Box sx={{ display: 'flex', gap: 0.5, mb: 2 }}>
               <Tooltip title="GitHub">
                 <IconButton
                   size="small"
@@ -112,93 +144,149 @@ const Footer: React.FC = () => {
                 </IconButton>
               </Tooltip>
             </Box>
-          </Grid>
 
-          {/* 中列：友情链接 */}
-          <Grid size={{ xs: 6, md: 4 }}>
-            <Typography
-              variant="subtitle2"
-              sx={{
-                fontWeight: 700,
-                mb: 1.5,
-              }}
-            >
-              {t('footer.links')}
-            </Typography>
-            <Box
-              component="nav"
-              aria-label="友情链接"
-              sx={{ display: 'flex', flexDirection: 'column', gap: 0.8 }}
-            >
-              {friendLinks.map((link) => (
+            {/* 友情链接 */}
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, alignItems: 'center' }}>
+              <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600, mr: 0.5 }}>
+                {t('footer.friendLinks')}
+              </Typography>
+              {FRIEND_LINKS.map((link) => (
                 <Link
-                  key={link.url}
-                  href={link.url}
+                  key={link.href}
+                  href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  variant="body2"
+                  variant="caption"
                   underline="hover"
                   sx={{
                     color: 'text.secondary',
-                    '&:hover': { color: 'primary.main' },
                     transition: 'color 0.2s',
+                    px: 0.8,
+                    py: 0.3,
+                    borderRadius: 1,
+                    '&:hover': { bgcolor: 'action.hover', color: 'primary.main' },
                   }}
                 >
-                  {link.name}
+                  {locale === 'en' ? link.label.en : link.label.zh}
                 </Link>
               ))}
             </Box>
           </Grid>
 
-          {/* 右列：技术信息 */}
-          <Grid size={{ xs: 6, md: 4 }}>
-            <Typography
-              variant="subtitle2"
+          {/* 右列：2x2 网格 */}
+          <Grid size={{ xs: 12, md: 7 }}>
+            <Box
               sx={{
-                fontWeight: 700,
-                mb: 1.5,
+                display: 'grid',
+                gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
+                gap: 3,
               }}
             >
-              {t('footer.contact')}
-            </Typography>
-            <Box
-              component="nav"
-              aria-label="站点链接"
-              sx={{ display: 'flex', flexDirection: 'column', gap: 0.8 }}
-            >
-              <Link
-                href="mailto:cqumirror@gmail.com"
-                variant="body2"
-                underline="hover"
-                sx={{
-                  color: 'text.secondary',
-                }}
-              >
-                cqumirror@gmail.com
-              </Link>
-              <Link
-                component={RouterLink}
-                to="/status"
-                variant="body2"
-                underline="hover"
-                sx={{
-                  color: 'text.secondary',
-                }}
-              >
-                {t('footer.status')}
-              </Link>
-              <Link
-                href="https://github.com/cqumirror/feedback"
-                target="_blank"
-                rel="noopener noreferrer"
-                variant="body2"
-                underline="hover"
-                sx={{
-                  color: 'text.secondary',
-                }}
-              >
-                源代码 / Source Code
-              </Link>
+              {GRID_CARDS.map((card) => (
+                <Box key={card.title} sx={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{ fontWeight: 700, mb: 1 }}
+                  >
+                    {card.title}
+                    <Typography
+                      component="span"
+                      variant="caption"
+                      sx={{ ml: 0.5, color: 'text.secondary', fontWeight: 400 }}
+                    >
+                      {card.titleEn}
+                    </Typography>
+                  </Typography>
+
+                  {/* 图片卡片（指导单位、运营维护） */}
+                  {card.imgLight && card.imgDark && (
+                    <Link
+                      href={card.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      sx={{ display: 'inline-block' }}
+                    >
+                      <Box
+                        component="img"
+                        src={isDark ? card.imgDark : card.imgLight}
+                        alt={card.alt}
+                        sx={{
+                          maxWidth: 160,
+                          maxHeight: 80,
+                          width: 'auto',
+                          height: 'auto',
+                          opacity: 0.85,
+                          transition: 'opacity 0.2s',
+                          '&:hover': { opacity: 1 },
+                        }}
+                      />
+                    </Link>
+                  )}
+
+                  {/* 赞助商卡片 */}
+                  {card.sponsorText && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                      <Link
+                        href={card.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        sx={{ flexShrink: 0 }}
+                      >
+                        <Box
+                          component="img"
+                          src={card.img}
+                          alt={card.alt}
+                          sx={{
+                            width: 80,
+                            height: 40,
+                            objectFit: 'contain',
+                            opacity: 0.85,
+                            transition: 'opacity 0.2s',
+                            '&:hover': { opacity: 1 },
+                          }}
+                        />
+                      </Link>
+                      <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                        {card.sponsorText}
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {/* 链接列表卡片 */}
+                  {card.links && (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: 0.6,
+                      }}
+                    >
+                      {card.links.map((link) => (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          variant="body2"
+                          underline="hover"
+                          sx={{
+                            color: 'text.secondary',
+                            '&:hover': { color: 'primary.main' },
+                            transition: 'color 0.2s',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 0.5,
+                          }}
+                        >
+                          {'icon' in link && link.icon}
+                          {link.label}
+                        </Link>
+                      ))}
+                    </Box>
+                  )}
+                </Box>
+              ))}
             </Box>
           </Grid>
         </Grid>
@@ -215,20 +303,10 @@ const Footer: React.FC = () => {
             gap: 1,
           }}
         >
-          <Typography
-            variant="caption"
-            sx={{
-              color: 'text.secondary',
-            }}
-          >
+          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
             {t('footer.copyright', { year })}
           </Typography>
-          <Typography
-            variant="caption"
-            sx={{
-              color: 'text.secondary',
-            }}
-          >
+          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
             {t('footer.poweredBy')}
           </Typography>
         </Box>
