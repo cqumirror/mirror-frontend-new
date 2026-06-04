@@ -72,17 +72,16 @@ export const fetchMirrorByName = async (name: string): Promise<Mirror> => {
 /**
  * 判断客户端网络类型
  * GET /api/getip → { is_cqu: 1|0, remote_addr: "..." }
- * is_cqu=1 → 校内 "1" | 非校内且 remote_addr 为纯 IPv6 → "6" | 其他 → "0"
- * 注：IPv4 地址在 IPv6 环境下显示为 "::ffff:x.x.x.x"，不算 IPv6
+ * status: is_cqu=1 → "1" | 非校内且纯 IPv6 → "6" | 其他 → "0"
+ * ipv6: 纯 IPv6 地址（排除 "::ffff:" 前缀的 IPv4-mapped）
  */
 export const fetchCampusNetworkStatus = async (): Promise<CampusNetworkStatus> => {
   const API_BASE = import.meta.env.VITE_API_BASE ?? '';
   const res = await fetch(`${API_BASE}/api/getip`, { cache: 'no-cache' });
   if (!res.ok) throw new Error(`getip HTTP ${res.status}`);
-  const json = (await res.json()) as { is_cqu?: number; remote_addr?: string };
-  if (json.is_cqu === 1) return '1';
+  const json = (await res.json()) as { is_cqu?: number | string; remote_addr?: string };
   const addr = json.remote_addr ?? '';
-  // 纯 IPv6：含 ":" 但不是 "::ffff:" 开头的 IPv4-mapped 地址
-  if (addr.includes(':') && !addr.startsWith('::ffff:')) return '6';
-  return '0';
+  const ipv6 = addr.includes(':') && !addr.startsWith('::ffff:');
+  const status: CampusNetworkStatus['status'] = Number(json.is_cqu) === 1 ? '1' : ipv6 ? '6' : '0';
+  return { status, ipv6 };
 };

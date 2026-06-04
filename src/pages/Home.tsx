@@ -190,21 +190,28 @@ const Home: React.FC = () => {
 
   // 校园网/IPv6 状态指示
   const networkStat =
-    campusStatus === '1'
+    campusStatus?.status === '1'
       ? {
           icon: <WifiIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />,
           label: t('network.campusLabel'),
           dot: '#22C55E',
           tooltip: t('network.campus'),
         }
-      : campusStatus === '6'
+      : campusStatus?.status === '6'
         ? {
             icon: <Ipv6Icon sx={{ fontSize: { xs: 16, sm: 18 } }} />,
             label: 'IPv6',
             dot: '#3B82F6',
             tooltip: t('network.ipv6'),
           }
-        : null;
+        : campusStatus
+          ? {
+              icon: <WifiIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />,
+              label: t('network.externalLabel'),
+              dot: '#94A3B8',
+              tooltip: t('network.external'),
+            }
+          : null;
 
   // 浮动通知状态（Snackbar）- 队列式显示，避免重叠
   const [showIpv6Snackbar, setShowIpv6Snackbar] = useState(false);
@@ -213,7 +220,7 @@ const Home: React.FC = () => {
 
   // IPv6 通知 - 30 分钟内只显示一次
   useEffect(() => {
-    if (campusStatus === '6') {
+    if (campusStatus?.status === '6') {
       const key = 'ipv6_notif_ts';
       const last = Number(safeGetItem(key) ?? 0);
       const now = Date.now();
@@ -240,7 +247,7 @@ const Home: React.FC = () => {
             safeSetItem(key, String(now));
           }, 8500);
           return () => clearTimeout(timer);
-        } else if (ipv6Dismissed || campusStatus !== '6') {
+        } else if (ipv6Dismissed || campusStatus?.status !== '6') {
           setShowFailedSnackbar(true);
           safeSetItem(key, String(now));
         }
@@ -303,14 +310,14 @@ const Home: React.FC = () => {
                 );
               }
               const netConfig =
-                campusStatus === '1'
+                campusStatus.status === '1'
                   ? {
                       icon: <WifiIcon sx={{ fontSize: 14 }} />,
                       label: t('network.campusChip'),
                       color: 'success' as const,
                       dot: '#22C55E',
                     }
-                  : campusStatus === '6'
+                  : campusStatus.status === '6'
                     ? {
                         icon: <Ipv6Icon sx={{ fontSize: 14 }} />,
                         label: 'IPv6',
@@ -324,45 +331,58 @@ const Home: React.FC = () => {
                         dot: '#94A3B8',
                       };
 
+              const tooltip =
+                campusStatus.status === '1'
+                  ? t('network.campus')
+                  : campusStatus.status === '6'
+                    ? t('network.ipv6')
+                    : t('network.external');
+
               return (
-                <Tooltip
-                  title={
-                    campusStatus === '1'
-                      ? t('network.campus')
-                      : campusStatus === '6'
-                        ? t('network.ipv6')
-                        : t('network.external')
-                  }
-                  placement="right"
-                >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, mb: 2 }}>
+                  <Tooltip title={tooltip} placement="right">
+                    <Chip
+                      icon={netConfig.icon}
+                      label={netConfig.label}
+                      color={netConfig.color}
+                      size="small"
+                      variant="outlined"
+                      sx={{
+                        fontWeight: 700,
+                        '& .MuiChip-icon': { color: netConfig.dot },
+                        position: 'relative',
+                        '& .net-dot': {
+                          display: 'inline-block',
+                          width: 7,
+                          height: 7,
+                          borderRadius: '50%',
+                          bgcolor: netConfig.dot,
+                          ml: 0.5,
+                          animation:
+                            campusStatus.status !== '0' ? 'net-pulse 2.4s ease-in-out infinite' : 'none',
+                        },
+                        '@keyframes net-pulse': {
+                          '0%, 100%': { opacity: 1, transform: 'scale(1)' },
+                          '50%': { opacity: 0.4, transform: 'scale(0.75)' },
+                        },
+                      }}
+                    />
+                  </Tooltip>
                   <Chip
-                    icon={netConfig.icon}
-                    label={netConfig.label}
-                    color={netConfig.color}
+                    label={campusStatus.ipv6 ? 'IPv6' : 'IPv4'}
                     size="small"
                     variant="outlined"
                     sx={{
-                      mb: 2,
                       fontWeight: 700,
-                      '& .MuiChip-icon': { color: netConfig.dot },
-                      position: 'relative',
-                      '& .net-dot': {
-                        display: 'inline-block',
-                        width: 7,
-                        height: 7,
-                        borderRadius: '50%',
-                        bgcolor: netConfig.dot,
-                        ml: 0.5,
-                        animation:
-                          campusStatus !== '0' ? 'net-pulse 2.4s ease-in-out infinite' : 'none',
-                      },
-                      '@keyframes net-pulse': {
-                        '0%, 100%': { opacity: 1, transform: 'scale(1)' },
-                        '50%': { opacity: 0.4, transform: 'scale(0.75)' },
-                      },
+                      borderColor: campusStatus.ipv6
+                        ? 'oklch(74.6% 0.16 232.661)'
+                        : 'oklch(79.2% 0.209 151.711)',
+                      color: campusStatus.ipv6
+                        ? 'oklch(74.6% 0.16 232.661)'
+                        : 'oklch(79.2% 0.209 151.711)',
                     }}
                   />
-                </Tooltip>
+                </Box>
               );
             })()}
 

@@ -7,7 +7,7 @@ import { useMemo, useEffect, useState } from 'react';
 import { useMirrorSearchStore } from '../stores/mirrorStore';
 
 import { fetchMirrors, fetchCampusNetworkStatus } from '@/api';
-import type { Mirror, GroupedMirrors } from '@/types';
+import type { Mirror, GroupedMirrors, CampusNetworkStatus } from '@/types';
 
 // ── 基础查询 Hooks ────────────────────────────────────────────────────────────
 
@@ -33,7 +33,7 @@ export const useMirrorDetail = (name: string) =>
   });
 
 export const useCampusNetwork = () =>
-  useQuery<string>({
+  useQuery<CampusNetworkStatus>({
     queryKey: ['campusNetwork'],
     queryFn: fetchCampusNetworkStatus,
     staleTime: 300_000,

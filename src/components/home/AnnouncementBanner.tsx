@@ -173,49 +173,50 @@ const AnnouncementBanner: React.FC = () => {
             />
           )}
 
-          {/* 标题 + 正文 */}
-          <Typography
-            variant="body2"
-            sx={{
-              flex: 1,
-              minWidth: 0,
-              fontSize: '0.82rem',
-              color: (theme) => (theme.palette.mode === 'dark' ? 'text.primary' : c.text),
-              lineHeight: 1.4,
-            }}
-          >
-            <Box component="span" sx={{ fontWeight: 700, mr: 0.8 }}>
-              {item.title[locale]}
-            </Box>
-            <Box component="span" sx={{ opacity: 0.75 }}>
-              {item.content[locale]}
-            </Box>
-          </Typography>
-
-          {/* 详情链接 */}
-          {item.link && (
-            <Link
-              component="button"
-              onClick={() => handleLink(item.link?.url ?? '')}
-              underline="hover"
+          {/* 标题 + 正文 + 链接 */}
+          <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 0.5 }}>
+            <Typography
+              variant="body2"
               sx={{
-                fontSize: '0.78rem',
-                color: c.accent,
-                fontWeight: 600,
-                flexShrink: 0,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 0.3,
-                border: 'none',
-                bgcolor: 'transparent',
-                cursor: 'pointer',
-                lineHeight: 1,
+                fontSize: '0.82rem',
+                color: (theme) => (theme.palette.mode === 'dark' ? 'text.primary' : c.text),
+                lineHeight: 1.4,
               }}
             >
-              {item.link.label[locale]}
-              <LinkIcon sx={{ fontSize: 11 }} />
-            </Link>
-          )}
+              <Box component="span" sx={{ fontWeight: 700, mr: 0.8 }}>
+                {item.title[locale]}
+              </Box>
+              <Box component="span" sx={{ opacity: 0.75 }}>
+                {item.content[locale]}
+              </Box>
+            </Typography>
+
+            {/* 详情链接 — 宽屏靠右，窄屏换行 */}
+            {item.link && (
+              <Link
+                component="button"
+                onClick={() => handleLink(item.link?.url ?? '')}
+                underline="hover"
+                sx={{
+                  fontSize: '0.78rem',
+                  color: c.accent,
+                  fontWeight: 600,
+                  ml: 'auto',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.3,
+                  border: 'none',
+                  bgcolor: 'transparent',
+                  cursor: 'pointer',
+                  lineHeight: 1,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {item.link.label[locale]}
+                <LinkIcon sx={{ fontSize: 11 }} />
+              </Link>
+            )}
+          </Box>
 
           {/* 关闭按钮 */}
           {item.dismissible && (
@@ -245,17 +246,12 @@ const AnnouncementBanner: React.FC = () => {
           mx: 'auto',
           px: { xs: 2, md: 3 },
           py: 0,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 1.5,
         }}
       >
         {/* 公告列表（每页最多 2 条，纵向排列） */}
         <Box
           key={safeIndex}
           sx={{
-            flex: 1,
-            minWidth: 0,
             display: 'flex',
             flexDirection: 'column',
           }}
@@ -263,9 +259,9 @@ const AnnouncementBanner: React.FC = () => {
           {pageItems.map((item, idx) => renderAnnouncement(item, idx))}
         </Box>
 
-        {/* 多页翻页 */}
+        {/* 多页翻页 —— 居中置于公告下方 */}
         {totalPages > 1 && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.2, flexShrink: 0 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 0.2, mt: 0.3 }}>
             <IconButton
               size="small"
               sx={{ p: 0.3 }}

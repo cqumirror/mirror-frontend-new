@@ -42,9 +42,13 @@ export interface Mirror {
 
 /**
  * 校园网检测响应
- * "1" = 校内 (is_cqu=1) | "0" = 校外 | "6" = IPv6 (非校内且 remote_addr 为纯 IPv6)
+ * status: "1" = 校内 (is_cqu=1) | "0" = 校外 | "6" = IPv6 (非校内且 remote_addr 为纯 IPv6)
+ * ipv6: true = 纯 IPv6 连接 | false = IPv4（含 IPv4-mapped "::ffff:"）
  */
-export type CampusNetworkStatus = '1' | '0' | '6';
+export interface CampusNetworkStatus {
+  status: '1' | '0' | '6';
+  ipv6: boolean;
+}
 
 /**
  * 主题模式
