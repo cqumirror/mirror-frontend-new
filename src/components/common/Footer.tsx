@@ -223,19 +223,19 @@ const Footer: React.FC = () => {
                     </Link>
                   )}
 
-                  {/* 赞助商卡片 */}
-                  {card.sponsorText && (
+                  {/* 赞助商卡片（取消 GRID_CARS 中赞助注释即可显示） */}
+                  {'sponsorText' in card && (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                       <Link
-                        href={card.href}
+                        href={(card as { href?: string }).href ?? ''}
                         target="_blank"
                         rel="noopener noreferrer"
                         sx={{ flexShrink: 0 }}
                       >
                         <Box
                           component="img"
-                          src={card.img}
-                          alt={card.alt}
+                          src={(card as { img?: string }).img ?? ''}
+                          alt={(card as { alt?: string }).alt ?? ''}
                           sx={{
                             width: 80,
                             height: 40,
@@ -247,7 +247,7 @@ const Footer: React.FC = () => {
                         />
                       </Link>
                       <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                        {card.sponsorText}
+                        {(card as { sponsorText?: string }).sponsorText ?? ''}
                       </Typography>
                     </Box>
                   )}
