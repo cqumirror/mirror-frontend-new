@@ -1,12 +1,31 @@
 [
   {
+    "id": "ban-p2p-tools",
+    "type": "error",
+    "pinned": true,
+    "dismissible": false,
+    "date": "2023-03-27",
+    "title": { "zh": "这个是测试页面", "en": "This test page" },
+    "content": {
+      "zh": "此页面为镜像站测试页面，请注意分辨，若要使用镜像站请访问镜像站官网",
+      "en": "This page is a mirror site test page. Please be sure to distinguish it. To use the mirror site, please visit the official mirror website."
+    },
+    "link": {
+      "url": "https://mirrors.cqu.edu.cn",
+      "label": { "zh": "重庆大学开源镜像站", "en": "CQU Mirror" }
+    }
+  },
+  {
     "id": "welcome-enrollment",
     "type": "success",
     "pinned": true,
     "dismissible": false,
     "date": "2024-09-01",
     "title": { "zh": "欢迎报考重庆大学", "en": "Welcome to Apply to Chongqing University" },
-    "content": { "zh": "详询重庆大学本科招生网", "en": "Visit the undergraduate admissions website for details" },
+    "content": {
+      "zh": "详询重庆大学本科招生网",
+      "en": "Visit the undergraduate admissions website for details"
+    },
     "link": {
       "url": "https://zhaosheng.cqu.edu.cn",
       "label": { "zh": "招生网", "en": "Admissions" }
@@ -19,7 +38,10 @@
     "dismissible": false,
     "date": "2023-03-27",
     "title": { "zh": "请勿使用多线程下载器", "en": "Multi-threaded downloaders are prohibited" },
-    "content": { "zh": "受带宽限制，IDM、aria2等多线程下载器不允许用于镜像站内容下载，请悉知。", "en": "Due to bandwidth limitations, multi-threaded downloaders such as IDM and aria2 are not allowed for downloading from the mirror site." },
+    "content": {
+      "zh": "受带宽限制，IDM、aria2等多线程下载器不允许用于镜像站内容下载，请悉知。",
+      "en": "Due to bandwidth limitations, multi-threaded downloaders such as IDM and aria2 are not allowed for downloading from the mirror site."
+    },
     "link": null
   },
   {
