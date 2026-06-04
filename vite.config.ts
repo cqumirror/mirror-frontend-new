@@ -30,6 +30,7 @@ const proxyConfig = {
 };
 
 export default defineConfig({
+  base: './',
   plugins: [react(), mdx({ providerImportSource: '@mdx-js/react', remarkPlugins: [remarkGfm] })],
 
   resolve: {
