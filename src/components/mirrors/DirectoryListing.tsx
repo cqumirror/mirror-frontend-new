@@ -100,7 +100,7 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
       setError(null);
       try {
         const absUrl = toAbsoluteUrl(url);
-        const res = await fetch(absUrl, { headers: { Accept: 'text/html' } });
+        const res = await fetch(absUrl, { headers: { Accept: 'text/html' }, credentials: 'same-origin' });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const html = await res.text();
         const parsed = parseFancyIndex(html, absUrl);

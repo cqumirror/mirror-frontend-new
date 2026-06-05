@@ -83,5 +83,11 @@ export const fetchCampusNetworkStatus = async (): Promise<CampusNetworkStatus> =
   const addr = json.remote_addr ?? '';
   const ipv6 = addr.includes(':') && !addr.startsWith('::ffff:');
   const status: CampusNetworkStatus['status'] = Number(json.is_cqu) === 1 ? '1' : ipv6 ? '6' : '0';
+
+  // 将 IP 写入 cookie，供目录浏览等请求通过 JS 质询
+  if (addr) {
+    document.cookie = `client_ip=${encodeURIComponent(addr)}; path=/; SameSite=Lax; max-age=86400`;
+  }
+
   return { status, ipv6 };
 };
