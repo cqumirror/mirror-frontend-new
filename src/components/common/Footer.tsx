@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+
 import { useLocaleStore } from '../../stores/mirrorStore';
 
 // 2x2 网格卡片数据

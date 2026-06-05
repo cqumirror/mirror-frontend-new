@@ -34,6 +34,7 @@ export default defineConfig({
         'src/test/',
         '**/*.d.ts',
         'src/**/*.mdx',
+        'content/**/*.mdx',
       ],
     },
   },

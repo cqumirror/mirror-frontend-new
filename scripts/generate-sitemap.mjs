@@ -26,11 +26,11 @@ function getMirrorIds() {
 }
 
 /**
- * 从 src/news/mdx/ 目录提取新闻 slug
+ * 从 content/news/mdx/ 目录提取新闻 slug
  */
 function getNewsSlugs() {
   try {
-    const newsDir = resolve(__dirname, '..', 'src', 'news', 'mdx');
+    const newsDir = resolve(__dirname, '..', 'content', 'news', 'mdx');
     if (!existsSync(newsDir)) return [];
     return readdirSync(newsDir)
       .filter((f) => f.endsWith('.mdx'))
@@ -41,11 +41,11 @@ function getNewsSlugs() {
 }
 
 /**
- * 从 src/docs/mdx/zh/ 目录提取有文档的镜像列表（用于帮助页面）
+ * 从 content/docs/mdx/zh/ 目录提取有文档的镜像列表（用于帮助页面）
  */
 function getDocIds() {
   try {
-    const docsDir = resolve(__dirname, '..', 'src', 'docs', 'mdx', 'zh');
+    const docsDir = resolve(__dirname, '..', 'content', 'docs', 'mdx', 'zh');
     if (!existsSync(docsDir)) return [];
     return readdirSync(docsDir)
       .filter((f) => f.endsWith('.mdx'))

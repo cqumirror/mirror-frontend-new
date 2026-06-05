@@ -1,5 +1,5 @@
 // src/news/index.ts
-// 新闻系统 —— 用 Vite import.meta.glob 自动发现 src/news/mdx/{zh,en}/*.mdx
+// 新闻系统 —— 用 Vite import.meta.glob 自动发现 content/news/mdx/{zh,en}/*.mdx
 // 每篇 MDX 文件需要 export const meta = { title, date, summary, tags? }
 // 文件名即 slug，建议格式：YYYY-MM-DD-short-title.mdx
 
@@ -18,19 +18,19 @@ export interface NewsMeta {
 const zhModules = import.meta.glob<{
   meta: Omit<NewsMeta, 'slug'>;
   default: React.FC;
-}>('./mdx/zh/*.mdx', { eager: true });
+}>('../../content/news/mdx/zh/*.mdx', { eager: true });
 
 const enModules = import.meta.glob<{
   meta: Omit<NewsMeta, 'slug'>;
   default: React.FC;
-}>('./mdx/en/*.mdx', { eager: true });
+}>('../../content/news/mdx/en/*.mdx', { eager: true });
 
 // ── 元数据列表（同步，供列表页 / 首页 widget 使用）────────────────────────────
 export const getNewsList = (locale: string = 'zh'): NewsMeta[] => {
   const modules = locale === 'en' ? enModules : zhModules;
   return Object.entries(modules)
     .map(([path, mod]) => ({
-      slug: path.replace(`./mdx/${locale === 'en' ? 'en' : 'zh'}/`, '').replace('.mdx', ''),
+      slug: path.replace(/.*\//, '').replace('.mdx', ''),
       ...(mod.meta ?? { title: '(未命名)', date: '1970-01-01', summary: '' }),
     }))
     .sort((a, b) => b.date.localeCompare(a.date));
@@ -42,6 +42,6 @@ export const getNewsItem = (slug: string, locale: string = 'zh'): NewsMeta | und
 // ── 正文组件（同步，详情页直接取，无需 async）────────────────────────────────
 export const getNewsArticle = (slug: string, locale: string = 'zh'): React.FC | null => {
   const modules = locale === 'en' ? enModules : zhModules;
-  const key = `./mdx/${locale === 'en' ? 'en' : 'zh'}/${slug}.mdx`;
+  const key = `../../content/news/mdx/${locale === 'en' ? 'en' : 'zh'}/${slug}.mdx`;
   return modules[key]?.default ?? null;
 };

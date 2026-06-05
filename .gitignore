@@ -140,3 +140,6 @@ vite.config.ts.timestamp-*
 
 .idea/CLAUDE.md
 /.idea/
+
+# 临时参考数据
+tmp/

@@ -7,11 +7,11 @@ import type React from 'react';
  * 使用 Vite 的 import.meta.glob 自动发现 MDX 文档
  * 只需将 .mdx 文件放入对应目录，无需手动注册
  */
-const zhDocsRaw = import.meta.glob<{ default: React.FC }>('./mdx/zh/*.mdx', {
+const zhDocsRaw = import.meta.glob<{ default: React.FC }>('../../content/docs/mdx/zh/*.mdx', {
   eager: false,
 }) as Record<string, () => Promise<{ default: React.FC }>>;
 
-const enDocsRaw = import.meta.glob<{ default: React.FC }>('./mdx/en/*.mdx', {
+const enDocsRaw = import.meta.glob<{ default: React.FC }>('../../content/docs/mdx/en/*.mdx', {
   eager: false,
 }) as Record<string, () => Promise<{ default: React.FC }>>;
 
@@ -20,12 +20,12 @@ const zhDocs: Record<string, () => Promise<{ default: React.FC }>> = {};
 const enDocs: Record<string, () => Promise<{ default: React.FC }>> = {};
 
 Object.entries(zhDocsRaw).forEach(([path, importFn]) => {
-  const mirrorId = path.replace('./mdx/zh/', '').replace('.mdx', '');
+  const mirrorId = path.replace(/.*\//, '').replace('.mdx', '');
   zhDocs[mirrorId] = importFn;
 });
 
 Object.entries(enDocsRaw).forEach(([path, importFn]) => {
-  const mirrorId = path.replace('./mdx/en/', '').replace('.mdx', '');
+  const mirrorId = path.replace(/.*\//, '').replace('.mdx', '');
   enDocs[mirrorId] = importFn;
 });
 
