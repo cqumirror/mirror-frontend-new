@@ -18,7 +18,7 @@ export interface RawJob {
 }
 
 /**
- * public/local_data.json 中每个镜像的补充信息
+ * public/data/local_data.json 中每个镜像的补充信息
  * 所有字段均可选，存在时**逐字段**覆盖（而非整段覆盖）
  *
  * `status` 可选：用于前端强制覆盖后端状态，适合 EOL / 已暂停但仍保留快照的镜像

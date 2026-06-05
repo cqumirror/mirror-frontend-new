@@ -5,10 +5,9 @@
 
 import {
   Close as CloseIcon,
-  Download as DownloadIcon,
+  FavoriteBorder as ThanksIcon,
   Menu as MenuIcon,
   Search as SearchIcon,
-  Sync as SyncIcon,
 } from '@mui/icons-material';
 import {
   AppBar,
@@ -22,10 +21,8 @@ import {
   List,
   ListItem,
   ListItemButton,
-  ListItemIcon,
   ListItemText,
   Toolbar,
-  Tooltip,
   Typography,
   useMediaQuery,
   useTheme as useMuiTheme,
@@ -35,7 +32,7 @@ import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { useMirrorSearchStore } from '../../stores/mirrorStore';
-import DownloadModal from '../mirrors/DownloadModal';
+
 
 import LocaleToggle from './LocaleToggle';
 import SearchBar from './SearchBar';
@@ -50,7 +47,7 @@ const Header: React.FC = () => {
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [downloadOpen, setDownloadOpen] = useState(false);
+
   const searchInputRef = useRef<HTMLInputElement>(null); // mobile 弹层搜索框
   const desktopSearchRef = useRef<HTMLInputElement>(null); // 桌面端 header 搜索框
 
@@ -195,45 +192,15 @@ const Header: React.FC = () => {
           {/* 桌面端右侧工具栏 */}
           {!isMobile && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              {/* 同步状态按钮 */}
-              <Tooltip title={t('nav.status', '同步状态')} placement="bottom">
-                <Button
-                  variant="outlined"
-                  size="small"
-                  startIcon={<SyncIcon sx={{ fontSize: 16 }} />}
-                  onClick={() => navigate('/status')}
-                  sx={{
-                    borderRadius: 6,
-                    fontSize: '0.8rem',
-                    px: 1.5,
-                    py: 0.4,
-                    fontWeight: 600,
-                    textTransform: 'none',
-                  }}
-                >
-                  {t('nav.status', '同步状态')}
-                </Button>
-              </Tooltip>
-              {/* 镜像下载按钮 */}
-              <Tooltip title={t('nav.download', '镜像下载')} placement="bottom">
-                <Button
-                  variant="outlined"
-                  size="small"
-                  startIcon={<DownloadIcon sx={{ fontSize: 16 }} />}
-                  onClick={() => setDownloadOpen(true)}
-                  sx={{
-                    borderRadius: 6,
-                    fontSize: '0.8rem',
-                    px: 1.5,
-                    py: 0.4,
-                    fontWeight: 600,
-                    textTransform: 'none',
-                    mr: 0.5,
-                  }}
-                >
-                  {t('nav.download', '镜像下载')}
-                </Button>
-              </Tooltip>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<ThanksIcon sx={{ fontSize: 16 }} />}
+                onClick={() => navigate('/special-thanks')}
+                sx={{ borderRadius: 6, fontSize: '0.8rem', px: 1.5, py: 0.4, fontWeight: 600, textTransform: 'none' }}
+              >
+                {t('nav.specialThanks')}
+              </Button>
               <LocaleToggle />
               <ThemeToggle />
             </Box>
@@ -292,60 +259,23 @@ const Header: React.FC = () => {
               </ListItemButton>
             </ListItem>
           ))}
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={() => {
+                navigate('/special-thanks');
+                setDrawerOpen(false);
+              }}
+            >
+              <ListItemText primary={t('nav.specialThanks', '特别致谢')} />
+            </ListItemButton>
+          </ListItem>
 
-          {/* 同步状态入口 */}
-          <ListItem disablePadding>
-            <ListItemButton
-              onClick={() => {
-                navigate('/status');
-                setDrawerOpen(false);
-              }}
-              sx={{
-                '& .MuiListItemIcon-root': { minWidth: 36 },
-              }}
-            >
-              <ListItemIcon>
-                <SyncIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText
-                primary={t('nav.status', '同步状态')}
-                slotProps={{
-                  primary: { sx: { fontWeight: 600, fontSize: '0.9rem' } },
-                }}
-              />
-            </ListItemButton>
-          </ListItem>
-          {/* 镜像下载入口 */}
-          <ListItem disablePadding>
-            <ListItemButton
-              onClick={() => {
-                setDownloadOpen(true);
-                setDrawerOpen(false);
-              }}
-              sx={{
-                color: 'primary.main',
-                '& .MuiListItemIcon-root': { color: 'primary.main', minWidth: 36 },
-              }}
-            >
-              <ListItemIcon>
-                <DownloadIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText
-                primary={t('nav.download', '镜像下载')}
-                slotProps={{
-                  primary: { sx: { fontWeight: 600, fontSize: '0.9rem' } },
-                }}
-              />
-            </ListItemButton>
-          </ListItem>
         </List>
         <Divider />
         <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
           <LocaleToggle />
         </Box>
       </Drawer>
-      {/* 下载弹窗 */}
-      <DownloadModal open={downloadOpen} onClose={() => setDownloadOpen(false)} />
     </>
   );
 };

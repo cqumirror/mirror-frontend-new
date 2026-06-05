@@ -1,6 +1,6 @@
 // src/components/home/AnnouncementBanner.tsx
 // 全宽细条公告横幅 —— system banner 风格
-// · 从 public/announcements.json 加载，无需重新构建
+// · 从 public/data/announcements.json 加载，无需重新构建
 // · 多条公告时用 1/N 翻页，不堆叠
 // · 置顶公告左侧加粗色条，可逐条关闭
 
@@ -96,7 +96,7 @@ const AnnouncementBanner: React.FC = () => {
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
-    fetch('/announcements.json')
+    fetch('/data/announcements.json')
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((data: Announcement[]) => {
         const dis = loadDismissed();

@@ -11,6 +11,9 @@ import {
   InfoOutlined as InfoIcon,
   WarningAmberOutlined as WarningIcon,
   Star as StarIcon,
+  Code as CodeIcon,
+  Sync as SyncIcon,
+  Download as DownloadIcon,
 } from '@mui/icons-material';
 import {
   Box,
@@ -29,10 +32,12 @@ import {
 } from '@mui/material';
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 import RefreshButton from '../components/common/RefreshButton';
 import AnnouncementBanner from '../components/home/AnnouncementBanner';
 import NewsWidget from '../components/home/NewsWidget';
+import DownloadModal from '../components/mirrors/DownloadModal';
 import MirrorCard from '../components/mirrors/MirrorCard';
 import MirrorList from '../components/mirrors/MirrorList';
 import {
@@ -141,6 +146,8 @@ const LetterIndexNav: React.FC<LetterIndexNavProps> = ({ letters, ariaLabel }) =
  */
 const Home: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [downloadOpen, setDownloadOpen] = useState(false);
   const { searchQuery } = useMirrorSearchStore();
 
   // 获取数据
@@ -292,7 +299,7 @@ const Home: React.FC = () => {
         }}
       >
         <Container maxWidth="lg" sx={{ position: 'relative' }}>
-          {/* 公告/通知横幅 —— 从 public/announcements.json 读取，无需重新构建即可更新 */}
+          {/* 公告/通知横幅 —— 从 public/data/announcements.json 读取，无需重新构建即可更新 */}
           <Box sx={{ mb: 3 }}>
             <AnnouncementBanner />
           </Box>
@@ -386,19 +393,55 @@ const Home: React.FC = () => {
               );
             })()}
 
-            {/* 标题 */}
-            <Typography
-              variant="h2"
-              sx={{
-                fontWeight: 800,
-                fontSize: { xs: '2rem', md: '3rem' },
-                fontFamily: '"JetBrains Mono", monospace',
-                mb: 1,
-                letterSpacing: '-0.03em',
-              }}
-            >
-              {t('home.hero.title')}
-            </Typography>
+            {/* 标题 + 快捷导航 */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1, flexWrap: 'wrap' }}>
+              <Typography
+                variant="h2"
+                sx={{
+                  fontWeight: 800,
+                  fontSize: { xs: '2rem', md: '3rem' },
+                  fontFamily: '"JetBrains Mono", monospace',
+                  letterSpacing: '-0.03em',
+                }}
+              >
+                {t('home.hero.title')}
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <Tooltip title={t('nav.gitMirrors')} placement="bottom">
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<CodeIcon sx={{ fontSize: 16 }} />}
+                    onClick={() => navigate('/mirrors/git')}
+                    sx={{ borderRadius: 6, fontSize: '0.8rem', px: 1.5, py: 0.4, fontWeight: 600, textTransform: 'none' }}
+                  >
+                    {t('nav.gitMirrors')}
+                  </Button>
+                </Tooltip>
+                <Tooltip title={t('nav.status')} placement="bottom">
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<SyncIcon sx={{ fontSize: 16 }} />}
+                    onClick={() => navigate('/status')}
+                    sx={{ borderRadius: 6, fontSize: '0.8rem', px: 1.5, py: 0.4, fontWeight: 600, textTransform: 'none' }}
+                  >
+                    {t('nav.status')}
+                  </Button>
+                </Tooltip>
+                <Tooltip title={t('nav.download')} placement="bottom">
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<DownloadIcon sx={{ fontSize: 16 }} />}
+                    onClick={() => setDownloadOpen(true)}
+                    sx={{ borderRadius: 6, fontSize: '0.8rem', px: 1.5, py: 0.4, fontWeight: 600, textTransform: 'none' }}
+                  >
+                    {t('nav.download')}
+                  </Button>
+                </Tooltip>
+              </Box>
+            </Box>
 
             <Typography
               variant="h5"
@@ -824,6 +867,7 @@ const Home: React.FC = () => {
           </Box>
         </Box>
       </Container>
+      <DownloadModal open={downloadOpen} onClose={() => setDownloadOpen(false)} />
     </>
   );
 };

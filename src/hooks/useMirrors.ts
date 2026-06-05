@@ -93,7 +93,7 @@ export function sortedGroupKeys(grouped: GroupedMirrors): string[] {
   });
 }
 
-// ── 常用镜像 —— 从 public/popular-mirrors.json 读取，运行时可热更新 ─────────
+// ── 常用镜像 —— 从 public/data/popular-mirrors.json 读取，运行时可热更新 ─────
 
 /** 内置兜底列表，当 JSON 文件不存在或加载失败时使用 */
 const FALLBACK_POPULAR = [
@@ -112,7 +112,7 @@ export const usePopularMirrors = (mirrors: Mirror[], count = 8): Mirror[] => {
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch('/popular-mirrors.json', { signal: controller.signal })
+    fetch('/data/popular-mirrors.json', { signal: controller.signal })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((ids: string[]) => {
         if (Array.isArray(ids) && ids.length > 0) setPopularIds(ids);

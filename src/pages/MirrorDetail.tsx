@@ -40,9 +40,11 @@ import DirectoryListing from '../components/mirrors/DirectoryListing';
 import GithubReleaseViewer from '../components/mirrors/GithubReleaseViewer';
 import StatusChip from '../components/mirrors/StatusChip';
 import SyncTimeline from '../components/mirrors/SyncTimeline';
+import { useGithubReleaseSubProjects } from '../data/githubReleaseSubprojects';
 import { hasMdxDoc } from '../docs';
-import { useMirrorDetail } from '../hooks/useMirrors';
+import { useMirrorDetail, useMirrors } from '../hooks/useMirrors';
 import { useLocaleStore } from '../stores/mirrorStore';
+import type { Mirror, Locale } from '../types';
 import { SITE_ORIGIN, canonicalUrl, mirrorJsonLd, breadcrumbJsonLd } from '../utils/seo';
 
 // ─── Tab 面板 ────────────────────────────────────────────────────────────────
@@ -266,6 +268,201 @@ function toFullUrl(url: string): string {
   return safe === '#' ? '' : `${window.location.origin}${safe}`;
 }
 
+// ─── github-release 子项目视图 ────────────────────────────────────────────────
+interface SubProjectViewProps {
+  name: string;
+  parentMirror: Mirror;
+  locale: Locale;
+  navigate: (to: string) => void;
+  t: (key: string) => string;
+  /** 是否有该子项目专属的帮助文档（默认按 name 检查） */
+  hasDoc?: boolean;
+}
+
+const SUB_PROJECT_TAB_LABELS = ['help', 'files', 'release'] as const;
+
+const SubProjectView: React.FC<SubProjectViewProps> = ({
+  name,
+  parentMirror,
+  locale,
+  navigate,
+  t,
+  hasDoc: hasDocProp,
+}) => {
+  const { data: subProjects, isLoading: subLoading } = useGithubReleaseSubProjects();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const subOrg = searchParams.get('org');
+  const subRepo = searchParams.get('repo');
+  const ghBase = parentMirror.url.replace(/\/+$/, '');
+  const mapped = subProjects[name];
+  const browsePath = subOrg && subRepo
+    ? `${ghBase}/${subOrg}/${subRepo}/`
+    : mapped
+      ? `${ghBase}/${mapped}/`
+      : subOrg
+        ? `${ghBase}/${subOrg}/`
+        : `${ghBase}/`;
+  const hasDoc = hasDocProp ?? hasMdxDoc(name, locale);
+
+  // 子项目自己的 tab 管理
+  const tabParam = searchParams.get('tab');
+  const computeTab = (param: string | null, docAvailable: boolean): number => {
+    if (param === 'help' || param === '0') return 0;
+    if (param === 'files' || param === '1') return 1;
+    if (param === 'release' || param === '2') return 2;
+    return docAvailable ? 0 : 1;
+  };
+  const [tabValue, setTabValue] = useState(() => computeTab(tabParam, hasDoc));
+
+  React.useEffect(() => {
+    setTabValue(computeTab(tabParam, hasDoc));
+  }, [tabParam, hasDoc]);
+
+  const handleTabChange = (_: React.SyntheticEvent, v: number) => {
+    setTabValue(v);
+    setSearchParams(
+      (prev) => {
+        prev.set('tab', SUB_PROJECT_TAB_LABELS[v] ?? 'help');
+        return prev;
+      },
+      { replace: true },
+    );
+  };
+
+  if (subLoading) {
+    return (
+      <Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}>
+        <Skeleton variant="rectangular" height={40} sx={{ borderRadius: 1, mb: 2, maxWidth: 300 }} />
+        <Skeleton variant="rectangular" height={120} sx={{ borderRadius: 2, mb: 3 }} />
+        <Skeleton variant="rectangular" height={200} sx={{ borderRadius: 2 }} />
+      </Container>
+    );
+  }
+
+  return (
+    <>
+      <title>{`${name} - 重庆大学开源软件镜像站 CQU Mirror`}</title>
+      <link rel="canonical" href={canonicalUrl(`/mirrors/${name}`)} />
+      <Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}>
+        {/* 面包屑 */}
+        <Breadcrumbs sx={{ mb: 2 }}>
+          <Link component={RouterLink} to="/" underline="hover" sx={{ color: 'text.secondary' }}>
+            {t('nav.home')}
+          </Link>
+          <Link
+            component={RouterLink}
+            to={`/mirrors/${parentMirror.id}`}
+            underline="hover"
+            sx={{ color: 'text.secondary' }}
+          >
+            {parentMirror.name[locale]}
+          </Link>
+          <Typography sx={{ color: 'text.primary', fontWeight: 500 }}>{name}</Typography>
+        </Breadcrumbs>
+
+        <Button
+          startIcon={<BackIcon />}
+          onClick={() => navigate('/')}
+          size="small"
+          sx={{ mb: 3, color: 'text.secondary' }}
+        >
+          {t('common.backToList')}
+        </Button>
+
+        {/* ── 顶部信息卡 ── */}
+        <Paper variant="outlined" sx={{ p: { xs: 2.5, md: 3 }, borderRadius: 2, mb: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.5, flexWrap: 'wrap' }}>
+            <Typography variant="h4" sx={{ fontWeight: 800, fontSize: { xs: '1.5rem', md: '2rem' } }}>
+              {mapped ? mapped.split('/')[1] : parentMirror.name[locale]}
+            </Typography>
+            <StatusChip status={parentMirror.status} size="medium" />
+            <Chip
+              label={parentMirror.id}
+              size="small"
+              variant="outlined"
+              color="primary"
+              sx={{ fontFamily: '"JetBrains Mono", monospace', fontSize: '0.72rem' }}
+            />
+          </Box>
+          <Typography variant="body1" sx={{ color: 'text.secondary', lineHeight: 1.7, mb: 2 }}>
+            {parentMirror.desc[locale]}
+          </Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              p: 1.5,
+              bgcolor: 'action.hover',
+              borderRadius: 1.5,
+              wordBreak: 'break-all',
+            }}
+          >
+            <FolderIcon sx={{ fontSize: 16, color: 'primary.main', flexShrink: 0 }} />
+            <Typography
+              variant="body2"
+              sx={{
+                fontFamily: '"JetBrains Mono", monospace',
+                fontSize: '0.83rem',
+                color: 'primary.main',
+                wordBreak: 'break-all',
+              }}
+            >
+              {toFullUrl(browsePath)}
+            </Typography>
+          </Box>
+        </Paper>
+
+        {/* 同步状态（父镜像） */}
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+            {t('detail.syncStatus')}
+          </Typography>
+          <SyncTimeline mirror={parentMirror} />
+        </Box>
+
+        <Divider sx={{ mb: 3 }} />
+
+        {/* ── Tabs ── */}
+        <Box>
+          <Tabs
+            value={tabValue}
+            onChange={handleTabChange}
+            variant="scrollable"
+            scrollButtons="auto"
+            allowScrollButtonsMobile
+            sx={{
+              borderBottom: 1,
+              borderColor: 'divider',
+              '& .MuiTab-root': { fontWeight: 600, minWidth: { xs: 80, sm: 120 } },
+            }}
+          >
+            <Tab label={t('detail.helpDoc')} />
+            <Tab label={t('detail.fileList')} />
+            <Tab label={t('detail.release')} />
+          </Tabs>
+
+          <TabPanel value={tabValue} index={0}>
+            {hasDoc ? (
+              <DocViewer mirrorId={name} />
+            ) : (
+              <Alert severity="info">{t('detail.noHelp')}</Alert>
+            )}
+          </TabPanel>
+
+          <TabPanel value={tabValue} index={1}>
+            <DirectoryListing mirrorUrl={browsePath} mirrorName={name} />
+          </TabPanel>
+
+          <TabPanel value={tabValue} index={2}>
+            <GithubReleaseViewer rootPath={parentMirror.url} subProjectPath={browsePath} />
+          </TabPanel>
+        </Box>
+      </Container>
+    </>
+  );
+};
+
 // ─── 主页面 ───────────────────────────────────────────────────────────────────
 const MirrorDetail: React.FC = () => {
   const { name } = useParams<{ name: string }>();
@@ -275,25 +472,30 @@ const MirrorDetail: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const { data: mirror, isLoading, error } = useMirrorDetail(name || '');
+  const { data: allMirrors = [] } = useMirrors();
 
   // Tab 初始值计算 —— 提取为纯函数，依赖完全显式，避免 effect 闭包过期
   const tabParam = searchParams.get('tab');
   const hasDoc = name ? hasMdxDoc(name, locale) : false;
+  // github-release 镜像有额外的子项目 tab
+  const isGithubRelease = name === 'github-release';
 
-  const computeTab = React.useCallback((param: string | null, docAvailable: boolean): number => {
+  const computeTab = React.useCallback((param: string | null, docAvailable: boolean, isGH: boolean): number => {
     if (param === 'help' || param === '0') return 0;
     if (param === 'files' || param === '1') return 1;
-    if (param === 'downloads' || param === '2') return 2;
+    if (isGH && (param === 'subprojects' || param === '2')) return 2;
+    if (!isGH && (param === 'downloads' || param === '2')) return 2;
+    if (isGH && param === 'downloads') return 3;
     // 无参数时：有文档默认帮助，否则文件列表
     return docAvailable ? 0 : 1;
   }, []);
 
-  const [tabValue, setTabValue] = useState(() => computeTab(tabParam, hasDoc));
+  const [tabValue, setTabValue] = useState(() => computeTab(tabParam, hasDoc, isGithubRelease));
 
   // tabParam / locale / 文档可用性变化时重算 Tab，依赖完全显式
   React.useEffect(() => {
-    setTabValue(computeTab(tabParam, hasDoc));
-  }, [tabParam, hasDoc, computeTab]);
+    setTabValue(computeTab(tabParam, hasDoc, isGithubRelease));
+  }, [tabParam, hasDoc, isGithubRelease, computeTab]);
 
   // React 19 原生 metadata 不能 hoist <html>/<body>，必须直接同步 DOM
   // 放在 early return 之前以满足 Rules of Hooks
@@ -301,11 +503,19 @@ const MirrorDetail: React.FC = () => {
     document.documentElement.lang = locale === 'en' ? 'en' : 'zh-CN';
   }, [locale]);
 
-  // Tab 切换时同步到 URL，不产生历史记录（replace）
+  // Tab 切换时同步到 URL，保留已有的 org/repo 等参数，不产生历史记录（replace）
   const handleTabChange = (_: React.SyntheticEvent, v: number) => {
     setTabValue(v);
-    const labels = ['help', 'files', 'downloads'];
-    setSearchParams({ tab: labels[v] ?? 'help' }, { replace: true });
+    const ghLabels = ['help', 'files', 'subprojects', 'downloads'];
+    const normalLabels = ['help', 'files', 'downloads'];
+    const labels = isGithubRelease ? ghLabels : normalLabels;
+    setSearchParams(
+      (prev) => {
+        prev.set('tab', labels[v] ?? 'help');
+        return prev;
+      },
+      { replace: true },
+    );
   };
 
   const [copiedUrl, setCopiedUrl] = useState(false);
@@ -345,6 +555,27 @@ const MirrorDetail: React.FC = () => {
   }
 
   if (error || !mirror) {
+    // github-release-* 子项目页面：按普通详情页布局展示
+    if (name && name.startsWith('github-release-')) {
+      const parentMirror = allMirrors.find((m) => m.id === 'github-release');
+      if (!parentMirror) {
+        return (
+          <Container maxWidth="lg" sx={{ py: 4 }}>
+            <Alert severity="error">{t('error.loadFailed')}</Alert>
+          </Container>
+        );
+      }
+      return (
+        <SubProjectView
+          name={name}
+          parentMirror={parentMirror}
+          locale={locale}
+          navigate={navigate}
+          t={t}
+        />
+      );
+    }
+
     return (
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Alert
@@ -358,6 +589,20 @@ const MirrorDetail: React.FC = () => {
           {error ? t('error.loadFailed') : t('error.notFound')}
         </Alert>
       </Container>
+    );
+  }
+
+  // github-release 镜像 + org/repo 参数 → 子项目视图
+  if (mirror.id === 'github-release' && (searchParams.get('org') || searchParams.get('repo'))) {
+    return (
+      <SubProjectView
+        name={name || mirror.id}
+        parentMirror={mirror}
+        locale={locale}
+        navigate={navigate}
+        t={t}
+        hasDoc={false}
+      />
     );
   }
 
@@ -591,6 +836,7 @@ const MirrorDetail: React.FC = () => {
           >
             <Tab label={t('detail.helpDoc')} />
             <Tab label={t('detail.fileList')} />
+            {isGithubRelease && <Tab label={t('detail.subprojects')} />}
             {hasFiles && <Tab label={t('detail.installImages')} />}
           </Tabs>
 
@@ -599,15 +845,17 @@ const MirrorDetail: React.FC = () => {
           </TabPanel>
 
           <TabPanel value={tabValue} index={1}>
-            {mirror.type === 'github-release' ? (
-              <GithubReleaseViewer rootPath={mirror.url} />
-            ) : (
-              <DirectoryListing mirrorUrl={mirror.url} mirrorName={mirror.name[locale]} />
-            )}
+            <DirectoryListing mirrorUrl={mirror.url} mirrorName={mirror.name[locale]} />
           </TabPanel>
 
-          {hasFiles && (
+          {isGithubRelease && (
             <TabPanel value={tabValue} index={2}>
+              <GithubReleaseViewer rootPath={mirror.url} />
+            </TabPanel>
+          )}
+
+          {hasFiles && (
+            <TabPanel value={tabValue} index={isGithubRelease ? 3 : 2}>
               <IsoFilesCard files={mirror.files} mirrorUrl={mirror.url} />
             </TabPanel>
           )}

@@ -1,0 +1,9 @@
+[
+  { "slug": "office-tool",  "repoPath": "YerongAI/Office-Tool" },
+  { "slug": "obs-studio",   "repoPath": "obsproject/obs-studio" },
+  { "slug": "smiley-sans",  "repoPath": "atelier-anchor/smiley-sans" },
+  { "slug": "etcher",       "repoPath": "balena-io/etcher" },
+  { "slug": "lxgw-wenkai",  "repoPath": "lxgw/LXGW-WenKai" },
+  { "slug": "arduino-ide",  "repoPath": "arduino/Arduino-IDE" },
+  { "slug": "wsl",          "repoPath": "microsoft/WSL" }
+]

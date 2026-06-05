@@ -98,10 +98,29 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
     async (url: string) => {
       setLoading(true);
       setError(null);
+      const fetchOpts: RequestInit = {
+        headers: { Accept: 'text/html' },
+        credentials: 'same-origin',
+      };
       try {
         const absUrl = toAbsoluteUrl(url);
-        const res = await fetch(absUrl, { headers: { Accept: 'text/html' }, credentials: 'same-origin' });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        let res = await fetch(absUrl, fetchOpts);
+
+        // 处理 503 挑战页（反爬机制：JS 设置 cookie 后重试）
+        if (res.status === 503) {
+          const challengeHtml = await res.text();
+          const match = challengeHtml.match(/document\.cookie\s*=\s*'addr4=([^;]+)/);
+          if (match) {
+            document.cookie = `addr4=${match[1]};max-age=300;path=/;SameSite=Lax`;
+            res = await fetch(absUrl, fetchOpts);
+            if (!res.ok) throw new Error(`HTTP ${res.status} (after challenge)`);
+          } else {
+            throw new Error('HTTP 503 (challenge page, no addr4 cookie found)');
+          }
+        } else if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+
         const html = await res.text();
         const parsed = parseFancyIndex(html, absUrl);
 

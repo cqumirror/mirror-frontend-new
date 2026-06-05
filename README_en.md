@@ -1,166 +1,127 @@
 # CQU Mirror — University Open Source Mirror Frontend
 
-[![CI](https://github.com/cqumirror/mirror-frontend-new/actions/workflows/ci.yml/badge.svg)](https://github.com/cqumirror/mirror-frontend-new/actions/workflows/ci.yml)
+[中文文档](README.md)
+
+[![Build](https://github.com/cqumirror/mirror-frontend-new/actions/workflows/deploy.yml/badge.svg)](https://github.com/cqumirror/mirror-frontend-new/actions/workflows/deploy.yml)
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0--or--later-blue.svg)](https://opensource.org/licenses/GPL-3.0)
 [![Node](https://img.shields.io/badge/Node-%3E%3D20-green.svg)]()
 
-[中文文档](README.md)
-
-A modern mirror site frontend built with React + TypeScript + Material UI, designed to work with [tunasync-rs](https://github.com/cqumirror/tunasync-rs) (recommended) or [tunasync](https://github.com/tuna/tunasync) out of the box.
+A modern mirror site frontend built with React 19 + TypeScript + Material UI v9, designed to work with [tunasync](https://github.com/tuna/tunasync).
 
 **Live site**: [https://mirrors.cqu.edu.cn](https://mirrors.cqu.edu.cn)
 
 ---
 
-## Feature Preview
+## Features
 
 - Mirror list with real-time sync status
-- Popular mirrors recommendation (`popular-mirrors.json`)
+- Popular mirrors recommendation (`public/data/popular-mirrors.json`)
 - Mirror favorites (persisted in browser localStorage)
-- Config generator (one-click source replacement config)
+- Config generator (one-click source replacement)
 - Chinese/English bilingual, dark/light mode
 - News/announcement system
-- Mirror directory browsing (unified Nginx FancyIndex style)
-- Campus network detection (auto-identify campus/public/IPv6)
-- System monitoring dashboard (Grafana + Prometheus)
+- Mirror directory browsing
+- Campus network detection (campus/public/IPv6 auto-identification)
+- Mirror download modal (aggregates isoinfo.json file lists)
 
 ---
 
 ## Tech Stack
 
 | Layer | Technology |
-| ------ | ---------- |
+|-------|------------|
 | Frontend Framework | React 19 + TypeScript |
 | UI Components | Material UI v9 |
 | Build Tool | Vite 7 |
-| Data Fetching | TanStack Query + Axios |
+| Data Fetching | TanStack Query |
 | State Management | Zustand |
-| Internationalization | react-i18next + i18next |
+| Internationalization | react-i18next |
 | Icons | simple-icons (distro logos) |
-| Doc Rendering | MDX (help docs compiled into frontend) |
-| Unit Testing | Vitest + Testing Library |
-| Web Server | Nginx (with FancyIndex module) |
-| Deployment | Docker + Docker Compose |
-| Monitoring | Prometheus + Grafana |
+| Doc Rendering | MDX |
+| Unit Testing | Vitest |
+| Deployment | GitHub Actions → Static files |
 
 ---
 
-## How It Works with tunasync
-
-This project **only provides the frontend**; mirror sync tasks are handled by a separate tunasync program. The relationship is as follows:
+## Project Structure
 
 ```
-tunasync worker  →  Sync mirror files to /data/mirrors/
-                        ↓
-tunasync manager →  Provides HTTP API (default :12345/jobs)
-                        ↓
-   Nginx          →  Reverse proxies /jobs to tunasync manager
-                  →  Frontend React SPA reads status and displays
-                  →  FancyIndex for direct mirror directory browsing
-```
-
-### Recommended: tunasync-rs (Rust rewrite)
-
-> **Recommended**: [tunasync-rs](https://github.com/cqumirror/tunasync-rs) is a Rust rewrite of tunasync, optimized specifically for this project with better compatibility. Use it for the best experience.
-
-| Feature | tunasync-rs | Official tunasync (Go) |
-|---------|------------|----------------------|
-| Language | Rust | Go |
-| Compatibility with this project | ✅ Deeply integrated | Basically compatible |
-| Repository | [cqumirror/tunasync-rs](https://github.com/cqumirror/tunasync-rs) | [tuna/tunasync](https://github.com/tuna/tunasync) |
-
-The tunasync manager needs to be **deployed separately** (it can run on the host directly). The `backend` service in this project's `docker-compose.yml` points to the tunasync manager.
-
----
-
-## Quick Deployment
-
-### Prerequisites
-
-- Node.js >= 20.0.0, npm >= 10.0.0 (for development)
-- Docker + Docker Compose (Compose v2 recommended)
-- tunasync manager running (recommended: [tunasync-rs](https://github.com/cqumirror/tunasync-rs), default port `:12345`)
-- Mirror data directory (e.g. `/data/mirrors/`)
-
-### Step 1: Clone and Configure
-
-```bash
-git clone https://github.com/cqumirror/mirror-frontend-new.git
-cd mirror-frontend-new
-```
-
-Copy the environment variable example and modify as needed:
-
-```bash
-cp .env.example .env
-# At minimum, change GRAFANA_PASSWORD
-```
-
-Modify `server_name` in `docker/default.conf` to your domain:
-
-```nginx
-server_name mirrors.example.edu.cn;
-```
-
-### Step 2: Configure tunasync Backend Address
-
-In `docker/default.conf`, confirm the tunasync manager address and port:
-
-```nginx
-location = /jobs {
-    proxy_pass http://<tunasync-manager-host>:12345/jobs;
-    ...
-}
-```
-
-If the tunasync manager and the frontend container are on the same machine (running on the host), you can use:
-
-```nginx
-proxy_pass http://host.docker.internal:12345/jobs;
-```
-
-Or replace the `backend` image with your tunasync manager container directly.
-
-### Step 3: Start Services
-
-```bash
-docker compose up -d --build
-```
-
-Visit `http://your-domain` to see the mirror site homepage.
-Grafana monitoring dashboard is at `http://your-domain/grafana/`.
-
----
-
-## Directory Structure (Core)
-
-```
-.
-├── src/                    # Frontend source code
-│   ├── docs/mdx/           # Mirror help docs (zh/en, MDX format)
-│   └── pages/              # Page components
+mirror-frontend-new/
+├── content/                    ← Git submodule (cqumirror/mirror-document-new)
+│   ├── docs/mdx/{zh,en}/*.mdx   Help documentation
+│   └── news/mdx/{zh,en}/*.mdx   News articles
+├── src/
+│   ├── docs/index.ts           ← import.meta.glob loads content/docs/
+│   ├── news/index.ts           ← import.meta.glob loads content/news/
+│   ├── api/                    ← Data layer (tunasync JSON + local_data merge)
+│   ├── components/             ← UI components
+│   ├── pages/                  ← Pages
+│   └── locales/{zh,en}.json   ← i18n translations
 ├── public/
-│   ├── local_data.json     # Supplementary mirror info (name, description, ISO file list)
-│   └── announcements.json  # Announcement data
-├── nginx/
-│   ├── header.html         # FancyIndex page header
-│   ├── footer.html         # FancyIndex page footer
-│   └── fancyindex.css      # FancyIndex styles (create manually, see notes below)
-├── docker/
-│   ├── nginx.conf          # Nginx main config
-│   └── default.conf        # Site config (reverse proxy, FancyIndex, SPA routing)
-├── monitoring/             # Prometheus + Grafana config
-├── docker-compose.yml
-└── Dockerfile
+│   └── data/
+│       ├── local_data.json     ← Mirror metadata (name, description, file lists)
+│       ├── announcements.json  ← Announcement data
+│       └── popular-mirrors.json← Popular mirrors list
+├── scripts/
+│   ├── generate-sitemap.mjs    ← Post-build sitemap generator
+│   └── probe-pages-real.mjs    ← Puppeteer E2E smoke test
+└── .github/workflows/deploy.yml ← GitHub Actions build
+```
+
+---
+
+## Cloning
+
+This project uses a Git submodule. Clone with `--recurse-submodules`:
+
+```bash
+git clone --recurse-submodules https://github.com/cqumirror/mirror-frontend-new.git
+```
+
+If already cloned without submodules:
+
+```bash
+git submodule update --init --recursive
+```
+
+---
+
+## Content Submodule (content/)
+
+Help docs and news articles live in a separate repository [cqumirror/mirror-document-new](https://github.com/cqumirror/mirror-document-new), pulled in as a Git submodule at `content/`.
+
+### Updating Content
+
+When mirror-document-new has new commits, update the submodule pointer in the main project:
+
+```bash
+git submodule update --remote content
+git add content
+git commit -m "chore: update content submodule"
+git push
+```
+
+### Adding Help Docs
+
+In the mirror-document-new repository, create `your-mirror.mdx` under `docs/mdx/zh/` and `docs/mdx/en/`.
+
+### Adding News
+
+In the mirror-document-new repository, create `YYYY-MM-DD-slug.mdx` under `news/mdx/zh/` and `news/mdx/en/`, exporting a `meta` object:
+
+```tsx
+export const meta = {
+  title: 'Title',
+  date: '2026-06-05',
+  summary: 'Summary',
+};
 ```
 
 ---
 
 ## Adding a New Mirror
 
-**1. Add display info** (name, description, ISO file list)
-
-Add to `public/local_data.json`:
+Add to `public/data/local_data.json`:
 
 ```json
 "your-mirror": {
@@ -173,40 +134,34 @@ Add to `public/local_data.json`:
 }
 ```
 
-**2. Add help documentation**
-
-Create `your-mirror.mdx` under `content/docs/mdx/zh/` and `content/docs/mdx/en/` with source replacement instructions.
-
 ---
 
 ## Development
 
 ```bash
 npm install           # Install dependencies
-npm run dev           # Dev server on :3000, auto-proxies /jobs to production
-npm run build         # Type check + build + sitemap generation
-npm run preview       # Preview production build on :4173
-npm run typecheck     # TypeScript type checking
+npm run dev           # Dev server :3000, proxies to mirrors.cqu.edu.cn
+npm run build         # Type check + build + sitemap
+npm run preview       # Preview build :4173
+npm run typecheck     # TypeScript type check
 npm run lint          # ESLint check
 npm run lint:fix      # ESLint auto-fix
-npm run format        # Prettier formatting
-npm run test          # Run tests (Vitest)
-npm run test:watch    # Watch mode tests
-npm run test:coverage # Test coverage report
+npm run test          # Vitest unit tests
 ```
 
 ---
 
-## CI/CD
+## Data Flow
 
-The project uses GitHub Actions for continuous integration (`.github/workflows/ci.yml`), running automatically on every push and PR:
-
-1. **Lint** — ESLint code style check
-2. **TypeCheck** — TypeScript type checking
-3. **Test** — Vitest unit tests
-4. **Build** — Production build
-5. **Audit** — npm security audit
-6. **Docker Smoke Test** — Docker build smoke test
+```
+GET /static/tunasync.json  → Sync status
+GET /data/local_data.json  ← Mirror name/description/files (static)
+GET /static/isoinfo.json   → ISO file list (merged at runtime)
+       ↓
+transformOldJobs()         → Merge into Mirror[]
+       ↓
+React Query cache (60s)    → Components consume
+```
 
 ---
 

@@ -399,7 +399,7 @@
       "en": "Mirror of GitHub Releases for selected projects"
     },
     "type": "tool",
-    "helpUrl": "",
+    "helpUrl": "github-release",
     "files": []
   },
   "gnu": {

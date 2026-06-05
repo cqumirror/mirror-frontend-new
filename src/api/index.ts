@@ -3,7 +3,7 @@
 //
 // 数据流：
 //   GET /static/tunasync.json       → OldTunasyncJob[]（旧后端静态 JSON）
-//   GET /local_data.json            → LocalMeta（本地补充元数据，随前端构建发布）
+//   GET /data/local_data.json       → LocalMeta（本地补充元数据，随前端构建发布）
 //   transformOldJobs()              → Mirror[]（前端完成格式转换）
 //   GET /api/getip                  → { is_cqu: 1|0 } 校园网检测
 
@@ -94,13 +94,13 @@ function mergeIsoInfo(
 
 /**
  * 失败时回到空对象作为兜底，但**保留** Promise 拒绝信息给上层 logger
- * 同时拉取 local_data.json（描述/类型/helpUrl）和 isoinfo.json（文件列表），合并输出
+ * 同时拉取 /data/local_data.json（描述/类型/helpUrl）和 isoinfo.json（文件列表），合并输出
  */
 function getLocalData(): Promise<Record<string, LocalMeta>> {
   if (_localDataPromise) return _localDataPromise;
 
   _localDataPromise = Promise.all([
-    fetch('/local_data.json', { cache: 'no-cache' })
+    fetch('/data/local_data.json', { cache: 'no-cache' })
       .then(async (res) => {
         if (!res.ok) throw new Error(`local_data.json HTTP ${res.status}`);
         const json = (await res.json()) as unknown;

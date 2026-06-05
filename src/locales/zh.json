@@ -7,7 +7,9 @@
     "backHome": "返回主页",
     "download": "镜像下载",
     "status": "同步状态",
-    "backToTop": "回到顶部"
+    "backToTop": "回到顶部",
+    "gitMirrors": "Git & GitHub",
+    "specialThanks": "特别致谢"
   },
   "common": {
     "refresh": "刷新",
@@ -104,6 +106,8 @@
     "noHelp": "暂无使用说明",
     "downloads": "下载文件",
     "installImages": "安装镜像",
+    "subprojects": "子项目",
+    "release": "Release",
     "filesCount": "{{count}} 个文件",
     "scrollHint": " · 可滚动",
     "fileList": "文件列表"
@@ -260,5 +264,20 @@
     "following": "正在跟随",
     "copyAll": "复制全部日志",
     "viewLog": "查看日志"
+  },
+  "gitPage": {
+    "title": "Git 仓库镜像 & GitHub Release",
+    "gitSection": "Git 仓库镜像",
+    "githubSection": "GitHub Release 项目",
+    "gitDesc": "以下镜像为 Git 仓库的完整克隆，可直接 git clone 使用",
+    "githubDesc": "以下为 GitHub Release 镜像的项目列表，点击查看详情和下载",
+    "colName": "镜像名称",
+    "colStatus": "状态",
+    "colLastUpdated": "最后更新",
+    "colSize": "大小",
+    "colUpstream": "上游源",
+    "projectCount": "共 {{count}} 个项目",
+    "noGitMirrors": "暂无 Git 仓库镜像",
+    "noProjects": "暂无 GitHub Release 项目"
   }
 }

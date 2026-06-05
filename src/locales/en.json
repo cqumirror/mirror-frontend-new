@@ -7,7 +7,9 @@
     "backHome": "Back to Home",
     "download": "Download ISO",
     "status": "Sync Status",
-    "backToTop": "Back to top"
+    "backToTop": "Back to top",
+    "gitMirrors": "Git & GitHub",
+    "specialThanks": "Special Thanks"
   },
   "common": {
     "refresh": "Refresh",
@@ -104,6 +106,8 @@
     "noHelp": "No documentation available",
     "downloads": "Downloads",
     "installImages": "Install Images",
+    "subprojects": "Sub-projects",
+    "release": "Release",
     "filesCount": "{{count}} files",
     "scrollHint": " · scroll",
     "fileList": "File List"
@@ -260,5 +264,20 @@
     "following": "Following",
     "copyAll": "Copy all logs",
     "viewLog": "View log"
+  },
+  "gitPage": {
+    "title": "Git Repository Mirrors & GitHub Releases",
+    "gitSection": "Git Repository Mirrors",
+    "githubSection": "GitHub Release Projects",
+    "gitDesc": "These mirrors are full clones of Git repositories, ready for git clone",
+    "githubDesc": "GitHub Release mirror project listing — click to view details and downloads",
+    "colName": "Mirror",
+    "colStatus": "Status",
+    "colLastUpdated": "Last Updated",
+    "colSize": "Size",
+    "colUpstream": "Upstream",
+    "projectCount": "{{count}} projects",
+    "noGitMirrors": "No git repository mirrors",
+    "noProjects": "No GitHub Release projects"
   }
 }

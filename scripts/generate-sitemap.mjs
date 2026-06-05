@@ -16,7 +16,7 @@ const DIST_DIR = resolve(__dirname, '..', 'dist');
  */
 function getMirrorIds() {
   try {
-    const localDataPath = resolve(__dirname, '..', 'public', 'local_data.json');
+    const localDataPath = resolve(__dirname, '..', 'public', 'data', 'local_data.json');
     const data = JSON.parse(readFileSync(localDataPath, 'utf-8'));
     return Object.keys(data);
   } catch {
@@ -63,6 +63,7 @@ function generateSitemap() {
     { loc: '/', changefreq: 'daily', priority: '1.0' },
     { loc: '/status', changefreq: 'hourly', priority: '0.6' },
     { loc: '/news', changefreq: 'weekly', priority: '0.7' },
+    { loc: '/special-thanks', changefreq: 'monthly', priority: '0.4' },
   ];
 
   // 镜像详情页
