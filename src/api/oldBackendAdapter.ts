@@ -20,10 +20,17 @@ const API_BASE = import.meta.env.VITE_API_BASE ?? '';
 
 // ── 旧后端原始类型 ─────────────────────────────────────────────────────────
 
-/** 旧版 tunasync.json 条目 */
+/** CQU tunasync.json 条目 */
 export interface OldTunasyncJob {
   name: string;
-  last_update: string; // "YYYY-MM-DD HH:MM:SS" (UTC+8)
+  last_update: string; // "YYYY-MM-DD HH:MM:SS +0800"
+  last_update_ts: number; // Unix 秒
+  last_started?: string;
+  last_started_ts?: number;
+  last_ended?: string;
+  last_ended_ts?: number;
+  next_schedule?: string;
+  next_schedule_ts?: number;
   status: 'success' | 'syncing' | 'paused' | 'failed' | 'pre-syncing' | string;
   upstream: string;
   size: string;
@@ -208,9 +215,9 @@ function convertOldItem(raw: OldTunasyncJob, local: LocalMeta = {}): Mirror {
     upstream: raw.upstream ?? '',
     size: raw.size ?? '1G',
     status: local.status ?? OLD_STATUS_MAP[raw.status] ?? 'unknown',
-    lastUpdated: parseOldTimestamp(raw.last_update),
-    nextScheduled: '', // 旧后端不提供
-    lastSuccess: '',   // 旧后端不提供（last_update 含义不同）
+    lastUpdated: raw.last_update_ts ? String(raw.last_update_ts) : parseOldTimestamp(raw.last_update),
+    nextScheduled: raw.next_schedule_ts ? String(raw.next_schedule_ts) : '',
+    lastSuccess: raw.last_ended_ts ? String(raw.last_ended_ts) : '',
     type: local.type ?? 'none',
     files: sanitizeFiles(local.files),
   };

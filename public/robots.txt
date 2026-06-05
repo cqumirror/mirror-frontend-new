@@ -1,5 +1,5 @@
-# robots.txt — 荆楚理工学院开源软件镜像站
-# https://mirrors.jcut.edu.cn
+# robots.txt — 重庆大学开源软件镜像站
+# https://mirrors.cqu.edu.cn
 
 User-agent: *
 Allow: /
@@ -21,8 +21,6 @@ Disallow: /gnu/
 Disallow: /CTAN/
 Disallow: /CPAN/
 Disallow: /CRAN/
-Disallow: /grafana/
-Disallow: /jobs
 
 # Sitemap 位置
-Sitemap: https://mirrors.jcut.edu.cn/sitemap.xml
+Sitemap: https://mirrors.cqu.edu.cn/sitemap.xml

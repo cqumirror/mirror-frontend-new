@@ -56,7 +56,14 @@ const GRID_CARDS = [
 // 友情链接数据
 const FRIEND_LINKS = [
   { label: { zh: '校园网联合镜像站', en: 'CERNET Mirror' }, href: 'https://mirrors.cernet.edu.cn' },
-  { label: { zh: '清华 TUNA 镜像站', en: 'TUNA Mirror' }, href: 'https://mirrors.tuna.tsinghua.edu.cn' },
+  {
+    label: { zh: '清华 TUNA 镜像站', en: 'TUNA Mirror' },
+    href: 'https://mirrors.tuna.tsinghua.edu.cn',
+  },
+  {
+    label: { zh: '重庆大学信息化办公室', en: 'Information Office of Chongqing University' },
+    href: 'https://net.cqu.edu.cn/',
+  },
   { label: { zh: '重庆大学蓝盟', en: 'CQU Lanunion' }, href: 'https://lanunion.cqu.edu.cn/' },
 ];
 

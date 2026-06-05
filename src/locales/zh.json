@@ -6,6 +6,7 @@
     "about": "关于我们",
     "backHome": "返回主页",
     "download": "镜像下载",
+    "status": "同步状态",
     "backToTop": "回到顶部"
   },
   "common": {
@@ -176,16 +177,6 @@
     "noData": "暂无数据",
     "upcomingSyncs": "即将同步",
     "noUpcoming": "暂无待同步任务",
-    "serverMetrics": "服务器实时指标",
-    "serverMetricsSub": "CPU / 内存 / 网络 / 磁盘",
-    "openGrafana": "在 Grafana 中打开完整面板",
-    "cpuUsage": "CPU 使用率",
-    "memUsage": "内存使用率",
-    "networkBandwidth": "网络带宽",
-    "diskSpace": "磁盘剩余",
-    "nginxRequests": "Nginx 请求数",
-    "activeConnections": "活跃连接数",
-    "systemLoad": "系统负载（1m / 5m / 15m）",
     "syncingMirrors": "正在同步的镜像",
     "viewLog": "查看日志"
   },
@@ -199,7 +190,7 @@
     "noVersions": "暂无可用版本"
   },
   "footer": {
-    "description": "本站在重庆大学信息化办公室的支持下创办，由重庆大学蓝盟运营维护，为校内外用户提供快速的软件下载服务。\n根据相关法律法规，本站不对欧盟用户提供服务。\n本站不对特定滥用镜像站资源的用户提供服务，将采用多种技术措施反制滥用与恶意攻击行为。",
+    "description": "本站在重庆大学信息化办公室的支持下创办，由重庆大学蓝盟运营维护，为校内外用户提供快速的软件下载服务。\n本站镜像同步工具 fork 自清华大学 TUNA 协会的 镜像管理器 项目。 镜像站前端基于 荆楚理工学院开源镜像站前端项目 自行构建。\n根据相关法律法规，本站不对欧盟用户提供服务。\n本站不对特定滥用镜像站资源的用户提供服务，将采用多种技术措施反制滥用与恶意攻击行为。",
     "friendLinks": "友情链接",
     "contact": "联系我们",
     "github": "GitHub",

@@ -21,13 +21,13 @@ const PORT = 4173;
 const CHROME = '/home/claude/.cache/puppeteer/chrome/linux-131.0.6778.204/chrome-linux64/chrome';
 
 const ROUTES = [
-  { path: '/', expect: ['JCUT'] },
-  { path: '/mirrors', expect: ['JCUT'] },                       // redirect to home
+  { path: '/', expect: ['CQU'] },
+  { path: '/mirrors', expect: ['CQU'] },                       // redirect to home
   { path: '/mirrors/ubuntu', expect: ['Ubuntu'] },
   { path: '/mirrors/ubuntu?tab=files', expect: ['Ubuntu'] },
-  { path: '/status', expect: ['JCUT'] },
-  { path: '/news', expect: ['JCUT'] },
-  { path: '/news/something', expect: ['JCUT'] },
+  { path: '/status', expect: ['CQU'] },
+  { path: '/news', expect: ['CQU'] },
+  { path: '/news/something', expect: ['CQU'] },
   { path: '/this-route-does-not-exist', expect: ['404'] },
 ];
 

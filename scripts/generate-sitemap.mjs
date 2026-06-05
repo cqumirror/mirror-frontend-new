@@ -8,7 +8,7 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const SITE_ORIGIN = 'https://mirrors.jcut.edu.cn';
+const SITE_ORIGIN = 'https://mirrors.cqu.edu.cn';
 const DIST_DIR = resolve(__dirname, '..', 'dist');
 
 /**

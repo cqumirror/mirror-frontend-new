@@ -6,6 +6,7 @@
     "about": "About",
     "backHome": "Back to Home",
     "download": "Download ISO",
+    "status": "Sync Status",
     "backToTop": "Back to top"
   },
   "common": {
@@ -176,16 +177,6 @@
     "noData": "No data",
     "upcomingSyncs": "Upcoming Syncs",
     "noUpcoming": "No upcoming syncs",
-    "serverMetrics": "Server Metrics",
-    "serverMetricsSub": "CPU / Memory / Network / Disk",
-    "openGrafana": "Open full dashboard in Grafana",
-    "cpuUsage": "CPU Usage",
-    "memUsage": "Memory Usage",
-    "networkBandwidth": "Network I/O",
-    "diskSpace": "Disk Space",
-    "nginxRequests": "Nginx Requests",
-    "activeConnections": "Active Connections",
-    "systemLoad": "System Load (1m / 5m / 15m)",
     "syncingMirrors": "Syncing Mirrors",
     "viewLog": "View Log"
   },
@@ -199,7 +190,7 @@
     "noVersions": "No versions available"
   },
   "footer": {
-    "description": "An open-source software mirror operated by Lanunion of Chongqing University, providing fast software download services for users on and off campus.\nIn accordance with applicable laws and regulations, this site does not serve users in the European Union.\nThis site does not serve users who abuse mirror resources, and will employ multiple technical measures to counter abuse and malicious attacks.",
+    "description": "This site was established with the support of the Information Office of Chongqing University and is operated and maintained by Chongqing University Lanunion, providing fast software download services for both university members and external users.\nThe mirror synchronization tool used by this site is forked from the Mirror Manager project developed by the Tsinghua University TUNA Association. The frontend of this mirror site is built upon the open-source mirror site frontend project developed by Jingchu University of Technology, with further customization and development by our team.\nIn accordance with applicable laws and regulations, this site does not provide services to users located in the European Union.\nThis site does not provide services to users who abuse mirror resources. Various technical measures may be employed to mitigate abuse and defend against malicious activities and attacks.",
     "friendLinks": "Friend Links",
     "contact": "Contact",
     "github": "GitHub",

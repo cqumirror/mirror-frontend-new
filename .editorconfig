@@ -13,6 +13,3 @@ trim_trailing_whitespace = false
 
 [Makefile]
 indent_style = tab
-
-[*.{conf,nginx}]
-indent_size = 4

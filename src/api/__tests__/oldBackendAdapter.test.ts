@@ -49,6 +49,7 @@ describe('transformOldJobs', () => {
   const makeJob = (overrides: Partial<OldTunasyncJob> = {}): OldTunasyncJob => ({
     name: 'ubuntu',
     last_update: '2024-06-15 10:30:00',
+    last_update_ts: 1718404200,
     status: 'success',
     upstream: 'rsync://archive.ubuntu.com/ubuntu/',
     size: '1.2TB',

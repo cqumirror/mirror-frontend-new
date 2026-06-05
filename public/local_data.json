@@ -1,185 +1,717 @@
 {
-  "ubuntu": {
-    "name": { "zh": "Ubuntu", "en": "Ubuntu" },
-    "desc": { "zh": "Ubuntu 软件包镜像", "en": "Ubuntu package archive mirror" },
-    "type": "os",
-    "files": [
-      { "name": "24.04 LTS desktop amd64", "url": "/ubuntu-releases/noble/ubuntu-24.04-desktop-amd64.iso" },
-      { "name": "24.04 LTS server amd64", "url": "/ubuntu-releases/noble/ubuntu-24.04-live-server-amd64.iso" },
-      { "name": "22.04 LTS desktop amd64", "url": "/ubuntu-releases/jammy/ubuntu-22.04-desktop-amd64.iso" },
-      { "name": "22.04 LTS server amd64", "url": "/ubuntu-releases/jammy/ubuntu-22.04-live-server-amd64.iso" }
-    ]
+  "CPAN": {
+    "name": {
+      "zh": "CPAN",
+      "en": "CPAN"
+    },
+    "desc": {
+      "zh": "Perl 语言软件库",
+      "en": "Perl language software repository"
+    },
+    "type": "lang",
+    "helpUrl": "CPAN",
+    "files": []
   },
-  "debian": {
-    "name": { "zh": "Debian", "en": "Debian" },
-    "desc": { "zh": "Debian 软件包镜像", "en": "Debian package archive mirror" },
-    "type": "os",
-    "files": [
-      { "name": "12 amd64 netinst", "url": "/debian-cd/12/amd64/iso-cd/debian-12-amd64-netinst.iso" },
-      { "name": "12 amd64 dvd", "url": "/debian-cd/12/amd64/iso-dvd/debian-12-amd64-DVD-1.iso" }
-    ]
+  "CRAN": {
+    "name": {
+      "zh": "CRAN",
+      "en": "CRAN"
+    },
+    "desc": {
+      "zh": "R 语言的可执行文件、源代码和说明文件，也收录了各种用户撰写的软件包",
+      "en": "R language executables, source code, and documentation, including various user-contributed packages"
+    },
+    "type": "lang",
+    "helpUrl": "CRAN",
+    "files": []
   },
-  "debian-security": {
-    "name": { "zh": "Debian Security", "en": "Debian Security" },
-    "desc": { "zh": "Debian 安全更新镜像", "en": "Debian security updates mirror" },
-    "type": "none"
+  "CTAN": {
+    "name": {
+      "zh": "CTAN",
+      "en": "CTAN"
+    },
+    "desc": {
+      "zh": "TeX 的各种发行版、软件包和文档",
+      "en": "TeX distributions, packages, and documentation"
+    },
+    "type": "lang",
+    "helpUrl": "CTAN",
+    "files": []
   },
-  "archlinux": {
-    "name": { "zh": "Arch Linux", "en": "Arch Linux" },
-    "desc": { "zh": "Arch Linux 软件包镜像", "en": "Arch Linux package archive mirror" },
-    "type": "os",
-    "files": [
-      { "name": "latest iso", "url": "/archlinux/iso/latest/archlinux-x86_64.iso" }
-    ]
-  },
-  "archlinuxcn": {
-    "name": { "zh": "Arch Linux CN", "en": "Arch Linux CN" },
-    "desc": { "zh": "Arch Linux 中文社区仓库镜像", "en": "Arch Linux CN community repository mirror" },
-    "type": "none"
-  },
-  "centos": {
-    "name": { "zh": "CentOS", "en": "CentOS" },
-    "desc": { "zh": "CentOS 软件包镜像", "en": "CentOS package archive mirror" },
-    "type": "os"
-  },
-  "epel": {
-    "name": { "zh": "EPEL", "en": "EPEL" },
-    "desc": { "zh": "Fedora EPEL 额外软件包镜像", "en": "Fedora EPEL extra packages mirror" },
-    "type": "none"
-  },
-  "fedora": {
-    "name": { "zh": "Fedora", "en": "Fedora" },
-    "desc": { "zh": "Fedora 软件包镜像", "en": "Fedora package archive mirror" },
-    "type": "os"
-  },
-  "rockylinux": {
-    "name": { "zh": "Rocky Linux", "en": "Rocky Linux" },
-    "desc": { "zh": "Rocky Linux 软件包镜像", "en": "Rocky Linux package archive mirror" },
-    "type": "os",
-    "files": [
-      { "name": "9 dvd x86_64", "url": "/rocky/9/isos/x86_64/Rocky-9-x86_64-dvd.iso" },
-      { "name": "9 boot x86_64", "url": "/rocky/9/isos/x86_64/Rocky-9-x86_64-boot.iso" }
-    ]
+  "adoptium": {
+    "name": {
+      "zh": "Adoptium",
+      "en": "Adoptium"
+    },
+    "desc": {
+      "zh": "社区维护的 OpenJDK 二进制包",
+      "en": "Community-maintained OpenJDK binaries"
+    },
+    "type": "tool",
+    "helpUrl": "adoptium",
+    "files": []
   },
   "alpine": {
-    "name": { "zh": "Alpine Linux", "en": "Alpine Linux" },
-    "desc": { "zh": "Alpine Linux 软件包镜像", "en": "Alpine Linux package archive mirror" },
+    "name": {
+      "zh": "Alpine Linux",
+      "en": "Alpine Linux"
+    },
+    "desc": {
+      "zh": "Alpine Linux 的安装镜像和官方软件包仓库",
+      "en": "Alpine Linux installation images and official package repository"
+    },
     "type": "os",
-    "files": [
-      { "name": "standard x86_64", "url": "/alpine/latest-stable/releases/x86_64/alpine-standard-latest-x86_64.iso" }
-    ]
+    "helpUrl": "alpine",
+    "files": []
   },
-  "opensuse": {
-    "name": { "zh": "openSUSE", "en": "openSUSE" },
-    "desc": { "zh": "openSUSE 软件包镜像", "en": "openSUSE package archive mirror" },
-    "type": "os"
-  },
-  "kali": {
-    "name": { "zh": "Kali Linux", "en": "Kali Linux" },
-    "desc": { "zh": "Kali Linux 软件包镜像", "en": "Kali Linux package archive mirror" },
+  "archlinux": {
+    "name": {
+      "zh": "Arch Linux",
+      "en": "Arch Linux"
+    },
+    "desc": {
+      "zh": "Arch Linux 的安装镜像和官方软件包仓库",
+      "en": "Arch Linux installation images and official package repository"
+    },
     "type": "os",
-    "files": [
-      { "name": "installer amd64", "url": "/kali-images/kali-2024.1/kali-linux-2024.1-installer-amd64.iso" }
-    ]
+    "helpUrl": "archlinux",
+    "files": []
   },
-  "manjaro": {
-    "name": { "zh": "Manjaro", "en": "Manjaro" },
-    "desc": { "zh": "Manjaro Linux 软件包镜像", "en": "Manjaro Linux package archive mirror" },
-    "type": "os"
-  },
-  "openwrt": {
-    "name": { "zh": "OpenWrt", "en": "OpenWrt" },
-    "desc": { "zh": "OpenWrt 软件包镜像", "en": "OpenWrt package archive mirror" },
-    "type": "os"
-  },
-  "pypi": {
-    "name": { "zh": "PyPI", "en": "PyPI" },
-    "desc": { "zh": "Python 包索引镜像", "en": "Python Package Index mirror" },
-    "type": "none"
-  },
-  "homebrew": {
-    "name": { "zh": "Homebrew", "en": "Homebrew" },
-    "desc": { "zh": "Homebrew 软件包镜像", "en": "Homebrew package mirror" },
-    "type": "none"
-  },
-  "homebrew-bottles": {
-    "name": { "zh": "Homebrew Bottles", "en": "Homebrew Bottles" },
-    "desc": { "zh": "Homebrew 预编译包镜像", "en": "Homebrew pre-built bottles mirror" },
-    "type": "none"
-  },
-  "crates.io-index": {
-    "name": { "zh": "crates.io Index", "en": "crates.io Index" },
-    "desc": { "zh": "Rust crates.io 索引镜像", "en": "Rust crates.io index mirror" },
-    "type": "none"
-  },
-  "kicad": {
-    "name": { "zh": "KiCad", "en": "KiCad" },
-    "desc": { "zh": "KiCad 软件包镜像", "en": "KiCad package mirror" },
-    "type": "none"
-  },
-  "ros": {
-    "name": { "zh": "ROS", "en": "ROS" },
-    "desc": { "zh": "ROS 软件包镜像", "en": "ROS package mirror" },
-    "type": "none"
-  },
-  "linux.git": {
-    "name": { "zh": "Linux Kernel Git", "en": "Linux Kernel Git" },
-    "desc": { "zh": "Linux 内核 Git 仓库镜像", "en": "Linux kernel git repository mirror" },
-    "type": "none"
-  },
-  "gentoo-portage.git": {
-    "name": { "zh": "Gentoo Portage Git", "en": "Gentoo Portage Git" },
-    "desc": { "zh": "Gentoo Portage Git 仓库镜像", "en": "Gentoo Portage git repository mirror" },
-    "type": "none"
-  },
-  "gentoo-zh.git": {
-    "name": { "zh": "Gentoo 中文 Git", "en": "Gentoo CN Git" },
-    "desc": { "zh": "Gentoo 中文社区 Git 仓库镜像", "en": "Gentoo Chinese community git repository mirror" },
-    "type": "none"
-  },
-  "ubuntu-releases": {
-    "name": { "zh": "Ubuntu Releases", "en": "Ubuntu Releases" },
-    "desc": { "zh": "Ubuntu 发行版 ISO 下载", "en": "Ubuntu release ISO downloads" },
-    "type": "os"
+  "archlinuxcn": {
+    "name": {
+      "zh": "Arch Linux CN",
+      "en": "Arch Linux CN"
+    },
+    "desc": {
+      "zh": "由 Arch Linux 中文社区驱动的非官方用户仓库，包含中文用户常用软件、工具、字体/美化包等",
+      "en": "Unofficial user repository driven by the Arch Linux Chinese community, containing commonly used software, tools, and fonts/themes for Chinese users"
+    },
+    "type": "none",
+    "helpUrl": "archlinuxcn",
+    "files": []
   },
   "blender": {
-    "name": { "zh": "Blender", "en": "Blender" },
-    "desc": { "zh": "Blender 软件镜像", "en": "Blender software mirror" },
-    "type": "none"
+    "name": {
+      "zh": "Blender",
+      "en": "Blender"
+    },
+    "desc": {
+      "zh": "专业的三维计算机图形软件",
+      "en": "Professional open-source 3D computer graphics software"
+    },
+    "type": "tool",
+    "helpUrl": "",
+    "files": []
   },
   "bmclapi": {
-    "name": { "zh": "BMCLAPI", "en": "BMCLAPI" },
-    "desc": { "zh": "BMCLAPI Minecraft 资源镜像", "en": "BMCLAPI Minecraft resource mirror" },
-    "type": "none"
+    "name": {
+      "zh": "BMCLAPI",
+      "en": "BMCLAPI"
+    },
+    "desc": {
+      "zh": "BMCLAPI Minecraft 资源镜像",
+      "en": "BMCLAPI Minecraft resource mirror"
+    },
+    "type": "tool",
+    "helpUrl": "",
+    "files": []
+  },
+  "centos": {
+    "name": {
+      "zh": "CentOS",
+      "en": "CentOS"
+    },
+    "desc": {
+      "zh": "CentOS 的安装镜像和官方软件包仓库",
+      "en": "CentOS installation images and official package repository"
+    },
+    "type": "os",
+    "helpUrl": "centos",
+    "files": []
+  },
+  "crates.io": {
+    "name": {
+      "zh": "crates.io",
+      "en": "crates.io"
+    },
+    "desc": {
+      "zh": "Rust 包管理仓库",
+      "en": "Rust package registry"
+    },
+    "type": "lang",
+    "helpUrl": "",
+    "files": []
+  },
+  "crates.io-index": {
+    "name": {
+      "zh": "crates.io Index",
+      "en": "crates.io Index"
+    },
+    "desc": {
+      "zh": "面向 Rust 语言的软件包稀疏索引 crates.io",
+      "en": "Sparse index for the Rust crates.io package registry"
+    },
+    "type": "lang",
+    "helpUrl": "crates.io-index",
+    "files": []
+  },
+  "crates.io-index.git": {
+    "name": {
+      "zh": "crates.io Index Git",
+      "en": "crates.io Index Git"
+    },
+    "desc": {
+      "zh": "面向 Rust 语言的软件包索引 crates.io",
+      "en": "Git-based index for the Rust crates.io package registry"
+    },
+    "type": "lang",
+    "helpUrl": "crates.io-index.git",
+    "files": []
+  },
+  "cygwin": {
+    "name": {
+      "zh": "Cygwin",
+      "en": "Cygwin"
+    },
+    "desc": {
+      "zh": "Cygwin 官方软件包仓库",
+      "en": "Cygwin official package repository"
+    },
+    "type": "tool",
+    "helpUrl": "cygwin",
+    "files": []
+  },
+  "debian": {
+    "name": {
+      "zh": "Debian",
+      "en": "Debian"
+    },
+    "desc": {
+      "zh": "Debian Linux 的官方软件包仓库",
+      "en": "Debian Linux official package repository"
+    },
+    "type": "os",
+    "helpUrl": "debian",
+    "files": []
+  },
+  "debian-cd": {
+    "name": {
+      "zh": "Debian CD",
+      "en": "Debian CD"
+    },
+    "desc": {
+      "zh": "Debian Linux 的安装镜像",
+      "en": "Debian Linux installation images"
+    },
+    "type": "os",
+    "helpUrl": "",
+    "files": []
+  },
+  "debian-multimedia": {
+    "name": {
+      "zh": "Debian Multimedia",
+      "en": "Debian Multimedia"
+    },
+    "desc": {
+      "zh": "Debian Linux 第三方多媒体软件源",
+      "en": "Third-party multimedia packages for Debian Linux"
+    },
+    "type": "none",
+    "helpUrl": "debian-multimedia",
+    "files": []
+  },
+  "debian-security": {
+    "name": {
+      "zh": "Debian Security",
+      "en": "Debian Security"
+    },
+    "desc": {
+      "zh": "Debian Linux 的安全更新",
+      "en": "Debian Linux security updates"
+    },
+    "type": "none",
+    "helpUrl": "",
+    "files": []
+  },
+  "deepin": {
+    "name": {
+      "zh": "Deepin",
+      "en": "Deepin"
+    },
+    "desc": {
+      "zh": "Deepin Linux 的官方软件包仓库",
+      "en": "Deepin Linux official package repository"
+    },
+    "type": "os",
+    "helpUrl": "",
+    "files": []
+  },
+  "deepin-cd": {
+    "name": {
+      "zh": "Deepin CD",
+      "en": "Deepin CD"
+    },
+    "desc": {
+      "zh": "Deepin Linux 的安装镜像",
+      "en": "Deepin Linux installation images"
+    },
+    "type": "os",
+    "helpUrl": "",
+    "files": []
+  },
+  "dotnet": {
+    "name": {
+      "zh": ".NET",
+      "en": ".NET"
+    },
+    "desc": {
+      "zh": ".NET 开发框架镜像",
+      "en": ".NET development framework mirror"
+    },
+    "type": "lang",
+    "helpUrl": "",
+    "files": []
+  },
+  "elpa": {
+    "name": {
+      "zh": "ELPA",
+      "en": "ELPA"
+    },
+    "desc": {
+      "zh": "Emacs 内建包管理器 package.el 的软件源",
+      "en": "Package repository for Emacs built-in package manager package.el"
+    },
+    "type": "lang",
+    "helpUrl": "elpa",
+    "files": []
+  },
+  "epel": {
+    "name": {
+      "zh": "EPEL",
+      "en": "EPEL"
+    },
+    "desc": {
+      "zh": "企业版 Linux 附加软件包",
+      "en": "Extra packages for Enterprise Linux"
+    },
+    "type": "none",
+    "helpUrl": "epel",
+    "files": []
   },
   "espressif": {
-    "name": { "zh": "Espressif", "en": "Espressif" },
-    "desc": { "zh": "乐鑫 ESP-IDF 开发框架镜像", "en": "Espressif ESP-IDF framework mirror" },
-    "type": "none"
+    "name": {
+      "zh": "Espressif",
+      "en": "Espressif"
+    },
+    "desc": {
+      "zh": "乐鑫 ESP-IDF 开发框架镜像",
+      "en": "Espressif ESP-IDF development framework mirror"
+    },
+    "type": "tool",
+    "helpUrl": "",
+    "files": []
+  },
+  "fedora": {
+    "name": {
+      "zh": "Fedora",
+      "en": "Fedora"
+    },
+    "desc": {
+      "zh": "Fedora Linux 的安装镜像和官方软件包仓库",
+      "en": "Fedora Linux installation images and official package repository"
+    },
+    "type": "os",
+    "helpUrl": "fedora",
+    "files": []
+  },
+  "freebsd-pkg": {
+    "name": {
+      "zh": "FreeBSD Pkg",
+      "en": "FreeBSD Pkg"
+    },
+    "desc": {
+      "zh": "FreeBSD 软件包仓库",
+      "en": "FreeBSD package repository"
+    },
+    "type": "os",
+    "helpUrl": "",
+    "files": []
+  },
+  "gentoo-portage": {
+    "name": {
+      "zh": "Gentoo Portage",
+      "en": "Gentoo Portage"
+    },
+    "desc": {
+      "zh": "Gentoo Linux 的 Portage 包管理器镜像源（HTTP / rsync 访问）",
+      "en": "Gentoo Linux Portage package manager mirror (HTTP / rsync access)"
+    },
+    "type": "os",
+    "helpUrl": "gentoo-portage",
+    "files": []
+  },
+  "gentoo-portage.git": {
+    "name": {
+      "zh": "Gentoo Portage Git",
+      "en": "Gentoo Portage Git"
+    },
+    "desc": {
+      "zh": "Gentoo Linux 的 Portage 包管理器镜像源（Git 访问）",
+      "en": "Gentoo Linux Portage package manager mirror (Git access)"
+    },
+    "type": "os",
+    "helpUrl": "gentoo-portage.git",
+    "files": []
+  },
+  "gentoo-zh": {
+    "name": {
+      "zh": "Gentoo CN",
+      "en": "Gentoo CN"
+    },
+    "desc": {
+      "zh": "Gentoo 中文社区软件包仓库",
+      "en": "Gentoo Chinese community package repository"
+    },
+    "type": "none",
+    "helpUrl": "",
+    "files": []
+  },
+  "gentoo-zh.git": {
+    "name": {
+      "zh": "Gentoo CN Git",
+      "en": "Gentoo CN Git"
+    },
+    "desc": {
+      "zh": "Gentoo 中文社区 Git 仓库镜像",
+      "en": "Gentoo Chinese community Git repository mirror"
+    },
+    "type": "none",
+    "helpUrl": "",
+    "files": []
   },
   "github-release": {
-    "name": { "zh": "GitHub Releases", "en": "GitHub Releases" },
-    "desc": { "zh": "GitHub Release 文件镜像", "en": "GitHub Release file mirror" },
-    "type": "none"
+    "name": {
+      "zh": "GitHub Releases",
+      "en": "GitHub Releases"
+    },
+    "desc": {
+      "zh": "一些项目的 Github Release 镜像",
+      "en": "Mirror of GitHub Releases for selected projects"
+    },
+    "type": "tool",
+    "helpUrl": "",
+    "files": []
   },
-  "maven": {
-    "name": { "zh": "Maven", "en": "Maven" },
-    "desc": { "zh": "Apache Maven 仓库镜像", "en": "Apache Maven repository mirror" },
-    "type": "none"
+  "gnu": {
+    "name": {
+      "zh": "GNU",
+      "en": "GNU"
+    },
+    "desc": {
+      "zh": "GNU 项目的软件包（源代码、文档和部分平台的二进制文件）",
+      "en": "GNU project packages (source code, documentation, and binaries for select platforms)"
+    },
+    "type": "none",
+    "helpUrl": "",
+    "files": []
+  },
+  "hackage": {
+    "name": {
+      "zh": "Hackage",
+      "en": "Hackage"
+    },
+    "desc": {
+      "zh": "Haskell 社区的中心软件包仓库",
+      "en": "Central package repository for the Haskell community"
+    },
+    "type": "lang",
+    "helpUrl": "hackage",
+    "files": []
+  },
+  "homebrew": {
+    "name": {
+      "zh": "Homebrew",
+      "en": "Homebrew"
+    },
+    "desc": {
+      "zh": "Homebrew/Linuxbrew 的 taps（软件包描述文件 Git 仓库）",
+      "en": "Homebrew/Linuxbrew taps (formula Git repositories)"
+    },
+    "type": "tool",
+    "helpUrl": "homebrew",
+    "files": []
+  },
+  "homebrew-bottles": {
+    "name": {
+      "zh": "Homebrew Bottles",
+      "en": "Homebrew Bottles"
+    },
+    "desc": {
+      "zh": "预编译的 Homebrew 软件包",
+      "en": "Pre-built Homebrew packages (bottles)"
+    },
+    "type": "tool",
+    "helpUrl": "homebrew-bottles",
+    "files": []
+  },
+  "kali": {
+    "name": {
+      "zh": "Kali Linux",
+      "en": "Kali Linux"
+    },
+    "desc": {
+      "zh": "Kali Linux 的官方软件包仓库",
+      "en": "Kali Linux official package repository"
+    },
+    "type": "os",
+    "helpUrl": "kali",
+    "files": []
+  },
+  "kali-images": {
+    "name": {
+      "zh": "Kali Images",
+      "en": "Kali Images"
+    },
+    "desc": {
+      "zh": "Kali Linux 的安装镜像",
+      "en": "Kali Linux installation images"
+    },
+    "type": "os",
+    "helpUrl": "",
+    "files": []
+  },
+  "kicad": {
+    "name": {
+      "zh": "KiCad",
+      "en": "KiCad"
+    },
+    "desc": {
+      "zh": "开源的电路原理图与 PCB 设计工具",
+      "en": "Open-source schematic and PCB design tool"
+    },
+    "type": "tool",
+    "helpUrl": "kicad",
+    "files": []
+  },
+  "linux-stable.git": {
+    "name": {
+      "zh": "Linux Stable Git",
+      "en": "Linux Stable Git"
+    },
+    "desc": {
+      "zh": "Linux 内核源代码的 Git 仓库, 稳定版分支",
+      "en": "Linux kernel source code Git repository, stable branch"
+    },
+    "type": "none",
+    "helpUrl": "linux-stable.git",
+    "files": []
+  },
+  "linux.git": {
+    "name": {
+      "zh": "Linux Kernel Git",
+      "en": "Linux Kernel Git"
+    },
+    "desc": {
+      "zh": "Linux 内核源代码的 Git 仓库",
+      "en": "Linux kernel source code Git repository"
+    },
+    "type": "none",
+    "helpUrl": "linux.git",
+    "files": []
+  },
+  "linuxmint": {
+    "name": {
+      "zh": "Linux Mint",
+      "en": "Linux Mint"
+    },
+    "desc": {
+      "zh": "Linux Mint 的官方软件源",
+      "en": "Linux Mint official package repository"
+    },
+    "type": "os",
+    "helpUrl": "linuxmint",
+    "files": []
+  },
+  "manjaro": {
+    "name": {
+      "zh": "Manjaro",
+      "en": "Manjaro"
+    },
+    "desc": {
+      "zh": "Manjaro Linux 的官方软件源",
+      "en": "Manjaro Linux official package repository"
+    },
+    "type": "os",
+    "helpUrl": "manjaro",
+    "files": []
+  },
+  "openjdk": {
+    "name": {
+      "zh": "OpenJDK",
+      "en": "OpenJDK"
+    },
+    "desc": {
+      "zh": "OpenJDK 软件包镜像",
+      "en": "OpenJDK package mirror"
+    },
+    "type": "tool",
+    "helpUrl": "",
+    "files": []
+  },
+  "opensuse": {
+    "name": {
+      "zh": "openSUSE",
+      "en": "openSUSE"
+    },
+    "desc": {
+      "zh": "openSUSE 的安装镜像和官方软件包仓库",
+      "en": "openSUSE installation images and official package repository"
+    },
+    "type": "os",
+    "helpUrl": "opensuse",
+    "files": []
+  },
+  "proxmox": {
+    "name": {
+      "zh": "Proxmox",
+      "en": "Proxmox"
+    },
+    "desc": {
+      "zh": "服务器虚拟化环境 Linux 发行版 Proxmox VE",
+      "en": "Proxmox VE, a server virtualization environment Linux distribution"
+    },
+    "type": "os",
+    "helpUrl": "proxmox",
+    "files": []
+  },
+  "python": {
+    "name": {
+      "zh": "Python",
+      "en": "Python"
+    },
+    "desc": {
+      "zh": "Python 官方软件包镜像",
+      "en": "Python official package mirror"
+    },
+    "type": "lang",
+    "helpUrl": "",
+    "files": []
+  },
+  "radxa-deb": {
+    "name": {
+      "zh": "Radxa Deb",
+      "en": "Radxa Deb"
+    },
+    "desc": {
+      "zh": "Radxa 开发板 Debian 软件包仓库",
+      "en": "Radxa development board Debian package repository"
+    },
+    "type": "os",
+    "helpUrl": "",
+    "files": []
+  },
+  "raspbian": {
+    "name": {
+      "zh": "Raspbian",
+      "en": "Raspbian"
+    },
+    "desc": {
+      "zh": "为树莓派编译的 Debian 系统软件源",
+      "en": "Debian-based package repository built for Raspberry Pi"
+    },
+    "type": "os",
+    "helpUrl": "raspbian",
+    "files": []
+  },
+  "rockylinux": {
+    "name": {
+      "zh": "Rocky Linux",
+      "en": "Rocky Linux"
+    },
+    "desc": {
+      "zh": "Rocky Linux 软件包镜像",
+      "en": "Rocky Linux package mirror"
+    },
+    "type": "os",
+    "helpUrl": "",
+    "files": []
+  },
+  "ros": {
+    "name": {
+      "zh": "ROS",
+      "en": "ROS"
+    },
+    "desc": {
+      "zh": "ROS 提供一系列程序库和工具以帮助软件开发者创建机器人应用软件",
+      "en": "ROS provides libraries and tools to help software developers build robot applications"
+    },
+    "type": "tool",
+    "helpUrl": "ros",
+    "files": []
+  },
+  "ros2": {
+    "name": {
+      "zh": "ROS2",
+      "en": "ROS2"
+    },
+    "desc": {
+      "zh": "ROS (Robot Operating System) 2.0 版本",
+      "en": "ROS (Robot Operating System) version 2.0"
+    },
+    "type": "tool",
+    "helpUrl": "ros2",
+    "files": []
+  },
+  "ubuntu": {
+    "name": {
+      "zh": "Ubuntu",
+      "en": "Ubuntu"
+    },
+    "desc": {
+      "zh": "流行的 Linux 发行版 Ubuntu 的安装镜像和官方软件包仓库",
+      "en": "Installation images and official package repository for the popular Ubuntu Linux distribution"
+    },
+    "type": "os",
+    "helpUrl": "ubuntu",
+    "files": []
+  },
+  "ubuntu-releases": {
+    "name": {
+      "zh": "Ubuntu Releases",
+      "en": "Ubuntu Releases"
+    },
+    "desc": {
+      "zh": "包含近几年发行的 Ubuntu 的镜像",
+      "en": "Ubuntu installation images from recent years"
+    },
+    "type": "os",
+    "helpUrl": "",
+    "files": []
   },
   "videolan-ftp": {
-    "name": { "zh": "VideoLAN FTP", "en": "VideoLAN FTP" },
-    "desc": { "zh": "VideoLAN (VLC) FTP 镜像", "en": "VideoLAN (VLC) FTP mirror" },
-    "type": "none"
-  },
-  "wsl-distributions": {
-    "name": { "zh": "WSL Distributions", "en": "WSL Distributions" },
-    "desc": { "zh": "Windows Subsystem for Linux 发行版镜像", "en": "WSL distribution images mirror" },
-    "type": "none"
+    "name": {
+      "zh": "VideoLAN FTP",
+      "en": "VideoLAN FTP"
+    },
+    "desc": {
+      "zh": "简称VLC，是一款自由、开源的跨平台多媒体播放器及框架，可播放大多数多媒体文件",
+      "en": "VLC is a free and open-source cross-platform multimedia player and framework that plays most multimedia files"
+    },
+    "type": "tool",
+    "helpUrl": "",
+    "files": []
   },
   "zerotier": {
-    "name": { "zh": "ZeroTier", "en": "ZeroTier" },
-    "desc": { "zh": "ZeroTier 下载镜像", "en": "ZeroTier download mirror" },
-    "type": "none"
+    "name": {
+      "zh": "ZeroTier",
+      "en": "ZeroTier"
+    },
+    "desc": {
+      "zh": "ZeroTier 下载镜像",
+      "en": "ZeroTier download mirror"
+    },
+    "type": "tool",
+    "helpUrl": "",
+    "files": []
   }
 }
