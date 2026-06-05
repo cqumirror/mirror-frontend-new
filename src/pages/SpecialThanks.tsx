@@ -7,6 +7,8 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
+import { sanitizeUrl } from '@/utils/url';
+
 interface ThanksEntry {
   zh: string;
   en: string;
@@ -94,7 +96,7 @@ const SpecialThanks: React.FC = () => {
                   {entry.url ? (
                     <ListItemButton
                       component="a"
-                      href={entry.url}
+                      href={sanitizeUrl(entry.url)}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

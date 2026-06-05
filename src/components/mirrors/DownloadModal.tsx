@@ -27,18 +27,12 @@ import {
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { sanitizeUrl } from '@/utils/url';
+
 import { useMirrors } from '../../hooks/useMirrors';
 import { useLocaleStore } from '../../stores/mirrorStore';
 
 import DistroLogo from './DistroLogo';
-
-// 仅允许 http / https / 相对路径，防止 javascript: 等危险协议
-const SAFE_URL_RE = /^(https?:\/\/[^/]|\/[^/]|\/\s*$)/i;
-function sanitizeUrl(url: string): string {
-  if (!url) return '#';
-  return SAFE_URL_RE.test(url) ? url : '#';
-}
-
 // 根据文件 URL 后缀返回合适的图标
 function getFileIcon(url: string): React.ReactNode {
   const ext = url.split('.').pop()?.toLowerCase() ?? '';

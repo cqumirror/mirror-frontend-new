@@ -4,10 +4,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { useMemo, useEffect, useState } from 'react';
 
-import { useMirrorSearchStore } from '../stores/mirrorStore';
 
 import { fetchMirrors, fetchCampusNetworkStatus } from '@/api';
 import type { Mirror, GroupedMirrors, CampusNetworkStatus } from '@/types';
+
+import { useMirrorSearchStore } from '../stores/mirrorStore';
 
 // ── 基础查询 Hooks ────────────────────────────────────────────────────────────
 

@@ -46,6 +46,7 @@ import { useMirrorDetail, useMirrors } from '../hooks/useMirrors';
 import { useLocaleStore } from '../stores/mirrorStore';
 import type { Mirror, Locale } from '../types';
 import { SITE_ORIGIN, canonicalUrl, mirrorJsonLd, breadcrumbJsonLd } from '../utils/seo';
+import { toFullUrl } from '../utils/url';
 
 // ─── Tab 面板 ────────────────────────────────────────────────────────────────
 interface TabPanelProps {
@@ -250,23 +251,6 @@ const IsoFilesCard: React.FC<IsoFilesCardProps> = ({ files, mirrorUrl }) => {
   );
 };
 
-// ─── URL 安全校验 ─────────────────────────────────────────────────────────────
-// 仅允许 https?://（显式协议）或以单斜杠开头的相对路径
-// 明确排除 // 开头的协议相对 URL（如 //evil.com）
-const SAFE_URL_RE = /^(https?:\/\/[^/]|\/[^/]|\/\s*$)/i;
-
-function sanitizeUrl(url: string): string {
-  if (!url) return '#';
-  return SAFE_URL_RE.test(url) ? url : '#';
-}
-
-/** 将镜像 url 转换为完整 URL；若 sanitize 后为 # 则返回空串，避免拼出 origin/# */
-function toFullUrl(url: string): string {
-  if (!url) return '';
-  if (url.startsWith('http')) return url;
-  const safe = sanitizeUrl(url);
-  return safe === '#' ? '' : `${window.location.origin}${safe}`;
-}
 
 // ─── github-release 子项目视图 ────────────────────────────────────────────────
 interface SubProjectViewProps {

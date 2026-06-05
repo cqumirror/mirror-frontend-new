@@ -7,10 +7,11 @@ import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 
+import { getNewsList } from '@/news';
+
 import { useLocaleStore } from '../stores/mirrorStore';
 import { canonicalUrl } from '../utils/seo';
 
-import { getNewsList } from '@/news';
 
 const NewsListPage: React.FC = () => {
   const navigate = useNavigate();

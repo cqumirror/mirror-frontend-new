@@ -34,6 +34,10 @@ import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
+import { getNewsList } from '@/news';
+import { SITE_ORIGIN, SITE_TITLE_ZH, KEYWORDS_ZH, DESC_ZH, canonicalUrl } from '@/utils/seo';
+import { safeGetItem, safeSetItem } from '@/utils/storage';
+
 import RefreshButton from '../components/common/RefreshButton';
 import AnnouncementBanner from '../components/home/AnnouncementBanner';
 import NewsWidget from '../components/home/NewsWidget';
@@ -51,9 +55,6 @@ import {
 import { useMirrorSearchStore, useFavoriteStore } from '../stores/mirrorStore';
 import type { Mirror } from '../types';
 
-import { getNewsList } from '@/news';
-import { SITE_ORIGIN, SITE_TITLE_ZH, KEYWORDS_ZH, DESC_ZH, canonicalUrl } from '@/utils/seo';
-import { safeGetItem, safeSetItem } from '@/utils/storage';
 
 // ── 字母索引导航子组件（roving tabindex）────────────────────────────────────
 // 独立为组件以满足 Rules of Hooks（不能在 IIFE 或回调中调用 Hook）

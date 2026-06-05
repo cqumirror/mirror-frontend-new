@@ -2,9 +2,6 @@
   "nav": {
     "home": "Home",
     "mirrors": "Mirrors",
-    "help": "Help",
-    "about": "About",
-    "backHome": "Back to Home",
     "download": "Download ISO",
     "status": "Sync Status",
     "backToTop": "Back to top",
@@ -55,14 +52,9 @@
     "upstream": "Upstream",
     "type": "Type",
     "viewHelp": "Help",
-    "download": "Downloads",
-    "noFiles": "No files available",
     "copyUrl": "Copy URL",
     "copied": "Copied!",
     "copyScript": "Copy Script",
-    "quickStart": "Quick Setup",
-    "usingCurl": "Using curl",
-    "usingWget": "Using wget",
     "colName": "Mirror",
     "colDesc": "Description",
     "colStatus": "Status",
@@ -77,7 +69,6 @@
     "popularMirrors": "Popular Mirrors",
     "allMirrors": "All Mirrors",
     "recentUpdates": "Recent Updates",
-    "groupBy": "Group by alphabet",
     "totalMirrors": "{{count}} mirrors total",
     "syncedToday": "{{count}} syncs today",
     "news": "News",
@@ -96,13 +87,10 @@
     "https": "HTTPS Encrypted"
   },
   "detail": {
-    "basicInfo": "Basic Info",
     "syncStatus": "Sync Status",
     "files": "File List",
     "helpDoc": "Documentation",
     "quickSetup": "Quick Setup",
-    "fileName": "File Name",
-    "fileUrl": "Download URL",
     "noHelp": "No documentation available",
     "downloads": "Downloads",
     "installImages": "Install Images",
@@ -173,16 +161,11 @@
     "colMirror": "Mirror",
     "colLastSuccess": "Last Success",
     "colUpstream": "Upstream",
-    "colAction": "Action",
-    "loadingError": "Loading error details…",
-    "noErrorMsg": "No error message",
-    "fetchErrorFailed": "Failed to fetch error details",
     "recentSynced": "Recently Synced",
     "noData": "No data",
     "upcomingSyncs": "Upcoming Syncs",
     "noUpcoming": "No upcoming syncs",
-    "syncingMirrors": "Syncing Mirrors",
-    "viewLog": "View Log"
+    "syncingMirrors": "Syncing Mirrors"
   },
   "favorites": {
     "title": "Favorites",
@@ -234,9 +217,6 @@
     "requestInfo": "Request Info",
     "clientIp": "Client IP"
   },
-  "filter": {
-    "ariaLabel": "Filter by status"
-  },
   "githubRelease": {
     "loadingProjects": "Loading projects…",
     "projectCount": "{{count}} projects",
@@ -262,8 +242,7 @@
     "truncated": "Truncated (keeping last 2000 lines only)",
     "jumpToBottom": "Jump to bottom",
     "following": "Following",
-    "copyAll": "Copy all logs",
-    "viewLog": "View log"
+    "copyAll": "Copy all logs"
   },
   "gitPage": {
     "title": "Git Repository Mirrors & GitHub Releases",

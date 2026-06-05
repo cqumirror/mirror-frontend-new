@@ -2,6 +2,7 @@
 // 将后端原始 /jobs 数据转换为前端 Mirror 类型
 
 import type { Mirror, MirrorFile, MirrorStatus } from '@/types';
+import { SAFE_URL_RE } from '@/utils/url';
 
 /**
  * 后端 /jobs 返回的原始条目结构
@@ -46,9 +47,6 @@ const STATUS_MAP: Record<string, MirrorStatus> = {
   none: 'unknown',
 };
 
-// 仅允许 https?://（显式协议）或以单斜杠开头的相对路径
-// 明确排除 // 开头的协议相对 URL（如 //evil.com 可绕过校验跳转外站）
-const SAFE_URL_RE = /^(https?:\/\/[^/]|\/[^/]|\/\s*$)/i;
 function sanitizeFileUrl(url: unknown): string | null {
   if (typeof url !== 'string' || !SAFE_URL_RE.test(url)) return null;
   return url;
@@ -108,7 +106,7 @@ export function transformJobs(jobs: RawJob[], localData: Record<string, LocalMet
   const out: Mirror[] = [];
   for (const job of jobs) {
     if (!job || typeof job.name !== 'string' || !job.name) {
-      console.warn('[transform] skipping job with missing name:', job);
+      if (import.meta.env.DEV) console.warn('[transform] skipping job with missing name:', job);
       continue;
     }
     out.push(convertItem(job, localData[job.name]));

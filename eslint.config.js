@@ -18,6 +18,9 @@ export default tseslint.config(
       'react-hooks': reactHooks,
       'import-x': importX,
     },
+    settings: {
+      'import-x/internal-regex': '^@/',
+    },
     languageOptions: {
       parserOptions: {
         projectService: true,

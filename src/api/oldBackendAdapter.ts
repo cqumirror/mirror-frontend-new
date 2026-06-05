@@ -3,17 +3,16 @@
 //
 // 旧后端数据源：
 //   GET /static/tunasync.json  → OldTunasyncJob[]
-//   GET /static/isoinfo.json   → OldIsoEntry[]
-//   GET /static/notice.json    → OldNoticeData
 //
 // 与新版后端（tunasync-rs /jobs）的主要差异：
 //   - 时间戳是 "YYYY-MM-DD HH:MM:SS" 字符串（UTC+8），不是 Unix 秒
 //   - 状态值用 "success" 而非 "succeeded"
 //   - 没有 next_schedule_ts / last_ended_ts / error_msg 字段
 
-import type { LocalMeta } from './transform';
-
 import type { Mirror, MirrorFile, MirrorStatus } from '@/types';
+import { SAFE_URL_RE } from '@/utils/url';
+
+import type { LocalMeta } from './transform';
 
 // 数据源地址：本地开发走 Vite proxy（相对路径），Cloudflare 等外部部署需指向 CQU 服务器
 const API_BASE = import.meta.env.VITE_API_BASE ?? '';
@@ -34,29 +33,6 @@ export interface OldTunasyncJob {
   status: 'success' | 'syncing' | 'paused' | 'failed' | 'pre-syncing' | string;
   upstream: string;
   size: string;
-}
-
-/** 旧版 isoinfo.json 条目 */
-export interface OldIsoEntry {
-  category: 'os' | 'app' | 'font' | string;
-  distro: string;
-  urls: { name: string; url: string }[];
-}
-
-/** 旧版 notice.json 根结构 */
-export interface OldNoticeData {
-  enabled: boolean;
-  notice: {
-    title: string;
-    type: string;
-    description: string;
-    closable: boolean;
-    center: boolean;
-    showIcon: boolean;
-    theme: string;
-    callback?: string;
-    action?: 'url' | 'news' | 'wiki';
-  }[];
 }
 
 // ── 状态映射（旧后端状态值 → 前端 MirrorStatus）────────────────────────────
@@ -115,10 +91,6 @@ export function parseOldTimestamp(timeStr: string): string {
   return Math.floor(utcDate.getTime() / 1000).toString();
 }
 
-// ── URL 安全校验 ───────────────────────────────────────────────────────────
-
-const SAFE_URL_RE = /^(https?:\/\/[^/]|\/[^/]|\/\s*$)/i;
-
 function sanitizeFileUrl(url: unknown): string | null {
   if (typeof url !== 'string' || !SAFE_URL_RE.test(url)) return null;
   return url;
@@ -156,38 +128,6 @@ export async function fetchOldTunasyncData(): Promise<OldTunasyncJob[]> {
   } catch (e) {
     console.error('[oldBackendAdapter] tunasync.json 加载失败:', e);
     return [];
-  }
-}
-
-/**
- * 获取旧后端 isoinfo.json
- */
-export async function fetchOldIsoData(): Promise<OldIsoEntry[]> {
-  try {
-    const res = await fetch(`${API_BASE}/static/isoinfo.json`, { cache: 'no-cache' });
-    if (!res.ok) throw new Error(`isoinfo.json HTTP ${res.status}`);
-    const data = (await res.json()) as unknown;
-    if (!Array.isArray(data)) {
-      throw new Error('isoinfo.json: expected array');
-    }
-    return data as OldIsoEntry[];
-  } catch (e) {
-    console.warn('[oldBackendAdapter] isoinfo.json 加载失败:', e);
-    return [];
-  }
-}
-
-/**
- * 获取旧后端 notice.json
- */
-export async function fetchOldNoticeData(): Promise<OldNoticeData | null> {
-  try {
-    const res = await fetch(`${API_BASE}/static/notice.json`, { cache: 'no-cache' });
-    if (!res.ok) throw new Error(`notice.json HTTP ${res.status}`);
-    return (await res.json()) as OldNoticeData;
-  } catch (e) {
-    console.warn('[oldBackendAdapter] notice.json 加载失败:', e);
-    return null;
   }
 }
 
@@ -234,7 +174,7 @@ export function transformOldJobs(
   const out: Mirror[] = [];
   for (const job of jobs) {
     if (!job || typeof job.name !== 'string' || !job.name) {
-      console.warn('[oldBackendAdapter] skipping job with missing name:', job);
+      if (import.meta.env.DEV) console.warn('[oldBackendAdapter] skipping job with missing name:', job);
       continue;
     }
     out.push(convertOldItem(job, localData[job.name]));

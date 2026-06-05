@@ -9,6 +9,7 @@ import './i18n';
 
 import Footer from './components/common/Footer';
 import Header from './components/common/Header';
+import PageTransition from './components/common/PageTransition';
 import ScrollToTop from './components/common/ScrollToTop';
 import { useTheme } from './hooks/useTheme';
 
@@ -96,6 +97,7 @@ const ThemedApp: React.FC = () => {
 
           <Box component="main" sx={{ flex: 1 }}>
             <Suspense fallback={<RouteFallback />}>
+              <PageTransition>
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/mirrors" element={<Navigate to="/" replace />} />
@@ -111,6 +113,7 @@ const ThemedApp: React.FC = () => {
                 <Route path="/503" element={<ErrorPage code={503} />} />
                 <Route path="*" element={<ErrorPage code={404} />} />
               </Routes>
+              </PageTransition>
             </Suspense>
           </Box>
 

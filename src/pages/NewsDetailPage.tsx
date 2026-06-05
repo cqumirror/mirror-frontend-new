@@ -23,11 +23,12 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 
+import { getNewsArticle, getNewsItem } from '@/news';
+
 import CodeBlock from '../components/docs/CodeBlock';
 import { useLocaleStore } from '../stores/mirrorStore';
 import { canonicalUrl } from '../utils/seo';
 
-import { getNewsArticle, getNewsItem } from '@/news';
 
 // MUI 组件映射
 // 表格使用 MUI Table 组件，保证主题色正确、暗色模式正常

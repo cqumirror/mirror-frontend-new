@@ -39,6 +39,8 @@ import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react'
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 
+import { sanitizeUrl } from '@/utils/url';
+
 // ─── 类型 ────────────────────────────────────────────────────────────────────
 
 interface DirEntry {
@@ -671,7 +673,7 @@ const FileRow: React.FC<FileRowProps> = ({ file }) => {
           sx={{ display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: 0.5, minWidth: 0 }}
         >
           <Link
-            href={file.href}
+            href={sanitizeUrl(file.href)}
             target="_blank"
             rel="noopener noreferrer"
             underline="hover"
@@ -734,7 +736,7 @@ const FileRow: React.FC<FileRowProps> = ({ file }) => {
             size="small"
             sx={{ p: 0.5 }}
             component="a"
-            href={file.href}
+            href={sanitizeUrl(file.href)}
             target="_blank"
             rel="noopener noreferrer"
             color="primary"

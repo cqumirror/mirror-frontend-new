@@ -48,7 +48,7 @@ export const loadHelpDoc = async (
     }
     return null;
   } catch (error) {
-    console.warn(`Failed to load help doc for ${mirrorId} (${locale}):`, error);
+    if (import.meta.env.DEV) console.warn(`Failed to load help doc for ${mirrorId} (${locale}):`, error);
     return null;
   }
 };

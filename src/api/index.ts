@@ -110,7 +110,7 @@ function getLocalData(): Promise<Record<string, LocalMeta>> {
         return json as Record<string, LocalMeta>;
       })
       .catch((e) => {
-        console.warn('[API] local_data.json 加载失败，镜像名称/描述将退回到默认值。', e);
+        if (import.meta.env.DEV) console.warn('[API] local_data.json 加载失败，镜像名称/描述将退回到默认值。', e);
         return {} as Record<string, LocalMeta>;
       }),
     fetch(`${import.meta.env.VITE_API_BASE ?? ''}/static/isoinfo.json`, { cache: 'no-cache' })
@@ -121,7 +121,7 @@ function getLocalData(): Promise<Record<string, LocalMeta>> {
         return json as Array<{ category: string; distro: string; urls: Array<{ name: string; url: string }> }>;
       })
       .catch((e) => {
-        console.warn('[API] isoinfo.json 加载失败，文件列表将不可用。', e);
+        if (import.meta.env.DEV) console.warn('[API] isoinfo.json 加载失败，文件列表将不可用。', e);
         return [];
       }),
   ]).then(([base, isoData]) => mergeIsoInfo(base, isoData));

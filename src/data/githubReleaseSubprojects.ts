@@ -28,7 +28,7 @@ function fetchSubProjects(): Promise<Record<string, string>> {
       return _cache;
     })
     .catch((e) => {
-      console.warn('[githubReleaseSubprojects] 加载失败，子项目路径映射为空。', e);
+      if (import.meta.env.DEV) console.warn('[githubReleaseSubprojects] 加载失败，子项目路径映射为空。', e);
       _cache = {};
       return _cache;
     });

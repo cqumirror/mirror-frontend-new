@@ -11,7 +11,6 @@ import {
   Schedule as ScheduleIcon,
   ArrowBack as BackIcon,
   Circle as DotIcon,
-  Terminal as TerminalIcon,
 } from '@mui/icons-material';
 import {
   Box,
@@ -32,18 +31,12 @@ import {
   Tooltip,
   LinearProgress,
   Alert,
-  Link,
-  Popover,
-  CircularProgress,
-  IconButton,
 } from '@mui/material';
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 
 import RefreshButton from '../components/common/RefreshButton';
-import LogStreamDialog from '../components/mirrors/LogStreamDialog';
-import { useCapabilities } from '../hooks/useCapabilities';
 import { useMirrors } from '../hooks/useMirrors';
 import { useLocaleStore } from '../stores/mirrorStore';
 import { canonicalUrl } from '../utils/seo';
@@ -169,43 +162,6 @@ const StatusPage: React.FC = () => {
   const navigate = useNavigate();
   const { data: mirrors = [], isLoading, isFetching, error, refetch, dataUpdatedAt } = useMirrors();
 
-  // ── 后端能力探测 ──────────────────────────────────────────────────────────
-  // 旧版 tunasync 不支持单镜像详情 / SSE 流，探测后隐藏对应入口
-  const capabilities = useCapabilities(mirrors[0]?.id);
-
-  // ── 失败详情气泡 ──────────────────────────────────────────────────────────
-  const [errorPopover, setErrorPopover] = useState<{
-    anchorEl: HTMLElement;
-    loading: boolean;
-    errorMsg: string | null;
-    mirrorId: string;
-  } | null>(null);
-
-  // ── 实时日志窗口 ──────────────────────────────────────────────────────────
-  const [logDialogMirror, setLogDialogMirror] = useState<string | null>(null);
-
-  const handleShowError = useCallback(
-    async (e: React.MouseEvent<HTMLElement>, mirrorId: string) => {
-      e.preventDefault();
-      setErrorPopover({ anchorEl: e.currentTarget, loading: true, errorMsg: null, mirrorId });
-      try {
-        const res = await fetch(`/jobs/${encodeURIComponent(mirrorId)}`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        // tunasync /jobs/:name 返回数组，取第一条
-        const job = Array.isArray(data) ? data[0] : data;
-        const msg = job?.error_msg || t('status.noErrorMsg');
-        setErrorPopover((prev) => (prev ? { ...prev, loading: false, errorMsg: msg } : null));
-      } catch {
-        setErrorPopover((prev) =>
-          prev ? { ...prev, loading: false, errorMsg: t('status.fetchErrorFailed') } : null
-        );
-      }
-    },
-    [t]
-  );
-
-  const handleCloseError = useCallback(() => setErrorPopover(null), []);
 
   // ── 聚合统计 ──────────────────────────────────────────────────────────────
   const stats = useMemo(() => {
@@ -643,18 +599,6 @@ const StatusPage: React.FC = () => {
                           {m.id}
                         </Typography>
                       </Box>
-                      {capabilities.logStream && (
-                        <Tooltip title={t('status.viewLog')}>
-                          <IconButton
-                            size="small"
-                            onClick={() => setLogDialogMirror(m.id)}
-                            color="primary"
-                            sx={{ flexShrink: 0 }}
-                          >
-                            <TerminalIcon sx={{ fontSize: 18 }} />
-                          </IconButton>
-                        </Tooltip>
-                      )}
                     </Paper>
                   </Grid>
                 ))}
@@ -698,9 +642,6 @@ const StatusPage: React.FC = () => {
                         sx={{ fontWeight: 700, display: { xs: 'none', md: 'table-cell' } }}
                       >
                         {t('status.colUpstream')}
-                      </TableCell>
-                      <TableCell sx={{ fontWeight: 700 }} align="right">
-                        {t('status.colAction')}
                       </TableCell>
                     </TableRow>
                   </TableHead>
@@ -758,97 +699,12 @@ const StatusPage: React.FC = () => {
                             </Typography>
                           </Tooltip>
                         </TableCell>
-                        <TableCell align="right">
-                          {capabilities.logStream || capabilities.jobDetail ? (
-                            <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
-                              {capabilities.logStream && (
-                                <Tooltip title={t('status.viewLog')}>
-                                  <IconButton
-                                    size="small"
-                                    onClick={() => setLogDialogMirror(m.id)}
-                                    sx={{ p: 0.5 }}
-                                  >
-                                    <TerminalIcon sx={{ fontSize: 16 }} />
-                                  </IconButton>
-                                </Tooltip>
-                              )}
-                              {capabilities.jobDetail && (
-                                <Link
-                                  component="button"
-                                  variant="caption"
-                                  underline="hover"
-                                  color="primary"
-                                  sx={{ fontWeight: 600, cursor: 'pointer', ml: 0.5 }}
-                                  onClick={(e: React.MouseEvent<HTMLElement>) =>
-                                    handleShowError(e, m.id)
-                                  }
-                                >
-                                  {t('common.details')}
-                                </Link>
-                              )}
-                            </Box>
-                          ) : (
-                            // 旧版后端：两个功能都不可用，显示一个占位破折号
-                            <Typography variant="caption" sx={{ color: 'text.disabled' }}>
-                              —
-                            </Typography>
-                          )}
-                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
               </TableContainer>
 
-              {/* 错误详情气泡 */}
-              <Popover
-                open={!!errorPopover}
-                anchorEl={errorPopover?.anchorEl}
-                onClose={handleCloseError}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-                slotProps={{
-                  paper: {
-                    sx: {
-                      mt: 0.5,
-                      p: 2,
-                      maxWidth: 420,
-                      minWidth: 200,
-                      borderRadius: 2,
-                    },
-                  },
-                }}
-              >
-                {errorPopover?.loading ? (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 0.5 }}>
-                    <CircularProgress size={16} />
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      {t('status.loadingError')}
-                    </Typography>
-                  </Box>
-                ) : (
-                  <Box>
-                    <Typography
-                      variant="caption"
-                      sx={{ color: 'text.secondary', fontWeight: 600, mb: 0.5, display: 'block' }}
-                    >
-                      {errorPopover?.mirrorId}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        fontFamily: '"JetBrains Mono", monospace',
-                        fontSize: '0.8rem',
-                        color: 'error.main',
-                        wordBreak: 'break-word',
-                        whiteSpace: 'pre-wrap',
-                      }}
-                    >
-                      {errorPopover?.errorMsg}
-                    </Typography>
-                  </Box>
-                )}
-              </Popover>
             </Box>
           )}
 
@@ -1029,12 +885,6 @@ const StatusPage: React.FC = () => {
         {/* end opacity wrapper */}
       </Container>
 
-      {/* 实时日志窗口（Dialog 通过 portal 渲染，独立于内容滚动） */}
-      <LogStreamDialog
-        open={!!logDialogMirror}
-        mirrorId={logDialogMirror}
-        onClose={() => setLogDialogMirror(null)}
-      />
     </>
   );
 };
