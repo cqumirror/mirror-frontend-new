@@ -104,12 +104,43 @@ function convertItem(raw: RawJob, local: LocalMeta = {}): Mirror {
  */
 export function transformJobs(jobs: RawJob[], localData: Record<string, LocalMeta> = {}): Mirror[] {
   const out: Mirror[] = [];
+  const seen = new Set<string>();
+
   for (const job of jobs) {
     if (!job || typeof job.name !== 'string' || !job.name) {
       if (import.meta.env.DEV) console.warn('[transform] skipping job with missing name:', job);
       continue;
     }
+    seen.add(job.name);
     out.push(convertItem(job, localData[job.name]));
   }
+
+  // local_data.json 中有但后端没有的条目（纯文档/虚拟镜像）
+  for (const [id, local] of Object.entries(localData)) {
+    if (seen.has(id)) continue;
+    const defaultLabel = id.charAt(0).toUpperCase() + id.slice(1);
+    out.push({
+      id,
+      url: `/${id}/`,
+      name: {
+        zh: local.name?.zh ?? defaultLabel,
+        en: local.name?.en ?? defaultLabel,
+      },
+      desc: {
+        zh: local.desc?.zh ?? `${defaultLabel} 镜像`,
+        en: local.desc?.en ?? `Mirror of ${defaultLabel}`,
+      },
+      helpUrl: local.helpUrl ?? `/docs/${id}`,
+      upstream: '',
+      size: '',
+      status: local.status ?? 'cached',
+      lastUpdated: '',
+      nextScheduled: '',
+      lastSuccess: '',
+      type: local.type ?? 'none',
+      files: sanitizeFiles(local.files),
+    });
+  }
+
   return out;
 }

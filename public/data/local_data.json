@@ -571,6 +571,32 @@
     "helpUrl": "opensuse",
     "files": []
   },
+  "opensuse-leap": {
+    "name": {
+      "zh": "openSUSE Leap",
+      "en": "openSUSE Leap"
+    },
+    "desc": {
+      "zh": "openSUSE Leap 稳定发行版软件仓库",
+      "en": "openSUSE Leap stable distribution repository"
+    },
+    "type": "os",
+    "helpUrl": "opensuse-leap",
+    "files": []
+  },
+  "opensuse-tumbleweed": {
+    "name": {
+      "zh": "openSUSE Tumbleweed",
+      "en": "openSUSE Tumbleweed"
+    },
+    "desc": {
+      "zh": "openSUSE Tumbleweed 滚动发行版软件仓库",
+      "en": "openSUSE Tumbleweed rolling release repository"
+    },
+    "type": "os",
+    "helpUrl": "opensuse-tumbleweed",
+    "files": []
+  },
   "proxmox": {
     "name": {
       "zh": "Proxmox",
