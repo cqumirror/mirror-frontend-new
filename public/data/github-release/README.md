@@ -57,3 +57,11 @@
 无需修改任何 TypeScript 源码。只需编辑 JSON 和添加 MDX 文档即可。
 
 No TypeScript source code changes needed. Just edit the JSON and add MDX docs.
+
+---
+
+## 相关文档 / Related Docs
+
+- [项目主页](../../../README.md) — 功能特性、技术栈、开发调试
+- [运行时数据文件说明](../README.md) — announcements、local_data、popular-mirrors 等 JSON 文件格式
+- [内容仓库说明](../../../content/README.md) — 帮助文档与新闻文章编写规范

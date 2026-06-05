@@ -15,6 +15,7 @@ This directory contains JSON data files loaded at runtime via `fetch()`. **No re
 | `popular-mirrors.json` | 首页常用镜像列表 | `src/hooks/useMirrors.ts` |
 | `github-release/subprojects.json` | GitHub Release 子项目配置 | `src/data/githubReleaseSubprojects.ts` |
 | `special-thanks.json` | 特别致谢名单 | `src/pages/SpecialThanks.tsx` |
+| `manifest.json` | PWA 应用清单 | `index.html` (`<link rel="manifest">`) |
 
 ---
 
@@ -166,3 +167,67 @@ This directory contains JSON data files loaded at runtime via `fetch()`. **No re
 | `zh` | string | 是 | 中文名称 |
 | `en` | string | 是 | 英文名称 |
 | `url` | string | 否 | 可选链接（个人主页、组织官网等） |
+
+---
+
+## manifest.json — PWA 应用清单
+
+PWA (Progressive Web App) 清单文件，让浏览器将站点识别为可安装应用。用户可通过 Chrome "安装应用" 或 iOS Safari "添加到主屏幕" 将镜像站添加为桌面应用。
+
+```json
+{
+  "name": "重庆大学开源软件镜像站",
+  "short_name": "CQU Mirror",
+  "description": "重庆大学开源软件镜像站致力于为国内和校内用户提供高质量的开源软件镜像、Linux 镜像源服务。",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1976d2",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
+```
+
+### 字段说明 / Fields
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `name` | string | 是 | 应用全称，显示在安装提示和系统应用列表中 |
+| `short_name` | string | 是 | 应用简称，显示在主屏幕图标下方（建议 ≤12 字符） |
+| `description` | string | 否 | 应用描述 |
+| `start_url` | string | 是 | 启动时打开的 URL |
+| `display` | string | 是 | 显示模式：`standalone`（独立窗口，无地址栏） / `fullscreen` / `minimal-ui` |
+| `background_color` | string | 否 | 启动画面背景色 |
+| `theme_color` | string | 否 | 应用主题色（影响状态栏颜色），应与 `index.html` 中的 `<meta name="theme-color">` 一致 |
+| `lang` | string | 否 | 主要语言标签 |
+| `icons` | array | 是 | 应用图标列表 |
+
+### Icons 数组元素
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `src` | string | 图标路径（相对于 public 目录） |
+| `sizes` | string | 图标尺寸，`"any"` 表示矢量图（SVG）可适配任意尺寸 |
+| `type` | string | MIME 类型 |
+| `purpose` | string | 用途：`any`（通用）、`maskable`（自适应遮罩）、`maskable` 兼容圆形/圆角裁切 |
+
+### 注意事项
+
+- 图标使用 SVG 格式（`/favicon.svg`），无需提供多种 PNG 尺寸
+- `theme_color` 需与 `index.html` 的 `<meta name="theme-color">` 保持一致
+- 修改后无需重新构建，刷新页面即生效
+
+---
+
+## 相关文档 / Related Docs
+
+- [项目主页](../../README.md) — 功能特性、技术栈、开发调试
+- [GitHub Release 子项目配置](github-release/README.md) — 添加新 GitHub Release 镜像
+- [内容仓库说明](../../content/README.md) — 帮助文档与新闻文章编写规范

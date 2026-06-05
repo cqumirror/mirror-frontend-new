@@ -282,8 +282,12 @@ const GitMirrorsPage: React.FC = () => {
                     </TableCell>
                     <TableCell sx={{ fontWeight: 700 }}>{t('gitPage.colStatus')}</TableCell>
                     <TableCell sx={{ fontWeight: 700 }}>{t('gitPage.colLastUpdated')}</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>{t('gitPage.colSize')}</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>{t('gitPage.colUpstream')}</TableCell>
+                    <TableCell sx={{ fontWeight: 700, display: { xs: 'none', md: 'table-cell' } }}>
+                      {t('gitPage.colSize')}
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 700, display: { xs: 'none', md: 'table-cell' } }}>
+                      {t('gitPage.colUpstream')}
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -315,10 +319,10 @@ const GitMirrorsPage: React.FC = () => {
                           {formatRelativeTime(m.lastUpdated, locale)}
                         </Typography>
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                         <Typography variant="body2">{m.size || '-'}</Typography>
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                         <Typography
                           variant="caption"
                           sx={{

@@ -3,7 +3,7 @@
 
 import { Search as SearchIcon, Close as CloseIcon } from '@mui/icons-material';
 import { TextField, InputAdornment, IconButton } from '@mui/material';
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -16,7 +16,7 @@ interface SearchBarProps {
 }
 
 /**
- * 实时搜索框 - 过滤镜像列表
+ * 搜索框 - 带防抖（300ms）
  * 在非首页输入时自动跳转到首页并滚动到镜像列表
  */
 const SearchBar: React.FC<SearchBarProps> = ({ fullWidth = false, size = 'small', inputRef }) => {
@@ -25,11 +25,26 @@ const SearchBar: React.FC<SearchBarProps> = ({ fullWidth = false, size = 'small'
   const location = useLocation();
   const navigate = useNavigate();
 
+  // 本地输入值 + 防抖同步到 store
+  const [inputValue, setInputValue] = useState(searchQuery);
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  // 外部清空 searchQuery 时同步本地状态（如 Header 中清空）
+  useEffect(() => {
+    if (searchQuery === '') setInputValue('');
+  }, [searchQuery]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setSearchQuery(value);
+    setInputValue(value);
 
-    // 不在首页时跳转回首页，并滚动到镜像列表
+    // 防抖 300ms 后同步到 store
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      setSearchQuery(value);
+    }, 300);
+
+    // 不在首页时立即跳转（不等防抖）
     if (location.pathname !== '/') {
       navigate('/');
       setTimeout(() => {
@@ -39,12 +54,13 @@ const SearchBar: React.FC<SearchBarProps> = ({ fullWidth = false, size = 'small'
   };
 
   const handleClear = () => {
+    setInputValue('');
     setSearchQuery('');
   };
 
   return (
     <TextField
-      value={searchQuery}
+      value={inputValue}
       onChange={handleChange}
       placeholder={t('search.placeholder')}
       fullWidth={fullWidth}

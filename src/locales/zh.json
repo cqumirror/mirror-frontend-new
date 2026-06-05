@@ -2,6 +2,7 @@
   "nav": {
     "home": "首页",
     "mirrors": "镜像列表",
+    "about": "关于我们",
     "download": "镜像下载",
     "status": "同步状态",
     "backToTop": "回到顶部",
@@ -62,7 +63,7 @@
   },
   "home": {
     "hero": {
-      "title": "重庆大学开源镜像站",
+      "title": "重庆大学开源软件镜像站",
       "subtitle": "CQU Mirror",
       "description": "致力于为国内和校内用户提供高质量的开源软件镜像、Linux 镜像源服务"
     },
@@ -226,23 +227,6 @@
     "latestRelease": "最新 Release",
     "fileCount": "{{count}} 个文件",
     "searchFiles": "搜索文件…"
-  },
-  "logStream": {
-    "title": "实时同步日志",
-    "connecting": "连接中",
-    "connected": "已连接",
-    "error": "连接异常",
-    "closed": "已断开",
-    "connectionError": "无法连接到日志流，可能是镜像名不存在或同步任务未启动",
-    "lag": "订阅速度过慢：{{msg}}",
-    "noData": "暂无日志",
-    "waitingForOutput": "等待镜像输出…",
-    "waitingHint": "同步任务尚未开始或刚结束，下一次启动时日志会自动出现",
-    "lineCount": "共 {{count}} 行",
-    "truncated": "已截断（仅保留最新 2000 行）",
-    "jumpToBottom": "跳到底部",
-    "following": "正在跟随",
-    "copyAll": "复制全部日志"
   },
   "gitPage": {
     "title": "Git 仓库镜像 & GitHub Release",

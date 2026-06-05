@@ -6,6 +6,7 @@
 import {
   Close as CloseIcon,
   FavoriteBorder as ThanksIcon,
+  InfoOutlined as AboutIcon,
   Menu as MenuIcon,
   Search as SearchIcon,
 } from '@mui/icons-material';
@@ -53,6 +54,9 @@ const Header: React.FC = () => {
 
   const { searchQuery, setSearchQuery } = useMirrorSearchStore();
 
+  const [mobileSearchValue, setMobileSearchValue] = useState(searchQuery);
+  const mobileSearchTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+
   // 全局快捷键：Ctrl+K 或 '/' 聚焦搜索
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -79,6 +83,7 @@ const Header: React.FC = () => {
 
   const handleCloseSearch = () => {
     setSearchOpen(false);
+    setMobileSearchValue('');
     setSearchQuery('');
   };
 
@@ -103,6 +108,13 @@ const Header: React.FC = () => {
             300
           );
         }
+        setDrawerOpen(false);
+      },
+    },
+    {
+      label: t('nav.about'),
+      action: () => {
+        navigate('/about');
         setDrawerOpen(false);
       },
     },
@@ -169,9 +181,12 @@ const Header: React.FC = () => {
               <SearchIcon sx={{ fontSize: 18, color: 'text.secondary', mr: 1, flexShrink: 0 }} />
               <InputBase
                 inputRef={searchInputRef}
-                value={searchQuery}
+                value={mobileSearchValue}
                 onChange={(e) => {
-                  setSearchQuery(e.target.value);
+                  const value = e.target.value;
+                  setMobileSearchValue(value);
+                  clearTimeout(mobileSearchTimer.current);
+                  mobileSearchTimer.current = setTimeout(() => setSearchQuery(value), 300);
                   if (location.pathname !== '/') {
                     navigate('/');
                     setTimeout(() => {
@@ -192,6 +207,15 @@ const Header: React.FC = () => {
           {/* 桌面端右侧工具栏 */}
           {!isMobile && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<AboutIcon sx={{ fontSize: 16 }} />}
+                onClick={() => navigate('/about')}
+                sx={{ borderRadius: 6, fontSize: '0.8rem', px: 1.5, py: 0.4, fontWeight: 600, textTransform: 'none' }}
+              >
+                {t('nav.about')}
+              </Button>
               <Button
                 variant="outlined"
                 size="small"

@@ -64,6 +64,8 @@ function generateSitemap() {
     { loc: '/status', changefreq: 'hourly', priority: '0.6' },
     { loc: '/news', changefreq: 'weekly', priority: '0.7' },
     { loc: '/special-thanks', changefreq: 'monthly', priority: '0.4' },
+    { loc: '/about', changefreq: 'monthly', priority: '0.4' },
+    { loc: '/mirrors/git', changefreq: 'weekly', priority: '0.7' },
   ];
 
   // 镜像详情页

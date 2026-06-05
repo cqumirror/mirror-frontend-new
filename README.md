@@ -1,4 +1,4 @@
-# CQU Mirror — 高校开源镜像站前端
+# CQU Mirror — 重庆大学开源软件镜像站前端
 
 [English](README_en.md)
 
@@ -168,3 +168,11 @@ React Query 缓存 (60s)    → 组件消费
 ## 许可证
 
 [GPL-3.0-or-later](LICENSE)
+
+---
+
+## 相关文档 / Related Docs
+
+- [运行时数据文件说明](public/data/README.md) — announcements、local_data、popular-mirrors 等 JSON 文件格式
+- [GitHub Release 子项目配置](public/data/github-release/README.md) — 添加新 GitHub Release 镜像
+- [内容仓库说明](content/README.md) — 帮助文档与新闻文章编写规范

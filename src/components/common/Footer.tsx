@@ -95,11 +95,7 @@ const Footer: React.FC = () => {
           {/* 左列：Logo + 简介 */}
           <Grid size={{ xs: 12, md: 5 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
-              <img
-                src="/favicon.svg"
-                alt="CQU Mirror Logo"
-                style={{ width: 22, height: 22 }}
-              />
+              <img src="/favicon.svg" alt="CQU Mirror Logo" style={{ width: 22, height: 22 }} />
               <Typography
                 variant="h6"
                 sx={{
@@ -133,7 +129,7 @@ const Footer: React.FC = () => {
                 <IconButton
                   size="small"
                   component="a"
-                  href="https://github.com/cqumirror"
+                  href="https://github.com/cqumirror/feedback"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="GitHub"
@@ -155,7 +151,10 @@ const Footer: React.FC = () => {
 
             {/* 友情链接 */}
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, alignItems: 'center' }}>
-              <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600, mr: 0.5 }}>
+              <Typography
+                variant="caption"
+                sx={{ color: 'text.secondary', fontWeight: 600, mr: 0.5 }}
+              >
                 {t('footer.friendLinks')}
               </Typography>
               {FRIEND_LINKS.map((link) => (
@@ -191,11 +190,17 @@ const Footer: React.FC = () => {
               }}
             >
               {GRID_CARDS.map((card) => (
-                <Box key={card.title} sx={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                  <Typography
-                    variant="subtitle2"
-                    sx={{ fontWeight: 700, mb: 1 }}
-                  >
+                <Box
+                  key={card.title}
+                  sx={{
+                    textAlign: 'center',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
                     {card.title}
                     <Typography
                       component="span"

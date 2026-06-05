@@ -47,15 +47,46 @@ export const useFilteredMirrors = (mirrors: Mirror[]): Mirror[] => {
   const { searchQuery } = useMirrorSearchStore();
   return useMemo(() => {
     if (!searchQuery.trim()) return mirrors;
-    const q = searchQuery.toLowerCase();
-    return mirrors.filter(
-      (m) =>
-        m.id.toLowerCase().includes(q) ||
-        m.name.zh.toLowerCase().includes(q) ||
-        m.name.en.toLowerCase().includes(q) ||
-        m.desc.zh.toLowerCase().includes(q) ||
-        m.desc.en.toLowerCase().includes(q)
-    );
+
+    // 支持多关键词（空格分隔），每个关键词都必须匹配
+    const keywords = searchQuery.toLowerCase().split(/\s+/).filter(Boolean);
+    if (keywords.length === 0) return mirrors;
+
+    const scored: Array<{ mirror: Mirror; score: number }> = [];
+
+    for (const m of mirrors) {
+      const id = m.id.toLowerCase();
+      const nameZh = m.name.zh.toLowerCase();
+      const nameEn = m.name.en.toLowerCase();
+      const descZh = m.desc.zh.toLowerCase();
+      const descEn = m.desc.en.toLowerCase();
+
+      // 每个关键词都必须在至少一个字段中匹配
+      let allMatch = true;
+      let totalScore = 0;
+
+      for (const kw of keywords) {
+        let matched = false;
+        let bestScore = 0;
+
+        // id 精确匹配 > id 包含 > name 包含 > desc 包含
+        if (id === kw) { matched = true; bestScore = Math.max(bestScore, 4); }
+        else if (id.includes(kw)) { matched = true; bestScore = Math.max(bestScore, 3); }
+
+        if (nameZh.includes(kw) || nameEn.includes(kw)) { matched = true; bestScore = Math.max(bestScore, 2); }
+
+        if (descZh.includes(kw) || descEn.includes(kw)) { matched = true; bestScore = Math.max(bestScore, 1); }
+
+        if (!matched) { allMatch = false; break; }
+        totalScore += bestScore;
+      }
+
+      if (allMatch) scored.push({ mirror: m, score: totalScore });
+    }
+
+    // 按匹配度降序排列
+    scored.sort((a, b) => b.score - a.score);
+    return scored.map((s) => s.mirror);
   }, [mirrors, searchQuery]);
 };
 

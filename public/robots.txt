@@ -6,6 +6,7 @@ Allow: /
 Allow: /mirrors/
 Allow: /news/
 Allow: /status
+Allow: /about
 
 # 禁止爬取镜像文件目录（体积大、无 SEO 价值）
 Disallow: /ubuntu/
