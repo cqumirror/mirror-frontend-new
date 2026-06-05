@@ -545,6 +545,19 @@
     "helpUrl": "manjaro",
     "files": []
   },
+  "msys2": {
+    "name": {
+      "zh": "MSYS2",
+      "en": "MSYS2"
+    },
+    "desc": {
+      "zh": "Windows 下的软件发行与构建平台，提供 MinGW-w64 工具链和包管理器 pacman",
+      "en": "Software distribution and building platform for Windows, providing MinGW-w64 toolchain and pacman package manager"
+    },
+    "type": "tool",
+    "helpUrl": "msys2",
+    "files": []
+  },
   "openjdk": {
     "name": {
       "zh": "OpenJDK",
