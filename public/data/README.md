@@ -151,9 +151,9 @@ This directory contains JSON data files loaded at runtime via `fetch()`. **No re
 ```json
 [
   {
-    "zh": "重庆大学蓝客联盟",
+    "zh": "重庆大学蓝盟",
     "en": "Lanunion, CQU",
-    "url": "https://lanunion.cqu.edu.cn"
+    "url": "https://mirrors.cqu.edu.cn/introductions/"
   },
   { "zh": "陈泱宇", "en": "Chen Yangyu" }
 ]
