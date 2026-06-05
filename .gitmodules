@@ -1,0 +1,3 @@
+[submodule "mirror-document-new"]
+	path = mirror-document-new
+	url = git@github.com:cqumirror/mirror-document-new.git
