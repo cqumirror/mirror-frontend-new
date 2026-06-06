@@ -2,9 +2,7 @@
   "ubuntu",
   "debian",
   "archlinux",
-  "centos",
+  "bmclapi",
   "rockylinux",
-  "opensuse",
-  "fedora",
-  "kali"
+  "opensuse"
 ]

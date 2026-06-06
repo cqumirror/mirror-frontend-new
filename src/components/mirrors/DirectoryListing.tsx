@@ -15,7 +15,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
   TableRow,
   Typography,
@@ -28,8 +27,73 @@ import {
   InputBase,
   IconButton,
 } from '@mui/material';
+import { keyframes } from '@mui/system';
 import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { TableVirtuoso } from 'react-virtuoso';
+
+// ── 加载遮罩动画（与 PageTransition 同款） ─────────────────────────
+const overlayFadeIn = keyframes`from { opacity: 0 } to { opacity: 1 }`;
+
+const LoadingGrid: React.FC = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="3em" height="3em" viewBox="0 0 24 24">
+    <path d="M0 0h24v24H0z" fill="none" />
+    <rect width="7.33" height="7.33" x="1" y="1" fill="currentColor">
+      <animate id="a" attributeName="x" begin="0;b.end+0.2s" dur="0.6s" values="1;4;1" />
+      <animate attributeName="y" begin="0;b.end+0.2s" dur="0.6s" values="1;4;1" />
+      <animate attributeName="width" begin="0;b.end+0.2s" dur="0.6s" values="7.33;1.33;7.33" />
+      <animate attributeName="height" begin="0;b.end+0.2s" dur="0.6s" values="7.33;1.33;7.33" />
+    </rect>
+    <rect width="7.33" height="7.33" x="8.33" y="1" fill="currentColor">
+      <animate attributeName="x" begin="a.begin+0.1s" dur="0.6s" values="8.33;11.33;8.33" />
+      <animate attributeName="y" begin="a.begin+0.1s" dur="0.6s" values="1;4;1" />
+      <animate attributeName="width" begin="a.begin+0.1s" dur="0.6s" values="7.33;1.33;7.33" />
+      <animate attributeName="height" begin="a.begin+0.1s" dur="0.6s" values="7.33;1.33;7.33" />
+    </rect>
+    <rect width="7.33" height="7.33" x="1" y="8.33" fill="currentColor">
+      <animate attributeName="x" begin="a.begin+0.1s" dur="0.6s" values="1;4;1" />
+      <animate attributeName="y" begin="a.begin+0.1s" dur="0.6s" values="8.33;11.33;8.33" />
+      <animate attributeName="width" begin="a.begin+0.1s" dur="0.6s" values="7.33;1.33;7.33" />
+      <animate attributeName="height" begin="a.begin+0.1s" dur="0.6s" values="7.33;1.33;7.33" />
+    </rect>
+    <rect width="7.33" height="7.33" x="15.66" y="1" fill="currentColor">
+      <animate attributeName="x" begin="a.begin+0.2s" dur="0.6s" values="15.66;18.66;15.66" />
+      <animate attributeName="y" begin="a.begin+0.2s" dur="0.6s" values="1;4;1" />
+      <animate attributeName="width" begin="a.begin+0.2s" dur="0.6s" values="7.33;1.33;7.33" />
+      <animate attributeName="height" begin="a.begin+0.2s" dur="0.6s" values="7.33;1.33;7.33" />
+    </rect>
+    <rect width="7.33" height="7.33" x="8.33" y="8.33" fill="currentColor">
+      <animate attributeName="x" begin="a.begin+0.2s" dur="0.6s" values="8.33;11.33;8.33" />
+      <animate attributeName="y" begin="a.begin+0.2s" dur="0.6s" values="8.33;11.33;8.33" />
+      <animate attributeName="width" begin="a.begin+0.2s" dur="0.6s" values="7.33;1.33;7.33" />
+      <animate attributeName="height" begin="a.begin+0.2s" dur="0.6s" values="7.33;1.33;7.33" />
+    </rect>
+    <rect width="7.33" height="7.33" x="1" y="15.66" fill="currentColor">
+      <animate attributeName="x" begin="a.begin+0.2s" dur="0.6s" values="1;4;1" />
+      <animate attributeName="y" begin="a.begin+0.2s" dur="0.6s" values="15.66;18.66;15.66" />
+      <animate attributeName="width" begin="a.begin+0.2s" dur="0.6s" values="7.33;1.33;7.33" />
+      <animate attributeName="height" begin="a.begin+0.2s" dur="0.6s" values="7.33;1.33;7.33" />
+    </rect>
+    <rect width="7.33" height="7.33" x="15.66" y="8.33" fill="currentColor">
+      <animate attributeName="x" begin="a.begin+0.3s" dur="0.6s" values="15.66;18.66;15.66" />
+      <animate attributeName="y" begin="a.begin+0.3s" dur="0.6s" values="8.33;11.33;8.33" />
+      <animate attributeName="width" begin="a.begin+0.3s" dur="0.6s" values="7.33;1.33;7.33" />
+      <animate attributeName="height" begin="a.begin+0.3s" dur="0.6s" values="7.33;1.33;7.33" />
+    </rect>
+    <rect width="7.33" height="7.33" x="8.33" y="15.66" fill="currentColor">
+      <animate attributeName="x" begin="a.begin+0.3s" dur="0.6s" values="8.33;11.33;8.33" />
+      <animate attributeName="y" begin="a.begin+0.3s" dur="0.6s" values="15.66;18.66;15.66" />
+      <animate attributeName="width" begin="a.begin+0.3s" dur="0.6s" values="7.33;1.33;7.33" />
+      <animate attributeName="height" begin="a.begin+0.3s" dur="0.6s" values="7.33;1.33;7.33" />
+    </rect>
+    <rect width="7.33" height="7.33" x="15.66" y="15.66" fill="currentColor">
+      <animate id="b" attributeName="x" begin="a.begin+0.4s" dur="0.6s" values="15.66;18.66;15.66" />
+      <animate attributeName="y" begin="a.begin+0.4s" dur="0.6s" values="15.66;18.66;15.66" />
+      <animate attributeName="width" begin="a.begin+0.4s" dur="0.6s" values="7.33;1.33;7.33" />
+      <animate attributeName="height" begin="a.begin+0.4s" dur="0.6s" values="7.33;1.33;7.33" />
+    </rect>
+  </svg>
+);
 
 import RefreshButton from '../common/RefreshButton';
 
@@ -128,6 +192,30 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
           // 可能是普通 HTML（非 fancyindex），或者还没有文件
           throw new Error('no-fancyindex');
         }
+
+        // 确保始终有返回上级目录的入口（即使 nginx 未返回 ../ 行）
+        const hasParent = parsed.some((e) => e.isParent);
+        if (!hasParent) {
+          try {
+            const cur = new URL(absUrl);
+            const segs = cur.pathname.replace(/\/$/, '').split('/');
+            if (segs.length > 1) {
+              segs.pop();
+              const parentPath = segs.join('/') + '/';
+              parsed.unshift({
+                name: '..',
+                href: cur.origin + parentPath,
+                size: '',
+                date: '',
+                isDir: false,
+                isParent: true,
+              });
+            }
+          } catch {
+            // absUrl 解析失败则跳过
+          }
+        }
+
         setEntries(parsed);
         setCurrentUrl(url);
       } catch (err: unknown) {
@@ -260,15 +348,7 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
   const parent = entries.find((e) => e.isParent);
 
   return (
-    <Box
-      sx={{
-        position: 'relative',
-        // 导航中淡化整体透明度，让原有 UI 保持可见
-        opacity: loading ? 0.55 : 1,
-        pointerEvents: loading ? 'none' : 'auto',
-        transition: 'opacity 0.2s ease',
-      }}
-    >
+    <Box sx={{ position: 'relative' }}>
       {/* 当前路径 + 在新标签打开 */}
       <Box
         sx={{
@@ -434,138 +514,181 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
         </Alert>
       )}
 
-      {/* 表格：overflowX:auto 兜底横向滚动，tableLayout:fixed + 百分比列宽控制截断 */}
-      <TableContainer
-        component={Paper}
+      {/* 虚拟滚动表格：仅渲染可视区域的行，解决大量文件时的卡顿 */}
+      <Paper
         variant="outlined"
-        sx={{ borderRadius: 2, overflowX: 'auto' }}
+        sx={{
+          borderRadius: 2,
+          overflow: 'hidden',
+          // 固定表头样式
+          '& table': { tableLayout: 'fixed', width: '100%', borderCollapse: 'collapse' },
+          '& thead th': { bgcolor: 'action.hover', fontWeight: 700, fontSize: '0.78rem' },
+          '& tbody td': { borderBottom: '1px solid', borderColor: 'divider' },
+        }}
       >
-        <Table
-          size="small"
-          aria-label={`${mirrorName ?? ''} 文件列表`}
-          sx={{ tableLayout: 'fixed', width: '100%' }}
-        >
-          <TableHead>
-            <TableRow sx={{ bgcolor: 'action.hover' }}>
-              <TableCell
-                sx={{ fontWeight: 700, fontSize: '0.78rem', width: { xs: '55%', sm: '55%' } }}
-              >
+        <TableVirtuoso
+          data={filteredEntries}
+          style={{ height: Math.min(600, Math.max(300, filteredEntries.length * 36)) }}
+          fixedHeaderContent={() => (
+            <TableRow>
+              <TableCell sx={{ width: { xs: '55%', sm: '55%' }, py: 1 }}>
                 {t('directory.colName')}
               </TableCell>
-              <TableCell
-                sx={{ fontWeight: 700, fontSize: '0.78rem', width: { xs: '20%', sm: '20%' } }}
-              >
+              <TableCell sx={{ width: { xs: '20%', sm: '20%' }, py: 1 }}>
                 {t('directory.colSize')}
               </TableCell>
               <TableCell
-                sx={{
-                  fontWeight: 700,
-                  fontSize: '0.78rem',
-                  width: '25%',
-                  display: { xs: 'none', sm: 'table-cell' },
-                }}
+                sx={{ width: '25%', display: { xs: 'none', sm: 'table-cell' }, py: 1 }}
               >
                 {t('directory.colModified')}
               </TableCell>
             </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredEntries.map((entry) => (
-              <TableRow
-                key={entry.href}
-                hover
-                sx={{
-                  cursor: entry.isDir || entry.isParent ? 'pointer' : 'default',
-                  '&:last-child td': { border: 0 },
-                }}
-                onClick={() => (entry.isDir || entry.isParent) && handleNavigate(entry)}
+          )}
+          itemContent={(_index, entry) => (
+            <>
+              <TableCell
+                sx={{ maxWidth: 0, overflow: 'hidden', p: { xs: '6px 8px', sm: '6px 16px' } }}
               >
-                <TableCell
-                  sx={{ maxWidth: 0, overflow: 'hidden', p: { xs: '6px 8px', sm: '6px 16px' } }}
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 0.75,
+                    overflow: 'hidden',
+                    minWidth: 0,
+                    cursor: entry.isDir || entry.isParent ? 'pointer' : 'default',
+                  }}
+                  onClick={() => (entry.isDir || entry.isParent) && handleNavigate(entry)}
                 >
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 0.75,
-                      overflow: 'hidden',
-                      minWidth: 0,
-                    }}
-                  >
-                    {entry.isParent ? (
-                      <ParentIcon sx={{ fontSize: 16, color: 'text.secondary', flexShrink: 0 }} />
-                    ) : entry.isDir ? (
-                      <FolderIcon sx={{ fontSize: 16, color: 'warning.main', flexShrink: 0 }} />
-                    ) : (
-                      <FileIcon sx={{ fontSize: 16, color: 'text.secondary', flexShrink: 0 }} />
-                    )}
-                    {entry.isDir || entry.isParent ? (
-                      <Typography
-                        variant="body2"
-                        title={entry.name}
-                        sx={{
-                          fontFamily: '"JetBrains Mono", monospace',
-                          fontSize: '0.83rem',
-                          color: 'primary.main',
-                          fontWeight: 600,
-                          flex: 1,
-                          minWidth: 0,
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {entry.isParent ? (
-                          t('directory.parentDirectory')
-                        ) : (
-                          <Highlighted text={entry.name} query={searchQuery} />
-                        )}
-                      </Typography>
-                    ) : (
-                      <Link
-                        href={entry.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        underline="hover"
-                        title={entry.href}
-                        onClick={(e) => e.stopPropagation()}
-                        sx={{
-                          fontFamily: '"JetBrains Mono", monospace',
-                          fontSize: '0.83rem',
-                          flex: 1,
-                          minWidth: 0,
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                          display: 'block',
-                        }}
-                      >
+                  {entry.isParent ? (
+                    <ParentIcon sx={{ fontSize: 16, color: 'text.secondary', flexShrink: 0 }} />
+                  ) : entry.isDir ? (
+                    <FolderIcon sx={{ fontSize: 16, color: 'warning.main', flexShrink: 0 }} />
+                  ) : (
+                    <FileIcon sx={{ fontSize: 16, color: 'text.secondary', flexShrink: 0 }} />
+                  )}
+                  {entry.isDir || entry.isParent ? (
+                    <Typography
+                      variant="body2"
+                      title={entry.name}
+                      sx={{
+                        fontFamily: '"JetBrains Mono", monospace',
+                        fontSize: '0.83rem',
+                        color: 'primary.main',
+                        fontWeight: 600,
+                        flex: 1,
+                        minWidth: 0,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {entry.isParent ? (
+                        t('directory.parentDirectory')
+                      ) : (
                         <Highlighted text={entry.name} query={searchQuery} />
-                      </Link>
-                    )}
-                  </Box>
-                </TableCell>
-                <TableCell>
-                  <Typography
-                    variant="caption"
-                    sx={{ color: 'text.secondary', fontFamily: '"JetBrains Mono", monospace' }}
-                  >
-                    {entry.isDir || entry.isParent ? '-' : entry.size}
-                  </Typography>
-                </TableCell>
-                <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
-                  <Typography
-                    variant="caption"
-                    sx={{ color: 'text.secondary', fontFamily: '"JetBrains Mono", monospace' }}
-                  >
-                    {entry.date}
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                      )}
+                    </Typography>
+                  ) : (
+                    <Link
+                      href={entry.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      underline="hover"
+                      title={entry.href}
+                      onClick={(e) => e.stopPropagation()}
+                      sx={{
+                        fontFamily: '"JetBrains Mono", monospace',
+                        fontSize: '0.83rem',
+                        flex: 1,
+                        minWidth: 0,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        display: 'block',
+                      }}
+                    >
+                      <Highlighted text={entry.name} query={searchQuery} />
+                    </Link>
+                  )}
+                </Box>
+              </TableCell>
+              <TableCell>
+                <Typography
+                  variant="caption"
+                  sx={{ color: 'text.secondary', fontFamily: '"JetBrains Mono", monospace' }}
+                >
+                  {entry.isDir || entry.isParent ? '-' : entry.size}
+                </Typography>
+              </TableCell>
+              <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
+                <Typography
+                  variant="caption"
+                  sx={{ color: 'text.secondary', fontFamily: '"JetBrains Mono", monospace' }}
+                >
+                  {entry.date}
+                </Typography>
+              </TableCell>
+            </>
+          )}
+          components={{
+            Table: (props) => (
+              <Table
+                {...props}
+                size="small"
+                aria-label={`${mirrorName ?? ''} 文件列表`}
+                sx={{ tableLayout: 'fixed', width: '100%' }}
+              />
+            ),
+            TableHead: (props) => <TableHead {...props} />,
+            TableBody: React.forwardRef<HTMLTableSectionElement>((props, ref) => (
+              <TableBody {...props} ref={ref} />
+            )),
+            TableRow: (props) => <TableRow {...props} hover />,
+          }}
+        />
+      </Paper>
+
+      {/* 导航加载遮罩（已有数据后切换目录时显示） */}
+      {loading && entries.length > 0 && (
+        <Box
+          sx={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 10,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            bgcolor: (theme) =>
+              theme.palette.mode === 'dark' ? 'rgba(15,23,42,0.7)' : 'rgba(248,250,252,0.7)',
+            borderRadius: 2,
+            animation: `${overlayFadeIn} 200ms ease`,
+            pointerEvents: 'none',
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 1.5,
+              color: 'primary.main',
+            }}
+          >
+            <LoadingGrid />
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+                fontFamily: '"JetBrains Mono", monospace',
+                fontSize: '0.82rem',
+              }}
+            >
+              Loading...
+            </Typography>
+          </Box>
+        </Box>
+      )}
     </Box>
   );
 };

@@ -3,7 +3,7 @@
     "home": "Home",
     "mirrors": "Mirrors",
     "about": "About",
-    "download": "Download ISO",
+    "download": "Frequently Used Downloads",
     "status": "Sync Status",
     "backToTop": "Back to top",
     "gitMirrors": "Git & GitHub",
@@ -102,7 +102,7 @@
     "fileList": "File List"
   },
   "download": {
-    "title": "Download ISO",
+    "title": "Frequently Used Downloads",
     "distroCount": "{{count}} distros",
     "search": "Search…",
     "fileCount": "{{count}} files",

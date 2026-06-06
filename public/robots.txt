@@ -1,27 +1,79 @@
-# robots.txt — 重庆大学开源软件镜像站
-# https://mirrors.cqu.edu.cn
-
+# robots.txt for https://mirrors.cqu.edu.cn
 User-agent: *
-Allow: /
-Allow: /mirrors/
-Allow: /news/
-Allow: /status
-Allow: /about
 
-# 禁止爬取镜像文件目录（体积大、无 SEO 价值）
-Disallow: /ubuntu/
-Disallow: /debian/
-Disallow: /archlinux/
-Disallow: /centos/
-Disallow: /rocky/
-Disallow: /alpine/
-Disallow: /kali/
-Disallow: /openeuler/
-Disallow: /epel/
-Disallow: /gnu/
-Disallow: /CTAN/
-Disallow: /CPAN/
-Disallow: /CRAN/
+Disallow: /aosc
+Disallow: /alpine
+Disallow: /CPAN
+Disallow: /CTAN
+Disallow: /archlinux
+Disallow: /archlinuxarm
+Disallow: /archlinuxcn
+Disallow: /centos
+Disallow: /CentOS
+Disallow: /_centos
+Disallow: /ceph
+Disallow: /cpan
+Disallow: /cran
+Disallow: /crates.io-index
+Disallow: /ctan
+Disallow: /cygwin
+Disallow: /dart-archive
+Disallow: /download.darlang.org
+Disallow: /debian-cd
+Disallow: /debian-multimedia
+Disallow: /debian-security
+Disallow: /debian
+Disallow: /deepin-cd
+Disallow: /deepin
+Disallow: /epel
+Disallow: /EPEL
+Disallow: /fedora
+Disallow: /flutter
+Disallow: /flutter_infra
+Disallow: /generate_204
+Disallow: /gentoo-portage
+Disallow: /gentoo-portage.git
+Disallow: /gentoo-zh
+Disallow: /gentoo-zh.git
+Disallow: /gnu
+Disallow: /ius
+Disallow: /kali-images
+Disallow: /kali-security
+Disallow: /kali
+Disallow: /kicad
+Disallow: /kernel
+Disallow: /linux-stable.git
+Disallow: /linux.git
+Disallow: /linuxmint
+Disallow: /manjaro
+Disallow: /MX_ISOs
+Disallow: /MX_Linux
+Disallow: /opensuse
+Disallow: /openkylin
+Disallow: /openkylin-cdimage
+Disallow: /ros
+Disallow: /ros2
+Disallow: /rockylinux
+Disallow: /ubuntukylin_release
+Disallow: /pypi
+Disallow: /raspbian
+Disallow: /ubuntu-releases
+Disallow: /ubuntu
 
-# Sitemap 位置
-Sitemap: https://mirrors.cqu.edu.cn/sitemap.xml
+User-Agent: 360Spider
+Disallow: *
+
+User-Agent: bingbot
+Disallow: *
+
+User-Agent: GPTBot
+Disallow: *
+
+User-Agent: Bytespider
+Disallow: *
+
+User-Agent: AhrefsBot
+Disallow: *
+
+User-Agent: PanguBot
+Disallow: *

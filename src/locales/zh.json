@@ -3,7 +3,7 @@
     "home": "首页",
     "mirrors": "镜像列表",
     "about": "关于我们",
-    "download": "镜像下载",
+    "download": "常用下载",
     "status": "同步状态",
     "backToTop": "回到顶部",
     "gitMirrors": "Git & GitHub",
@@ -102,7 +102,7 @@
     "fileList": "文件列表"
   },
   "download": {
-    "title": "镜像下载",
+    "title": "常用下载",
     "distroCount": "共 {{count}} 个发行版",
     "search": "搜索发行版…",
     "fileCount": "{{count}} 个文件",
