@@ -41,7 +41,7 @@
       "succeeded": "同步成功",
       "failed": "同步失败",
       "syncing": "同步中",
-      "cached": "已缓存",
+      "cached": "已储存",
       "paused": "已暂停",
       "disabled": "已禁用",
       "unknown": "未知"
@@ -155,7 +155,7 @@
     "legendSucceeded": "成功",
     "legendFailed": "失败",
     "legendSyncing": "同步中",
-    "legendCached": "已缓存",
+    "legendCached": "已储存",
     "legendPaused": "已暂停",
     "legendDisabled": "已禁用",
     "failedMirrors": "同步失败的镜像",

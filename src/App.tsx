@@ -1,7 +1,7 @@
 // src/App.tsx
 // 应用根组件 - 路由 + 主题 + 国际化
 
-import { ThemeProvider, CssBaseline, Box, GlobalStyles, LinearProgress } from '@mui/material';
+import { ThemeProvider, CssBaseline, Box, GlobalStyles } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
@@ -71,13 +71,6 @@ const RootGlobalStyles: React.FC = () => {
   );
 };
 
-/** 路由级 Suspense fallback —— 顶部进度条，无侵入 */
-const RouteFallback: React.FC = () => (
-  <Box sx={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1300 }}>
-    <LinearProgress />
-  </Box>
-);
-
 const ThemedApp: React.FC = () => {
   const { theme } = useTheme();
 
@@ -97,7 +90,7 @@ const ThemedApp: React.FC = () => {
           <Header />
 
           <Box component="main" sx={{ flex: 1 }}>
-            <Suspense fallback={<RouteFallback />}>
+            <Suspense fallback={null}>
               <PageTransition>
               <Routes>
                 <Route path="/" element={<Home />} />

@@ -62,9 +62,9 @@ async function fetchWithChallenge(url: string): Promise<string> {
     // 尝试从质询页面提取 addr4 cookie
     const match = html.match(/document\.cookie\s*=\s*'addr4=([^;]+)/);
     if (match) {
-      // 校验 cookie 值只含安全字符（字母数字、点、连字符），防止注入
+      // 校验 cookie 值不含分号、换行等注入字符，防止 cookie 注入
       const val = match[1];
-      if (!/^[\w.-]+$/.test(val)) throw new Error('HTTP 503 (invalid addr4 cookie value)');
+      if (/[;\r\n]/.test(val)) throw new Error('HTTP 503 (invalid addr4 cookie value)');
       document.cookie = `addr4=${val};max-age=300;path=/;SameSite=Lax`;
       // 重试请求
       res = await fetch(url, fetchOpts);

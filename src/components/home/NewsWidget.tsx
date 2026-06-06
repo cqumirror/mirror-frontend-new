@@ -1,29 +1,61 @@
 // src/components/home/NewsWidget.tsx
-// 首页「最新动态」小组件 —— 显示最新 3 篇新闻标题
+// 首页「最新动态」小组件 —— 桌面端根据左侧高度动态展示，移动端固定 5 条
 
 import { ArrowForward as ArrowIcon, Article as ArticleIcon } from '@mui/icons-material';
-import { Box, Typography, Button, Divider, Chip } from '@mui/material';
-import React, { useMemo } from 'react';
+import { Box, Typography, Button, Divider, Chip, useMediaQuery, useTheme } from '@mui/material';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 import { getNewsList } from '../../news';
 import { useLocaleStore } from '../../stores/mirrorStore';
 
-const MAX_ITEMS = 4;
+const MIN_ITEMS = 3;
+const MAX_ITEMS_DESKTOP = 10;
+const MAX_ITEMS_MOBILE = 5;
+const HEADER_HEIGHT = 48; // 标题栏高度
+const ITEM_HEIGHT = 76;   // 每条新闻约 76px（py:1.4 + 内容 + divider）
 
-const NewsWidget: React.FC = () => {
+interface NewsWidgetProps {
+  siblingHeight?: number; // 左侧列高度（px），桌面端用于动态计算条数
+}
+
+const NewsWidget: React.FC<NewsWidgetProps> = ({ siblingHeight }) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { locale } = useLocaleStore();
-  // getNewsList() 通过 import.meta.glob eager 在构建时固定，运行时不会变化，
-  // 空依赖数组是有意为之，避免每次渲染都重新执行（尽管它是纯函数）
-  const news = useMemo(() => getNewsList(locale).slice(0, MAX_ITEMS), [locale]);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
+  const allNews = useMemo(() => getNewsList(locale), [locale]);
+
+  // 自身容器高度测量（备用）
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerHeight, setContainerHeight] = useState(0);
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const ro = new ResizeObserver(([entry]) => {
+      setContainerHeight(entry.contentRect.height);
+    });
+    ro.observe(containerRef.current);
+    return () => ro.disconnect();
+  }, []);
+
+  const count = useMemo(() => {
+    if (isMobile) return Math.min(MAX_ITEMS_MOBILE, allNews.length);
+    // 桌面端：优先用兄弟列高度，否则用自身容器高度
+    const h = (siblingHeight && siblingHeight > 0) ? siblingHeight : containerHeight;
+    if (h <= 0) return Math.min(MAX_ITEMS_DESKTOP, allNews.length);
+    const maxByHeight = Math.max(MIN_ITEMS, Math.floor((h - HEADER_HEIGHT) / ITEM_HEIGHT));
+    return Math.min(maxByHeight, MAX_ITEMS_DESKTOP, allNews.length);
+  }, [isMobile, siblingHeight, containerHeight, allNews.length]);
+
+  const news = useMemo(() => allNews.slice(0, count), [allNews, count]);
 
   if (news.length === 0) return null;
 
   return (
     <Box
+      ref={containerRef}
       sx={{
         border: '1px solid',
         borderColor: 'divider',

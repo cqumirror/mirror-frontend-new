@@ -2,8 +2,8 @@
 // 新闻列表页 /news
 
 import { ArrowForward as ArrowIcon } from '@mui/icons-material';
-import { Box, Container, Typography, Chip, Divider, Breadcrumbs, Link } from '@mui/material';
-import React, { useMemo } from 'react';
+import { Box, Container, Typography, Chip, Divider, Breadcrumbs, Link, Pagination } from '@mui/material';
+import React, { useMemo, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 
@@ -20,6 +20,15 @@ const NewsListPage: React.FC = () => {
   // getNewsList() 通过 import.meta.glob eager 在构建时固定，运行时不会变化，
   // 空依赖数组是有意为之
   const news = useMemo(() => getNewsList(locale), [locale]);
+
+  const PER_PAGE = 10;
+  const [page, setPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil(news.length / PER_PAGE));
+  const paged = useMemo(() => news.slice((page - 1) * PER_PAGE, page * PER_PAGE), [news, page]);
+  const handlePageChange = useCallback((_: unknown, value: number) => {
+    setPage(value);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
 
   const title = t('news.title') + ' - 重庆大学开源软件镜像站 CQU Mirror';
 
@@ -70,7 +79,7 @@ const NewsListPage: React.FC = () => {
         </Typography>
 
         <Box>
-          {news.map((item, idx) => (
+          {paged.map((item, idx) => (
             <React.Fragment key={item.slug}>
               <Box
                 onClick={() => navigate(`/news/${item.slug}`)}
@@ -169,7 +178,7 @@ const NewsListPage: React.FC = () => {
                   }}
                 />
               </Box>
-              {idx < news.length - 1 && <Divider />}
+              {idx < paged.length - 1 && <Divider />}
             </React.Fragment>
           ))}
 
@@ -185,6 +194,18 @@ const NewsListPage: React.FC = () => {
             </Typography>
           )}
         </Box>
+
+        {totalPages > 1 && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+            <Pagination
+              count={totalPages}
+              page={page}
+              onChange={handlePageChange}
+              color="primary"
+              shape="rounded"
+            />
+          </Box>
+        )}
       </Container>
     </>
   );

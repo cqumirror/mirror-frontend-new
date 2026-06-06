@@ -149,11 +149,27 @@ const Home: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [downloadOpen, setDownloadOpen] = useState(false);
+  const [triggerError, setTriggerError] = useState(false);
   const { searchQuery } = useMirrorSearchStore();
+
+  if (triggerError) throw new Error('ErrorBoundary 测试错误');
 
   // 获取数据
   const { data: mirrors = [], isLoading, isFetching, error, refetch } = useMirrors();
   const { data: campusStatus } = useCampusNetwork();
+
+  // 测量左侧常用镜像列高度，用于动态适配新闻条数
+  const leftRef = useRef<HTMLDivElement>(null);
+  const [leftHeight, setLeftHeight] = useState(0);
+  useEffect(() => {
+    const el = leftRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => {
+      setLeftHeight(entry.contentRect.height);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   // 过滤和分组
   const filteredMirrors = useFilteredMirrors(mirrors);
@@ -396,6 +412,7 @@ const Home: React.FC = () => {
 
             {/* 标题 + 快捷导航 */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1, flexWrap: 'wrap' }}>
+              <img src="/img/CQU.svg" alt="CQU" style={{ width: 48, height: 48 }} />
               <Typography
                 variant="h2"
                 sx={{
@@ -407,6 +424,17 @@ const Home: React.FC = () => {
               >
                 {t('home.hero.title')}
               </Typography>
+              {import.meta.env.DEV && (
+                <Button
+                  size="small"
+                  variant="outlined"
+                  color="error"
+                  onClick={() => setTriggerError(true)}
+                  sx={{ fontSize: '0.7rem', minWidth: 0, px: 1 }}
+                >
+                  Test Error
+                </Button>
+              )}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                 <Tooltip title={t('nav.gitMirrors')} placement="bottom">
                   <Button
@@ -726,12 +754,12 @@ const Home: React.FC = () => {
                   >
                     {t('home.news')}
                   </Typography>
-                  <NewsWidget />
+                  <NewsWidget siblingHeight={leftHeight} />
                 </Grid>
               )}
 
               {/* 常用镜像列 —— 有新闻时桌面 9 列，无新闻时全宽 */}
-              <Grid size={{ xs: 12, lg: hasNews ? 9 : 12 }} sx={{ order: { xs: 1, lg: 0 } }}>
+              <Grid ref={leftRef} size={{ xs: 12, lg: hasNews ? 9 : 12 }} sx={{ order: { xs: 1, lg: 0 } }}>
                 <Typography
                   variant="h5"
                   sx={{
