@@ -198,6 +198,7 @@ const Footer: React.FC = () => {
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    minHeight: card.imgLight ? 120 : 'auto',
                   }}
                 >
                   <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
@@ -224,10 +225,9 @@ const Footer: React.FC = () => {
                         src={isDark ? card.imgDark : card.imgLight}
                         alt={card.alt}
                         sx={{
-                          maxWidth: 160,
-                          maxHeight: 80,
-                          width: 'auto',
-                          height: 'auto',
+                          width: 160,
+                          height: 80,
+                          objectFit: 'contain',
                           opacity: 0.85,
                           transition: 'opacity 0.2s',
                           '&:hover': { opacity: 1 },
