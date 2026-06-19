@@ -1,0 +1,20 @@
+[
+  {
+    "id": "ubuntu-sync-20260620",
+    "level": "critical",
+    "active": true,
+    "title": { "zh": "Ubuntu 镜像源临时下线", "en": "Ubuntu Mirror Temporarily Offline" },
+    "content": { "zh": "ubuntu-releases 和 ubuntu 仓库同步出了问题，部分文件校验不通过。在修好之前装系统和升级先别用这个源。", "en": "ubuntu-releases and ubuntu repos have sync issues — some files failed checksum. Avoid using them for installs or upgrades until further notice." },
+    "link": { "url": "/news/ubuntu-sync-incident-2026", "label": { "zh": "进展跟踪", "en": "Follow Updates" } },
+    "date": "2026-06-20"
+  },
+  {
+    "id": "pypi-mirror-20260619",
+    "level": "critical",
+    "active": true,
+    "title": { "zh": "PyPI 镜像同步延迟", "en": "PyPI Mirror Sync Delay" },
+    "content": { "zh": "上游 PyPI 最近在做大规模索引重建，我们的镜像跟不太上，pip install 可能会比较慢或者拉到旧版本。急用的话先切回官方源。", "en": "Upstream PyPI is doing a large index rebuild, so our mirror is falling behind. pip install may be slow or pull older versions. Switch to the official source if urgent." },
+    "link": null,
+    "date": "2026-06-19"
+  }
+]

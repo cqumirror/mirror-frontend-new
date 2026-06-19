@@ -245,5 +245,11 @@
     "projectCount": "共 {{count}} 个项目",
     "noGitMirrors": "暂无 Git 仓库镜像",
     "noProjects": "暂无 GitHub Release 项目"
+  },
+  "alert": {
+    "acknowledge": "我已知晓",
+    "dismiss": "忽略",
+    "dismissAll": "全部忽略",
+    "multipleTitle": "有 {{count}} 条通知"
   }
 }

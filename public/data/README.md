@@ -10,12 +10,51 @@ This directory contains JSON data files loaded at runtime via `fetch()`. **No re
 
 | 文件 | 用途 | 加载位置 |
 |------|------|----------|
+| `alerts.json` | 最高等级警报（全局遮罩弹窗） | `src/components/common/GlobalAlertModal.tsx` |
 | `announcements.json` | 首页公告/通知横幅 | `src/components/home/AnnouncementBanner.tsx` |
 | `local_data.json` | 镜像本地元数据 | `src/api/index.ts` |
 | `popular-mirrors.json` | 首页常用镜像列表 | `src/hooks/useMirrors.ts` |
 | `github-release/subprojects.json` | GitHub Release 子项目配置 | `src/data/githubReleaseSubprojects.ts` |
 | `special-thanks.json` | 特别致谢名单 | `src/pages/SpecialThanks.tsx` |
 | `manifest.json` | PWA 应用清单 | `index.html` (`<link rel="manifest">`) |
+
+---
+
+## alerts.json — 最高等级警报
+
+全局遮罩弹窗，用于发布最高等级警报（如镜像漏洞、安全事件等）。存在活跃警报时，页面被遮罩覆盖，用户必须点击「我已知晓」后才能继续浏览。
+
+```json
+[
+  {
+    "id": "example-alert-2026",
+    "level": "critical",
+    "active": true,
+    "title": { "zh": "安全警告", "en": "Security Alert" },
+    "content": { "zh": "xxx 镜像存在安全风险，请暂时不要使用。", "en": "xxx mirror has a security risk, please avoid using it." },
+    "link": { "url": "/news/xxx", "label": { "zh": "查看详情", "en": "Details" } },
+    "date": "2026-06-19"
+  }
+]
+```
+
+### 字段说明 / Fields
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `id` | string | 是 | 唯一标识，用于确认状态持久化 |
+| `level` | string | 是 | 警报等级（预留扩展，目前仅 `critical`） |
+| `active` | boolean | 是 | 是否激活。`false` 不显示 |
+| `title` | {zh, en} | 是 | 警报标题 |
+| `content` | {zh, en} | 是 | 警报正文 |
+| `link` | object \| null | 是 | 附带链接，`null` 表示无链接 |
+| `link.url` | string | 是 | 链接地址 |
+| `link.label` | {zh, en} | 是 | 链接显示文字 |
+| `date` | string | 是 | 日期，格式 `YYYY-MM-DD`。多条活跃警报取最新 |
+
+- 空数组 `[]` = 无警报，不显示弹窗
+- 用户确认后，该 `id` 写入 localStorage，刷新不再出现
+- 如需重新触发，更改 `id` 或让用户清除 localStorage
 
 ---
 
@@ -134,6 +173,10 @@ This directory contains JSON data files loaded at runtime via `fetch()`. **No re
 ## 添加新公告 / Adding a New Announcement
 
 在 `announcements.json` 数组中追加一项即可。刷新页面即生效，无需重新构建。
+
+## 发布警报 / Publishing an Alert
+
+在 `alerts.json` 数组中追加一项，设置 `active: true`。刷新页面即生效。用户确认后该警报不再显示；如需重新触发，更改 `id`。
 
 ## 修改常用镜像 / Updating Popular Mirrors
 

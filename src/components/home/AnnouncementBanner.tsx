@@ -12,7 +12,7 @@ import {
   CampaignOutlined as MegaphoneIcon,
 } from '@mui/icons-material';
 import { Box, Typography, IconButton, Link, Chip } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
@@ -94,6 +94,9 @@ const AnnouncementBanner: React.FC = () => {
   const [items, setItems] = useState<Announcement[]>([]);
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const [index, setIndex] = useState(0);
+  const [hovering, setHovering] = useState(false);
+  const [direction, setDirection] = useState<'left' | 'right'>('left');
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     fetch('/data/announcements.json')
@@ -112,12 +115,40 @@ const AnnouncementBanner: React.FC = () => {
   }, []);
 
   const visible = items.filter((a) => (a.dismissible ? !dismissed.has(a.id) : true));
-  if (visible.length === 0) return null;
 
   const PAGE_SIZE = 2;
   const totalPages = Math.ceil(visible.length / PAGE_SIZE);
   const safeIndex = Math.min(index, totalPages - 1);
   const pageItems = visible.slice(safeIndex * PAGE_SIZE, safeIndex * PAGE_SIZE + PAGE_SIZE);
+
+  // 多于一页时，每 5 秒自动翻页；鼠标悬停暂停
+  const clearAutoTimer = useCallback(() => {
+    if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+  }, []);
+
+  const goNext = useCallback(() => {
+    setDirection('left');
+    setIndex((i) => (i + 1) % totalPages);
+  }, [totalPages]);
+
+  const goPrev = useCallback(() => {
+    setDirection('right');
+    setIndex((i) => (i - 1 + totalPages) % totalPages);
+  }, [totalPages]);
+
+  // 手动翻页后重置计时器，避免紧接着又自动翻页
+  const handleManualNav = useCallback((fn: () => void) => {
+    fn();
+    clearAutoTimer();
+  }, [clearAutoTimer]);
+
+  useEffect(() => {
+    if (totalPages <= 1 || hovering) { clearAutoTimer(); return; }
+    timerRef.current = setInterval(goNext, 5000);
+    return clearAutoTimer;
+  }, [totalPages, hovering, goNext, clearAutoTimer]);
+
+  if (visible.length === 0) return null;
 
   const handleDismiss = (id: string) => {
     const next = new Set(dismissed);
@@ -235,6 +266,8 @@ const AnnouncementBanner: React.FC = () => {
 
   return (
     <Box
+      onMouseEnter={() => setHovering(true)}
+      onMouseLeave={() => setHovering(false)}
       sx={{
         width: '100%',
         position: 'relative',
@@ -254,6 +287,15 @@ const AnnouncementBanner: React.FC = () => {
           sx={{
             display: 'flex',
             flexDirection: 'column',
+            animation: `announcement-${direction} 350ms ease-out`,
+            '@keyframes announcement-left': {
+              from: { opacity: 0, transform: 'translateX(24px)' },
+              to: { opacity: 1, transform: 'translateX(0)' },
+            },
+            '@keyframes announcement-right': {
+              from: { opacity: 0, transform: 'translateX(-24px)' },
+              to: { opacity: 1, transform: 'translateX(0)' },
+            },
           }}
         >
           {pageItems.map((item, idx) => renderAnnouncement(item, idx))}
@@ -265,7 +307,7 @@ const AnnouncementBanner: React.FC = () => {
             <IconButton
               size="small"
               sx={{ p: 0.3 }}
-              onClick={() => setIndex((i) => (i - 1 + totalPages) % totalPages)}
+              onClick={() => handleManualNav(goPrev)}
               aria-label="上一页公告"
             >
               <PrevIcon sx={{ fontSize: 16 }} />
@@ -284,7 +326,7 @@ const AnnouncementBanner: React.FC = () => {
             <IconButton
               size="small"
               sx={{ p: 0.3 }}
-              onClick={() => setIndex((i) => (i + 1) % totalPages)}
+              onClick={() => handleManualNav(goNext)}
               aria-label="下一页公告"
             >
               <NextIcon sx={{ fontSize: 16 }} />

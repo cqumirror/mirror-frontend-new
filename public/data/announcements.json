@@ -16,45 +16,61 @@
     }
   },
   {
-    "id": "welcome-enrollment",
-    "type": "success",
-    "pinned": true,
-    "dismissible": false,
-    "date": "2024-09-01",
-    "title": { "zh": "欢迎报考重庆大学", "en": "Welcome to Apply to Chongqing University" },
-    "content": {
-      "zh": "详询重庆大学本科招生网",
-      "en": "Visit the undergraduate admissions website for details"
-    },
-    "link": {
-      "url": "https://zhaosheng.cqu.edu.cn",
-      "label": { "zh": "招生网", "en": "Admissions" }
-    }
-  },
-  {
-    "id": "ban-p2p-tools",
+    "id": "test-pinned-warning",
     "type": "warning",
     "pinned": true,
     "dismissible": false,
-    "date": "2023-03-27",
-    "title": { "zh": "请勿使用多线程下载器", "en": "Multi-threaded downloaders are prohibited" },
+    "date": "2026-06-19",
+    "title": { "zh": "禁止多线程下载", "en": "No Multi-threaded Downloads" },
     "content": {
-      "zh": "受带宽限制，IDM、aria2等多线程下载器不允许用于镜像站内容下载，请悉知。",
-      "en": "Due to bandwidth limitations, multi-threaded downloaders such as IDM and aria2 are not allowed for downloading from the mirror site."
+      "zh": "IDM、aria2 等多线程下载器不允许使用，带宽有限请自觉。",
+      "en": "IDM, aria2 and similar tools are not allowed. Bandwidth is limited."
     },
     "link": null
   },
   {
-    "id": "ban-p2p-tools-test2",
+    "id": "test-dismissible-info",
     "type": "info",
-    "pinned": true,
-    "dismissible": false,
-    "date": "2023-03-27",
-    "title": { "zh": "请勿使用多线程下载器", "en": "Multi-threaded downloaders are prohibited" },
+    "pinned": false,
+    "dismissible": true,
+    "date": "2026-06-18",
+    "title": { "zh": "暑假维护通知", "en": "Summer Maintenance" },
     "content": {
-      "zh": "受带宽限制，IDM、aria2等多线程下载器不允许用于镜像站内容下载，请悉知。",
-      "en": "Due to bandwidth limitations, multi-threaded downloaders such as IDM and aria2 are not allowed for downloading from the mirror site."
+      "zh": "暑假期间部分镜像可能同步变慢，开学后恢复。",
+      "en": "Some mirrors may sync slower during summer break."
     },
     "link": null
+  },
+  {
+    "id": "test-dismissible-success",
+    "type": "success",
+    "pinned": false,
+    "dismissible": true,
+    "date": "2026-06-17",
+    "title": { "zh": "Fedora 44 已上线", "en": "Fedora 44 Available" },
+    "content": {
+      "zh": "Fedora 44 镜像已经同步完成，可以正常下载使用了。",
+      "en": "Fedora 44 mirror is fully synced and ready for download."
+    },
+    "link": {
+      "url": "/mirrors/fedora",
+      "label": { "zh": "去下载", "en": "Download" }
+    }
+  },
+  {
+    "id": "test-long-content",
+    "type": "info",
+    "pinned": false,
+    "dismissible": true,
+    "date": "2026-06-16",
+    "title": { "zh": "新增镜像：LXGW WenKai 字体", "en": "New Mirror: LXGW WenKai Fonts" },
+    "content": {
+      "zh": "我们新增了 LXGW WenKai（霞鹜文楷）系列字体的 GitHub Release 镜像，包含 Regular、Light、Medium 等多个字重，以及 GB、TC、Screen 等变体。",
+      "en": "We've added LXGW WenKai font series GitHub Release mirrors, including Regular, Light, Medium weights and GB, TC, Screen variants."
+    },
+    "link": {
+      "url": "/mirrors/github-release",
+      "label": { "zh": "查看镜像", "en": "View Mirror" }
+    }
   }
 ]

@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import './i18n';
 
 import Footer from './components/common/Footer';
+import GlobalAlertModal from './components/common/GlobalAlertModal';
 import Header from './components/common/Header';
 import PageTransition from './components/common/PageTransition';
 import ScrollToTop from './components/common/ScrollToTop';
@@ -114,6 +115,7 @@ const ThemedApp: React.FC = () => {
 
           <Footer />
           <ScrollToTop />
+          <GlobalAlertModal />
         </Box>
       </BrowserRouter>
     </ThemeProvider>

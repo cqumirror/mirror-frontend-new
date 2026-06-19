@@ -245,5 +245,11 @@
     "projectCount": "{{count}} projects",
     "noGitMirrors": "No git repository mirrors",
     "noProjects": "No GitHub Release projects"
+  },
+  "alert": {
+    "acknowledge": "Got It",
+    "dismiss": "Dismiss",
+    "dismissAll": "Dismiss All",
+    "multipleTitle": "{{count}} Notices"
   }
 }

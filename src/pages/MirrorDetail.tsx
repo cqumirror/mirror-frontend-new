@@ -8,6 +8,11 @@ import {
   OpenInNew as OpenIcon,
   Download as DownloadIcon,
   FolderOpen as FolderIcon,
+  FolderOff as EmptyIcon,
+  VerifiedUser as ChecksumIcon,
+  Search as SearchIcon,
+  Close as ClearIcon,
+  LocalOffer as LocalOfferIcon,
 } from '@mui/icons-material';
 import {
   Box,
@@ -30,8 +35,9 @@ import {
   ListItem,
   ListItemText,
   IconButton,
+  InputBase,
 } from '@mui/material';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 // useSearchParams allows us to read ?tab=help from the URL
 import { useParams, useNavigate, Link as RouterLink, useSearchParams } from 'react-router-dom';
@@ -49,7 +55,15 @@ import { useMirrorDetail, useMirrors } from '../hooks/useMirrors';
 import { useLocaleStore } from '../stores/mirrorStore';
 import type { Mirror, Locale } from '../types';
 import { SITE_ORIGIN, canonicalUrl, mirrorJsonLd, breadcrumbJsonLd } from '../utils/seo';
-import { toFullUrl } from '../utils/url';
+import {
+  detectPlatform,
+  detectArch,
+  PLATFORM_LABEL,
+  PLATFORM_ICON,
+  PLATFORM_ORDER,
+  type Platform,
+} from '../utils/platform';
+import { sanitizeUrl, toFullUrl } from '../utils/url';
 
 // ─── Tab 面板 ────────────────────────────────────────────────────────────────
 interface TabPanelProps {
@@ -72,6 +86,89 @@ interface IsoFilesCardProps {
 
 // 单个文件行显示约 36px，预留 5 行高度；超出部分滚动
 const LIST_MAX_HEIGHT = 36 * 5 + 8; // px
+
+// isoinfo 文件行 —— 与 GithubReleaseViewer FileRow 风格一致
+interface IsoFileRowProps {
+  file: { name: string; url: string; platform: Platform; arch: string };
+  t: (key: string) => string;
+}
+const IsoFileRow: React.FC<IsoFileRowProps> = ({ file, t }) => {
+  const [copied, setCopied] = useState(false);
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (copyTimerRef.current) clearTimeout(copyTimerRef.current); }, []);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(toFullUrl(file.url));
+      setCopied(true);
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+      copyTimerRef.current = setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      if (import.meta.env.DEV) console.warn('[copy]', err);
+    }
+  };
+
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: { xs: 0.5, sm: 1 },
+        px: 1.5,
+        py: 0.8,
+        borderRadius: 1,
+        minWidth: 0,
+        '&:hover': { bgcolor: 'action.hover' },
+      }}
+    >
+      {/* 文件名 + arch chip */}
+      <Box sx={{ flex: 1, minWidth: 0 }}>
+        <Box sx={{ display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: 0.5, minWidth: 0 }}>
+          <Link
+            href={sanitizeUrl(file.url)}
+            target="_blank"
+            rel="noopener noreferrer"
+            underline="hover"
+            sx={{
+              fontFamily: '"JetBrains Mono", monospace',
+              fontSize: { xs: '0.75rem', sm: '0.8rem' },
+              wordBreak: 'break-all',
+              lineHeight: 1.4,
+              minWidth: 0,
+            }}
+          >
+            {file.name}
+          </Link>
+          {file.arch && (
+            <Chip
+              label={file.arch}
+              size="small"
+              variant="outlined"
+              sx={{
+                fontSize: '0.65rem',
+                height: 18,
+                fontFamily: '"JetBrains Mono", monospace',
+                flexShrink: 0,
+              }}
+            />
+          )}
+        </Box>
+      </Box>
+      <Box sx={{ display: 'flex', gap: 0.25, flexShrink: 0 }}>
+        <Tooltip title={copied ? t('common.copied') : t('common.copyLink')}>
+          <IconButton size="small" sx={{ p: 0.5 }} onClick={handleCopy} color={copied ? 'success' : 'default'}>
+            {copied ? <CheckIcon sx={{ fontSize: 14 }} /> : <CopyIcon sx={{ fontSize: 14 }} />}
+          </IconButton>
+        </Tooltip>
+        <Tooltip title={t('common.download')}>
+          <IconButton size="small" sx={{ p: 0.5 }} component="a" href={sanitizeUrl(file.url)} target="_blank" rel="noopener noreferrer" color="primary">
+            <DownloadIcon sx={{ fontSize: 14 }} />
+          </IconButton>
+        </Tooltip>
+      </Box>
+    </Box>
+  );
+};
 
 const IsoFilesCard: React.FC<IsoFilesCardProps> = ({ files, mirrorUrl }) => {
   const { t } = useTranslation();
@@ -261,13 +358,13 @@ interface SubProjectViewProps {
   parentMirror: Mirror;
   locale: Locale;
   navigate: (to: string) => void;
-  t: (key: string) => string;
+  t: (key: string, options?: Record<string, unknown>) => string;
   /** 是否有该子项目专属的帮助文档（默认按 name 检查） */
   hasDoc?: boolean;
 }
 
 const buildSubTabOrder = (license: boolean): string[] => {
-  const base = ['help', 'files', 'release'];
+  const base = ['help', 'files', 'release', 'downloads'];
   if (license) base.splice(1, 0, 'license');
   return base;
 };
@@ -311,6 +408,66 @@ const SubProjectView: React.FC<SubProjectViewProps> = ({
       setLicenseComponent(null);
     }
   }, [name, locale, hasLicenseFile]);
+
+  // 从文件名提取版本号（如 Office_Tool_v11.5.7.0_x64.zip → v11.5.7.0）
+  const extractVersionFromName = (name: string): string => {
+    const m = name.match(/v?\d+\.\d+(?:\.\d+)+(?:[-._]?\w+)?/);
+    return m ? m[0] : '';
+  };
+
+  // isoinfo.json 下载包数据
+  interface IsoFileEntry { name: string; url: string; platform: Platform; arch: string; version: string }
+  const [isoFiles, setIsoFiles] = useState<IsoFileEntry[]>([]);
+  const [isoLoading, setIsoLoading] = useState(false);
+  useEffect(() => {
+    if (!subOrg || !subRepo) return;
+    const prefix = `/github-release/${subOrg}/${subRepo}/`;
+    setIsoLoading(true);
+    fetch(`${import.meta.env.VITE_API_BASE ?? ''}/static/isoinfo.json`, { cache: 'no-cache' })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((data: Array<{ distro: string; urls: Array<{ name: string; url: string }> }>) => {
+        const files: IsoFileEntry[] = [];
+        for (const entry of data) {
+          for (const u of entry.urls) {
+            if (u.url.startsWith(prefix)) {
+              const version = extractVersionFromName(u.name);
+              files.push({ ...u, platform: detectPlatform(u.name), arch: detectArch(u.name), version });
+            }
+          }
+        }
+        setIsoFiles(files);
+      })
+      .catch(() => {})
+      .finally(() => setIsoLoading(false));
+  }, [subOrg, subRepo]);
+
+  // 下载文件搜索
+  const [isoSearch, setIsoSearch] = useState('');
+  const isoSearchRef = useRef<HTMLInputElement>(null);
+  const filteredIsoFiles = useMemo(() => {
+    const q = isoSearch.trim().toLowerCase();
+    return q ? isoFiles.filter((f) => f.name.toLowerCase().includes(q)) : isoFiles;
+  }, [isoFiles, isoSearch]);
+
+  // 版本 + 平台二级分组
+  const isoVersions = useMemo(() => {
+    const map = new Map<string, IsoFileEntry[]>();
+    for (const f of filteredIsoFiles) {
+      const arr = map.get(f.version) ?? [];
+      arr.push(f);
+      map.set(f.version, arr);
+    }
+    // 按版本号降序排列
+    const sorted = [...map.entries()].sort(([a], [b]) => b.localeCompare(a, undefined, { numeric: true }));
+    return sorted.map(([version, files]) => ({
+      version,
+      byPlatform: PLATFORM_ORDER.reduce<Record<string, IsoFileEntry[]>>((acc, p) => {
+        const group = files.filter((f) => f.platform === p);
+        if (group.length > 0) acc[p] = group;
+        return acc;
+      }, {}),
+    }));
+  }, [filteredIsoFiles]);
 
   // 子项目自己的 tab 管理
   const tabParam = searchParams.get('tab');
@@ -374,7 +531,7 @@ const SubProjectView: React.FC<SubProjectViewProps> = ({
 
         <Button
           startIcon={<BackIcon />}
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/mirrors/git')}
           size="small"
           sx={{ mb: 3, color: 'text.secondary' }}
         >
@@ -453,6 +610,7 @@ const SubProjectView: React.FC<SubProjectViewProps> = ({
             {hasLicenseFile && <Tab label={t('detail.license')} />}
             <Tab label={t('detail.fileList')} />
             <Tab label={t('detail.release')} />
+            <Tab label={t('detail.downloads')} />
           </Tabs>
 
           <TabPanel value={tabValue} index={subTabIdx('help')}>
@@ -487,6 +645,259 @@ const SubProjectView: React.FC<SubProjectViewProps> = ({
 
           <TabPanel value={tabValue} index={subTabIdx('release')}>
             <GithubReleaseViewer rootPath={parentMirror.url} subProjectPath={browsePath} />
+          </TabPanel>
+
+          <TabPanel value={tabValue} index={subTabIdx('downloads')}>
+            {/* 项目标题（与 Release tab 一致） */}
+            {subOrg && subRepo && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
+                <Box
+                  component="img"
+                  src={`https://github.com/${subOrg}.png?size=64`}
+                  alt={subOrg}
+                  loading="lazy"
+                  onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                  sx={{ width: 32, height: 32, borderRadius: '6px', flexShrink: 0, objectFit: 'contain' }}
+                />
+                <Box>
+                  <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+                    {subRepo}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    component="a"
+                    href={`https://github.com/${subOrg}/${subRepo}/releases`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{
+                      color: 'text.secondary',
+                      fontFamily: '"JetBrains Mono", monospace',
+                      fontSize: '0.72rem',
+                      textDecoration: 'none',
+                      '&:hover': { textDecoration: 'underline' },
+                    }}
+                  >
+                    {subOrg}/{subRepo} ↗
+                  </Typography>
+                </Box>
+              </Box>
+            )}
+            <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', minWidth: 0 }}>
+              {/* 文件信息栏（与 Release tab 版本信息栏风格一致） */}
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  px: 2,
+                  py: 1,
+                  borderBottom: 1,
+                  borderColor: 'divider',
+                  gap: 1,
+                  flexWrap: 'wrap',
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                  <LocalOfferIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
+                  <Typography
+                    variant="caption"
+                    sx={{ fontFamily: '"JetBrains Mono", monospace', color: 'text.secondary' }}
+                  >
+                    {t('detail.installImages')}
+                  </Typography>
+                  {!isoLoading && isoFiles.length > 0 && (
+                    <Chip
+                      size="small"
+                      label={t('githubRelease.fileCount', { count: isoFiles.length })}
+                      variant="outlined"
+                      sx={{ fontSize: '0.68rem', height: 20 }}
+                    />
+                  )}
+                </Box>
+              </Box>
+
+              {/* 文件列表 */}
+              <Box sx={{ p: 1.5 }}>
+                {isoLoading ? (
+                  Array.from({ length: 6 }).map((_, i) => (
+                    <Skeleton
+                      key={i}
+                      variant="rectangular"
+                      height={36}
+                      sx={{ mb: 0.5, borderRadius: 1 }}
+                    />
+                  ))
+                ) : isoFiles.length === 0 ? (
+                  <Box
+                    sx={{
+                      py: 4,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: 1,
+                      color: 'text.disabled',
+                    }}
+                  >
+                    <EmptyIcon sx={{ fontSize: 36 }} />
+                    <Typography variant="body2">{t('githubRelease.noFiles')}</Typography>
+                  </Box>
+                ) : (
+                  <>
+                    {/* 搜索栏（文件数 > 6 时才显示） */}
+                    {isoFiles.length > 6 && (
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 0.75,
+                          mb: 1.5,
+                          px: 1,
+                          py: 0.5,
+                          border: '1.5px solid',
+                          borderColor: isoSearch ? 'primary.main' : 'divider',
+                          borderRadius: 2,
+                          bgcolor: 'background.paper',
+                          transition: 'border-color 0.15s',
+                          boxShadow: isoSearch ? '0 0 0 3px rgba(59,130,246,0.12)' : 'none',
+                        }}
+                      >
+                        <SearchIcon sx={{ fontSize: 15, color: 'text.secondary', flexShrink: 0 }} />
+                        <InputBase
+                          inputRef={isoSearchRef}
+                          value={isoSearch}
+                          onChange={(e) => setIsoSearch(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Escape' && setIsoSearch('')}
+                          placeholder={t('githubRelease.searchFiles')}
+                          inputProps={{ 'aria-label': t('githubRelease.searchFiles') }}
+                          sx={{
+                            flex: 1,
+                            fontSize: '0.82rem',
+                            fontFamily: '"JetBrains Mono", monospace',
+                          }}
+                        />
+                        {isoSearch && (
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              color: 'text.secondary',
+                              flexShrink: 0,
+                              fontFamily: '"JetBrains Mono", monospace',
+                              fontSize: '0.72rem',
+                            }}
+                          >
+                            {filteredIsoFiles.length}/{isoFiles.length}
+                          </Typography>
+                        )}
+                        {isoSearch && (
+                          <IconButton
+                            size="small"
+                            onClick={() => {
+                              setIsoSearch('');
+                              isoSearchRef.current?.focus();
+                            }}
+                            aria-label={t('common.clear')}
+                            sx={{ p: 0.25 }}
+                          >
+                            <ClearIcon sx={{ fontSize: 14 }} />
+                          </IconButton>
+                        )}
+                      </Box>
+                    )}
+
+                    {/* 无结果 */}
+                    {isoSearch && filteredIsoFiles.length === 0 ? (
+                      <Box sx={{ py: 3, textAlign: 'center', color: 'text.disabled' }}>
+                        <Typography variant="body2">
+                          {t('directory.noResults', { query: isoSearch })}
+                        </Typography>
+                      </Box>
+                    ) : (
+                      isoVersions.map((ver, verIdx) => (
+                        <Box key={ver.version || 'unknown'}>
+                          {verIdx > 0 && <Divider sx={{ my: 1.5 }} />}
+                          {/* 版本标题 */}
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 0.75,
+                              px: 1.5,
+                              py: 0.5,
+                              mb: 0.5,
+                            }}
+                          >
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                fontWeight: 700,
+                                fontFamily: '"JetBrains Mono", monospace',
+                                color: 'text.secondary',
+                                fontSize: '0.78rem',
+                              }}
+                            >
+                              {ver.version || 'unknown'}
+                            </Typography>
+                          </Box>
+                          {/* 版本内的平台分组（与 Release tab 平台分组风格一致） */}
+                          {PLATFORM_ORDER.filter((p) => ver.byPlatform[p]).map((platform, pIdx) => (
+                            <Box key={platform}>
+                              {pIdx > 0 && <Divider sx={{ my: 0.5 }} />}
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 0.75,
+                                  px: 1.5,
+                                  py: 0.5,
+                                  mb: 0.25,
+                                }}
+                              >
+                                {platform === 'checksum' ? (
+                                  <ChecksumIcon sx={{ fontSize: '1rem', color: 'text.secondary' }} />
+                                ) : (
+                                  <Box
+                                    sx={{
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      color: 'text.secondary',
+                                      fontSize: '1rem',
+                                      lineHeight: 1,
+                                    }}
+                                  >
+                                    {PLATFORM_ICON[platform]}
+                                  </Box>
+                                )}
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    fontWeight: 700,
+                                    color: 'text.secondary',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.05em',
+                                  }}
+                                >
+                                  {PLATFORM_LABEL[platform]}
+                                </Typography>
+                                <Chip
+                                  size="small"
+                                  label={ver.byPlatform[platform].length}
+                                  sx={{ height: 18, fontSize: '0.65rem' }}
+                                />
+                              </Box>
+                              {ver.byPlatform[platform].map((file, fileIdx) => (
+                                <IsoFileRow key={file.url || fileIdx} file={file} t={t} />
+                              ))}
+                            </Box>
+                          ))}
+                        </Box>
+                      ))
+                    )}
+                  </>
+                )}
+              </Box>
+            </Paper>
           </TabPanel>
         </Box>
       </Container>
