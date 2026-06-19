@@ -37,7 +37,7 @@ import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate, Link as RouterLink, useSearchParams } from 'react-router-dom';
 import { MDXProvider } from '@mdx-js/react';
 
-import DocViewer from '../components/docs/DocViewer';
+import DocViewer, { mdxComponents } from '../components/docs/DocViewer';
 import DirectoryListing from '../components/mirrors/DirectoryListing';
 import GithubReleaseViewer from '../components/mirrors/GithubReleaseViewer';
 import StatusChip from '../components/mirrors/StatusChip';
@@ -471,7 +471,7 @@ const SubProjectView: React.FC<SubProjectViewProps> = ({
                 </Box>
               ) : LicenseComponent ? (
                 <Box sx={{ '& > *:first-of-type': { mt: 0 }, '& > *:last-child': { mb: 0 } }}>
-                  <MDXProvider>
+                  <MDXProvider components={mdxComponents as unknown as Record<string, React.ComponentType>}>
                     <LicenseComponent />
                   </MDXProvider>
                 </Box>
@@ -914,7 +914,7 @@ const MirrorDetail: React.FC = () => {
                 </Box>
               ) : LicenseComponent ? (
                 <Box sx={{ '& > *:first-of-type': { mt: 0 }, '& > *:last-child': { mb: 0 } }}>
-                  <MDXProvider>
+                  <MDXProvider components={mdxComponents as unknown as Record<string, React.ComponentType>}>
                     <LicenseComponent />
                   </MDXProvider>
                 </Box>

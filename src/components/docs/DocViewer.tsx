@@ -27,7 +27,7 @@ import { useLocaleStore } from '../../stores/mirrorStore';
 import CodeBlock from './CodeBlock';
 
 // MDX 组件的 MUI 映射，与 ReactMarkdown 保持一致
-const mdxComponents = {
+export const mdxComponents = {
   h1: ({ children }: { children: React.ReactNode }) => (
     <Typography variant="h4" sx={{ mt: 3, mb: 1.5, fontWeight: 700 }}>
       {children}
