@@ -18,6 +18,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { useLocaleStore } from '../../stores/mirrorStore';
 import { safeGetItem, safeSetItem } from '../../utils/storage';
+import { safeNavigate } from '../../utils/urlWhitelist';
 
 type AnnouncementType = 'info' | 'warning' | 'error' | 'success';
 
@@ -158,13 +159,7 @@ const AnnouncementBanner: React.FC = () => {
     setIndex((i) => Math.max(0, Math.min(i, Math.ceil((visible.length - 1) / PAGE_SIZE) - 1)));
   };
 
-  const handleLink = (url: string) => {
-    if (url.startsWith('http')) {
-      window.open(url, '_blank', 'noopener');
-    } else {
-      navigate(url);
-    }
-  };
+  const handleLink = (url: string) => safeNavigate(url, navigate);
 
   const renderAnnouncement = (item: Announcement, idx: number) => {
     const c = SEVERITY_COLOR[item.type];

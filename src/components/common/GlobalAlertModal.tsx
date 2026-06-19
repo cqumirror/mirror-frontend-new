@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { useLocaleStore } from '../../stores/mirrorStore';
 import { safeGetItem, safeSetItem } from '../../utils/storage';
+import { safeNavigate } from '../../utils/urlWhitelist';
 
 interface AlertLink {
   url: string;
@@ -75,13 +76,7 @@ const GlobalAlertModal: React.FC = () => {
     setAlerts([]);
   };
 
-  const handleLink = (url: string) => {
-    if (url.startsWith('http')) {
-      window.open(url, '_blank', 'noopener');
-    } else {
-      navigate(url);
-    }
-  };
+  const handleLink = (url: string) => safeNavigate(url, navigate);
 
   if (alerts.length === 0) return null;
 
