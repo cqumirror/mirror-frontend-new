@@ -2,8 +2,8 @@
 // 全局错误边界 — 捕获子组件 render 异常，防止白屏
 // 注意：此组件在 ThemeProvider 之外，需手动检测深色模式
 
-import { Email as EmailIcon, GitHub as GitHubIcon } from '@mui/icons-material';
-import { Button, Container, Typography, Box, Link } from '@mui/material';
+import { Email as EmailIcon, GitHub as GitHubIcon, ContentCopy as CopyIcon, Check as CheckIcon } from '@mui/icons-material';
+import { Button, Container, Typography, Box, Link, Tooltip } from '@mui/material';
 import React from 'react';
 
 import i18n from '../../i18n';
@@ -65,21 +65,57 @@ const TEXT = {
 interface State {
   hasError: boolean;
   error: Error | null;
+  copied: boolean;
+  clientIp?: string;
 }
 
 export default class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
   State
 > {
-  state: State = { hasError: false, error: null };
+  state: State = { hasError: false, error: null, copied: false };
+  private copyTimer: ReturnType<typeof setTimeout> | null = null;
 
   static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
+    return { hasError: true, error, copied: false, clientIp: undefined };
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     console.error('[ErrorBoundary]', error, info.componentStack);
+    // 获取客户端 IP
+    fetch(window.location.href, { method: 'GET', cache: 'no-cache' })
+      .then((res) => {
+        const ip = res.headers.get('x-real-ip') ?? undefined;
+        if (ip) this.setState({ clientIp: ip });
+      })
+      .catch(() => {});
   }
+
+  componentWillUnmount() {
+    if (this.copyTimer) clearTimeout(this.copyTimer);
+  }
+
+  private getEncodedInfo = (): string => {
+    const raw = [
+      this.state.error?.message ?? '',
+      `URL: ${window.location.href}`,
+      this.state.clientIp ? `addr: ${this.state.clientIp}` : '',
+      `ua: ${navigator.userAgent}`,
+      this.state.error?.stack ?? '',
+    ].filter(Boolean).join('\n');
+    return btoa(unescape(encodeURIComponent(raw)));
+  };
+
+  private handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(this.getEncodedInfo());
+      this.setState({ copied: true });
+      if (this.copyTimer) clearTimeout(this.copyTimer);
+      this.copyTimer = setTimeout(() => this.setState({ copied: false }), 2000);
+    } catch {
+      /* 静默忽略 */
+    }
+  };
 
   private handleReload = () => {
     window.location.reload();
@@ -139,22 +175,44 @@ export default class ErrorBoundary extends React.Component<
               {t.desc}
             </Typography>
             {this.state.error && (
-              <Box
-                component="pre"
-                sx={{
-                  p: 2,
-                  mb: 3,
-                  bgcolor: c.hover,
-                  borderRadius: 1,
-                  textAlign: 'left',
-                  overflow: 'auto',
-                  fontFamily: '"JetBrains Mono", monospace',
-                  fontSize: '0.75rem',
-                  color: c.text,
-                  border: `1px solid ${c.border}`,
-                }}
-              >
-                {this.state.error.message}
+              <Box sx={{ position: 'relative', mb: 3 }}>
+                <Box
+                  component="pre"
+                  sx={{
+                    p: 2,
+                    pr: 5,
+                    bgcolor: c.hover,
+                    borderRadius: 1,
+                    textAlign: 'left',
+                    overflow: 'auto',
+                    fontFamily: '"JetBrains Mono", monospace',
+                    fontSize: '0.75rem',
+                    color: c.text,
+                    border: `1px solid ${c.border}`,
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-all',
+                    userSelect: 'text',
+                  }}
+                >
+                  {this.getEncodedInfo()}
+                </Box>
+                <Tooltip title={this.state.copied ? '✓ Copied' : 'Copy'} placement="top" arrow>
+                  <Button
+                    size="small"
+                    onClick={this.handleCopy}
+                    sx={{
+                      position: 'absolute',
+                      top: 6,
+                      right: 6,
+                      minWidth: 0,
+                      p: 0.5,
+                      color: c.textSec,
+                      '&:hover': { bgcolor: c.border },
+                    }}
+                  >
+                    {this.state.copied ? <CheckIcon sx={{ fontSize: 16 }} /> : <CopyIcon sx={{ fontSize: 16 }} />}
+                  </Button>
+                </Tooltip>
               </Box>
             )}
             <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mb: 4 }}>

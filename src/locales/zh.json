@@ -217,7 +217,9 @@
     "descDefault": "访问出现了异常，请稍后再试或返回首页。",
     "refreshPage": "刷新页面",
     "requestInfo": "请求信息",
-    "clientIp": "客户端 IP"
+    "clientIp": "客户端 IP",
+    "copyAll": "复制全部信息",
+    "contactHint": "如问题持续，请携带以上错误信息联系我们："
   },
   "githubRelease": {
     "loadingProjects": "正在加载项目列表…",

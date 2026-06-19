@@ -5,10 +5,13 @@
 import {
   Home as HomeIcon,
   Refresh as RefreshIcon,
-  InfoOutlined as InfoIcon,
+  ContentCopy as CopyIcon,
+  Check as CheckIcon,
+  Email as EmailIcon,
+  GitHub as GitHubIcon,
 } from '@mui/icons-material';
-import { Box, Container, Typography, Button, Stack, Paper, Divider } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import { Box, Container, Typography, Button, Stack, Tooltip, Link } from '@mui/material';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
@@ -26,85 +29,6 @@ interface ClientInfo {
   ja3Fingerprint?: string;
 }
 
-const ClientInfoPanel: React.FC = () => {
-  const { t } = useTranslation();
-  const [info, setInfo] = useState<ClientInfo>({});
-  const [hasInfo, setHasInfo] = useState(false);
-
-  useEffect(() => {
-    fetch(window.location.href, { method: 'GET', cache: 'no-cache' })
-      .then((res) => {
-        const realIp = res.headers.get('x-real-ip') ?? undefined;
-        const ja4Fingerprint = res.headers.get('x-ja4-fingerprint') ?? undefined;
-        const ja3Fingerprint = res.headers.get('x-ja3-fingerprint') ?? undefined;
-        const next: ClientInfo = { realIp, ja4Fingerprint, ja3Fingerprint };
-        const any = !!(realIp || ja4Fingerprint || ja3Fingerprint);
-        setInfo(next);
-        setHasInfo(any);
-      })
-      .catch(() => {
-        /* 网络错误时静默忽略，不影响错误页展示 */
-      });
-  }, []);
-
-  if (!hasInfo) return null;
-
-  const rows: Array<{ label: string; value: string }> = [
-    ...(info.realIp ? [{ label: t('error.clientIp'), value: info.realIp }] : []),
-    ...(info.ja4Fingerprint ? [{ label: 'JA4 Fingerprint', value: info.ja4Fingerprint }] : []),
-    ...(info.ja3Fingerprint ? [{ label: 'JA3 Fingerprint', value: info.ja3Fingerprint }] : []),
-  ];
-
-  return (
-    <Paper
-      variant="outlined"
-      sx={{ mt: 4, p: 2, borderRadius: 2, maxWidth: 480, width: '100%', textAlign: 'left' }}
-    >
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, mb: 1.5 }}>
-        <InfoIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-        <Typography
-          variant="caption"
-          sx={{
-            fontWeight: 700,
-            color: 'text.secondary',
-          }}
-        >
-          {t('error.requestInfo')}
-        </Typography>
-      </Box>
-      <Divider sx={{ mb: 1.5 }} />
-      <Stack spacing={1}>
-        {rows.map((row) => (
-          <Box key={row.label} sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
-            <Typography
-              variant="caption"
-              sx={{
-                color: 'text.secondary',
-                minWidth: 120,
-                flexShrink: 0,
-                pt: 0.1,
-              }}
-            >
-              {row.label}
-            </Typography>
-            <Typography
-              variant="caption"
-              sx={{
-                fontFamily: '"JetBrains Mono", monospace',
-                wordBreak: 'break-all',
-                color: 'text.primary',
-                fontWeight: 500,
-              }}
-            >
-              {row.value}
-            </Typography>
-          </Box>
-        ))}
-      </Stack>
-    </Paper>
-  );
-};
-
 // ── 主组件 ────────────────────────────────────────────────────────────────────
 const ErrorPage: React.FC<ErrorPageProps> = ({ code = 404 }) => {
   const navigate = useNavigate();
@@ -116,6 +40,49 @@ const ErrorPage: React.FC<ErrorPageProps> = ({ code = 404 }) => {
   const title = t(titleKey, { defaultValue: '' }) || t('error.titleDefault');
   const desc = t(descKey, { defaultValue: '' }) || t('error.descDefault');
   const canRefresh = REFRESHABLE_CODES.has(code);
+
+  // 客户端信息
+  const [clientInfo, setClientInfo] = useState<ClientInfo>({});
+  useEffect(() => {
+    fetch(window.location.href, { method: 'GET', cache: 'no-cache' })
+      .then((res) => {
+        setClientInfo({
+          realIp: res.headers.get('x-real-ip') ?? undefined,
+          ja4Fingerprint: res.headers.get('x-ja4-fingerprint') ?? undefined,
+          ja3Fingerprint: res.headers.get('x-ja3-fingerprint') ?? undefined,
+        });
+      })
+      .catch(() => {});
+  }, []);
+
+  // 拼接原始信息并 base64 编码
+  const rawInfo = [
+    `HTTP ${code} — ${title}`,
+    desc,
+    `URL: ${window.location.href}`,
+    clientInfo.realIp ? `addr: ${clientInfo.realIp}` : '',
+    `ua: ${navigator.userAgent}`,
+    clientInfo.ja4Fingerprint ? `JA4: ${clientInfo.ja4Fingerprint}` : '',
+    clientInfo.ja3Fingerprint ? `JA3: ${clientInfo.ja3Fingerprint}` : '',
+  ].filter(Boolean).join('\n');
+  const encodedInfo = btoa(unescape(encodeURIComponent(rawInfo)));
+
+  // 复制错误信息
+  const [copied, setCopied] = useState(false);
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleCopy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(encodedInfo);
+      setCopied(true);
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+      copyTimerRef.current = setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* 静默忽略 */
+    }
+  }, [encodedInfo]);
+
+  useEffect(() => () => { if (copyTimerRef.current) clearTimeout(copyTimerRef.current); }, []);
 
   const pageTitle = `${code} - CQU Mirror`;
 
@@ -131,35 +98,55 @@ const ErrorPage: React.FC<ErrorPageProps> = ({ code = 404 }) => {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            minHeight: '65vh',
+            minHeight: 'calc(100vh - 64px - 200px)',
             textAlign: 'center',
             py: 8,
-            userSelect: 'none',
+            position: 'relative',
           }}
         >
+          {/* 大号错误码水印 */}
           <Typography
             variant="h1"
             sx={{
-              fontSize: { xs: '5rem', md: '8rem' },
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -60%)',
+              fontSize: { xs: '10rem', md: '16rem' },
               fontWeight: 900,
               fontFamily: '"JetBrains Mono", monospace',
               color: 'primary.main',
               lineHeight: 1,
-              opacity: 0.12,
-              mb: '-2.5rem',
+              opacity: 0.06,
+              userSelect: 'none',
+              pointerEvents: 'none',
             }}
           >
             {code}
           </Typography>
 
+          {/* Logo */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center', mb: 3 }}>
+            <img src="/favicon.svg" alt="CQU Mirror" style={{ width: 32, height: 32 }} />
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 800,
+                fontSize: '1.2rem',
+                fontFamily: '"JetBrains Mono", monospace',
+                letterSpacing: '-0.02em',
+              }}
+            >
+              CQU
+              <Box component="span" sx={{ color: 'primary.main', fontWeight: 800 }}>
+                Mirror
+              </Box>
+            </Typography>
+          </Box>
+
           <Typography
             variant="h4"
-            sx={{
-              fontWeight: 700,
-              mb: 1.5,
-              position: 'relative',
-              zIndex: 1,
-            }}
+            sx={{ fontWeight: 700, mb: 1.5 }}
           >
             {title}
           </Typography>
@@ -168,13 +155,55 @@ const ErrorPage: React.FC<ErrorPageProps> = ({ code = 404 }) => {
             variant="body1"
             sx={{
               color: 'text.secondary',
-              mb: 4,
+              mb: 3,
               maxWidth: 420,
               lineHeight: 1.7,
             }}
           >
             {desc}
           </Typography>
+
+          {/* 错误信息块 —— 与 ErrorBoundary 风格一致 */}
+          <Box sx={{ position: 'relative', width: '100%', maxWidth: 480, mb: 3 }}>
+            <Box
+              component="pre"
+              sx={{
+                p: 2,
+                pr: 5,
+                bgcolor: 'action.hover',
+                borderRadius: 1,
+                textAlign: 'left',
+                overflow: 'auto',
+                fontFamily: '"JetBrains Mono", monospace',
+                fontSize: '0.75rem',
+                color: 'text.primary',
+                border: '1px solid',
+                borderColor: 'divider',
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-all',
+                userSelect: 'text',
+              }}
+            >
+              {encodedInfo}
+            </Box>
+            <Tooltip title={copied ? '✓ Copied' : 'Copy'} placement="top" arrow>
+              <Button
+                size="small"
+                onClick={handleCopy}
+                sx={{
+                  position: 'absolute',
+                  top: 6,
+                  right: 6,
+                  minWidth: 0,
+                  p: 0.5,
+                  color: 'text.secondary',
+                  '&:hover': { bgcolor: 'action.selected' },
+                }}
+              >
+                {copied ? <CheckIcon sx={{ fontSize: 16 }} /> : <CopyIcon sx={{ fontSize: 16 }} />}
+              </Button>
+            </Tooltip>
+          </Box>
 
           <Stack
             direction="row"
@@ -206,19 +235,31 @@ const ErrorPage: React.FC<ErrorPageProps> = ({ code = 404 }) => {
             )}
           </Stack>
 
-          {/* 客户端指纹信息面板 —— 有响应头时自动出现 */}
-          <ClientInfoPanel />
-
-          <Typography
-            variant="caption"
-            sx={{
-              color: 'text.disabled',
-              mt: 4,
-              fontFamily: '"JetBrains Mono", monospace',
-            }}
-          >
-            HTTP {code}
+          {/* 联系方式 */}
+          <Typography variant="body2" sx={{ color: 'text.secondary', mt: 4 }}>
+            {t('error.contactHint')}
           </Typography>
+          <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 0.5, alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <EmailIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
+              <Link href="mailto:cqumirror@gmail.com" variant="body2" color="primary" underline="hover">
+                cqumirror@gmail.com
+              </Link>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <GitHubIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
+              <Link
+                href="https://github.com/cqumirror/feedback"
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="body2"
+                color="primary"
+                underline="hover"
+              >
+                github.com/cqumirror/feedback
+              </Link>
+            </Box>
+          </Box>
         </Box>
       </Container>
     </>

@@ -217,7 +217,9 @@
     "descDefault": "Something went wrong. Please try again later or go back to home.",
     "refreshPage": "Refresh",
     "requestInfo": "Request Info",
-    "clientIp": "Client IP"
+    "clientIp": "Client IP",
+    "copyAll": "Copy All",
+    "contactHint": "If the issue persists, contact us with the error information above:"
   },
   "githubRelease": {
     "loadingProjects": "Loading projects…",

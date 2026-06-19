@@ -143,6 +143,41 @@ const LetterIndexNav: React.FC<LetterIndexNavProps> = ({ letters, ariaLabel }) =
 };
 
 /**
+ * DEV-only: 自定义错误码测试 ErrorPage
+ */
+const TestErrorPageButton: React.FC = () => {
+  const navigate = useNavigate();
+  const [code, setCode] = useState('404');
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
+      <input
+        value={code}
+        onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 3))}
+        placeholder="404"
+        style={{
+          width: 36,
+          fontSize: '0.7rem',
+          textAlign: 'center',
+          padding: '3px 2px',
+          border: '1px solid #ccc',
+          borderRadius: 4,
+          fontFamily: '"JetBrains Mono", monospace',
+        }}
+      />
+      <Button
+        size="small"
+        variant="outlined"
+        color="warning"
+        onClick={() => navigate(`/${code || 404}`)}
+        sx={{ fontSize: '0.7rem', minWidth: 0, px: 1 }}
+      >
+        Test Page
+      </Button>
+    </Box>
+  );
+};
+
+/**
  * 首页 - 展示镜像站概览
  */
 const Home: React.FC = () => {
@@ -425,15 +460,18 @@ const Home: React.FC = () => {
                 {t('home.hero.title')}
               </Typography>
               {import.meta.env.DEV && (
-                <Button
-                  size="small"
-                  variant="outlined"
-                  color="error"
-                  onClick={() => setTriggerError(true)}
-                  sx={{ fontSize: '0.7rem', minWidth: 0, px: 1 }}
-                >
-                  Test Error
-                </Button>
+                <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    color="error"
+                    onClick={() => setTriggerError(true)}
+                    sx={{ fontSize: '0.7rem', minWidth: 0, px: 1 }}
+                  >
+                    Test Boundary
+                  </Button>
+                  <TestErrorPageButton />
+                </Box>
               )}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                 <Tooltip title={t('nav.gitMirrors')} placement="bottom">
