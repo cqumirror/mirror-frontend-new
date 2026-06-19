@@ -9,7 +9,6 @@ import {
   WifiTethering as Ipv6Icon,
   Close as CloseIcon,
   InfoOutlined as InfoIcon,
-  WarningAmberOutlined as WarningIcon,
   Star as StarIcon,
   Code as CodeIcon,
   Sync as SyncIcon,
@@ -225,7 +224,7 @@ const Home: React.FC = () => {
 
   // 统计数据
   const totalCount = mirrors.length;
-  const { syncedTodayCount, failedMirrors, failedCount } = useMemo(() => {
+  const { syncedTodayCount } = useMemo(() => {
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
     const synced = mirrors.filter((m) => {
@@ -235,17 +234,8 @@ const Home: React.FC = () => {
       const ms = ts < 1e12 ? ts * 1000 : ts;
       return ms >= todayStart.getTime();
     }).length;
-    const failed = mirrors.filter((m) => m.status === 'failed');
-    return { syncedTodayCount: synced, failedMirrors: failed, failedCount: failed.length };
+    return { syncedTodayCount: synced };
   }, [mirrors]);
-
-  // 点击失败摘要 → 跳到第一个失败镜像所在字母组
-  const handleFailedClick = () => {
-    if (failedMirrors.length === 0) return;
-    const firstLetter = failedMirrors[0].id[0]?.toUpperCase() ?? '';
-    const el = document.getElementById(`group-${firstLetter}`);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-  };
 
   // 校园网/IPv6 状态指示
   const networkStat =
@@ -272,9 +262,8 @@ const Home: React.FC = () => {
             }
           : null;
 
-  // 浮动通知状态（Snackbar）- 队列式显示，避免重叠
+  // 浮动通知状态（Snackbar）
   const [showIpv6Snackbar, setShowIpv6Snackbar] = useState(false);
-  const [showFailedSnackbar, setShowFailedSnackbar] = useState(false);
   const [ipv6Dismissed, setIpv6Dismissed] = useState(false);
 
   // IPv6 通知 - 30 分钟内只显示一次
@@ -290,29 +279,6 @@ const Home: React.FC = () => {
       }
     }
   }, [campusStatus]);
-
-  // 同步失败通知 - 30 分钟内只显示一次，等 IPv6 提示消失后再显示，避免重叠
-  useEffect(() => {
-    if (!isLoading && failedCount > 0) {
-      const key = 'sync_failed_notif_ts';
-      const last = Number(safeGetItem(key) ?? 0);
-      const now = Date.now();
-
-      if (now - last > 30 * 60 * 1000) {
-        // 如果 IPv6 提示正在显示，等待其消失后再显示失败提示
-        if (showIpv6Snackbar) {
-          const timer = setTimeout(() => {
-            setShowFailedSnackbar(true);
-            safeSetItem(key, String(now));
-          }, 8500);
-          return () => clearTimeout(timer);
-        } else if (ipv6Dismissed || campusStatus?.status !== '6') {
-          setShowFailedSnackbar(true);
-          safeSetItem(key, String(now));
-        }
-      }
-    }
-  }, [isLoading, failedCount, showIpv6Snackbar, ipv6Dismissed, campusStatus]);
 
   return (
     <>
@@ -675,90 +641,6 @@ const Home: React.FC = () => {
                 height: '100%',
                 width: '100%',
                 bgcolor: '#3B82F6',
-                animation: 'progress-5s 5s linear',
-                '@keyframes progress-5s': {
-                  '0%': { transform: 'translateX(0)' },
-                  '100%': { transform: 'translateX(-100%)' },
-                },
-              },
-            }}
-          />
-        </Box>
-      </Snackbar>
-      {/* 同步失败浮动通知 - 右上角，毛玻璃效果，淡入淡出，5 秒自动消失 */}
-      <Snackbar
-        open={showFailedSnackbar}
-        autoHideDuration={5000}
-        onClose={() => setShowFailedSnackbar(false)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        sx={{ mt: 9, mr: 2 }}
-        slots={{
-          transition: Fade,
-        }}
-      >
-        <Box
-          onClick={handleFailedClick}
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            minWidth: 300,
-            maxWidth: 350,
-            borderRadius: 1,
-            cursor: 'pointer',
-            // 毛玻璃效果
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
-            background: (theme) =>
-              theme.palette.mode === 'dark' ? 'rgba(15, 23, 42, 0.7)' : 'rgba(255, 255, 255, 0.7)',
-            border: (theme) =>
-              theme.palette.mode === 'dark'
-                ? '1px solid rgba(255, 255, 255, 0.1)'
-                : '1px solid rgba(0, 0, 0, 0.05)',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-            // 左侧色条
-            borderLeft: '3px solid #F59E0B',
-            overflow: 'hidden',
-            position: 'relative',
-            '&:hover': {
-              background: (theme) =>
-                theme.palette.mode === 'dark'
-                  ? 'rgba(15, 23, 42, 0.8)'
-                  : 'rgba(255, 255, 255, 0.8)',
-            },
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5 }}>
-            <WarningIcon sx={{ color: '#F59E0B', fontSize: 20 }} />
-            <Typography variant="body2" sx={{ flex: 1, fontSize: '0.875rem' }}>
-              {t('home.failedSnackbar', { count: failedCount })}
-            </Typography>
-            <IconButton
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowFailedSnackbar(false);
-              }}
-              sx={{ p: 0.5 }}
-            >
-              <CloseIcon sx={{ fontSize: 18 }} />
-            </IconButton>
-          </Box>
-          {/* 底部进度条 */}
-          <Box
-            sx={{
-              height: 3,
-              bgcolor: (theme) =>
-                theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
-              position: 'relative',
-              overflow: 'hidden',
-              '&::after': {
-                content: '""',
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                height: '100%',
-                width: '100%',
-                bgcolor: '#F59E0B',
                 animation: 'progress-5s 5s linear',
                 '@keyframes progress-5s': {
                   '0%': { transform: 'translateX(0)' },
