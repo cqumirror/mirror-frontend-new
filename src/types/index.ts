@@ -22,7 +22,7 @@ export interface MirrorFile {
 }
 
 /**
- * 镜像数据结构（与后端API严格对应）
+ * 镜像数据结构
  */
 export interface Mirror {
   id: string;
