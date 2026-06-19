@@ -44,13 +44,16 @@ const ErrorPage: React.FC<ErrorPageProps> = ({ code = 404 }) => {
   // 客户端信息
   const [clientInfo, setClientInfo] = useState<ClientInfo>({});
   useEffect(() => {
-    fetch(window.location.href, { method: 'GET', cache: 'no-cache' })
-      .then((res) => {
-        setClientInfo({
-          realIp: res.headers.get('x-real-ip') ?? undefined,
-          ja4Fingerprint: res.headers.get('x-ja4-fingerprint') ?? undefined,
-          ja3Fingerprint: res.headers.get('x-ja3-fingerprint') ?? undefined,
-        });
+    fetch('/api/getip', { cache: 'no-cache' })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) {
+          setClientInfo({
+            realIp: data.remote_addr ?? undefined,
+            ja4Fingerprint: data.ja4 ?? undefined,
+            ja3Fingerprint: data.ja3 ?? undefined,
+          });
+        }
       })
       .catch(() => {});
   }, []);

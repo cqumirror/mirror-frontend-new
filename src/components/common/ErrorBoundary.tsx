@@ -83,10 +83,10 @@ export default class ErrorBoundary extends React.Component<
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     console.error('[ErrorBoundary]', error, info.componentStack);
     // 获取客户端 IP
-    fetch(window.location.href, { method: 'GET', cache: 'no-cache' })
-      .then((res) => {
-        const ip = res.headers.get('x-real-ip') ?? undefined;
-        if (ip) this.setState({ clientIp: ip });
+    fetch('/api/getip', { cache: 'no-cache' })
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => {
+        if (data?.remote_addr) this.setState({ clientIp: data.remote_addr });
       })
       .catch(() => {});
   }
