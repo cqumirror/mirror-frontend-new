@@ -24,6 +24,7 @@ import {
   Alert,
   Chip,
   Skeleton,
+  CircularProgress,
   Tooltip,
   List,
   ListItem,
@@ -34,6 +35,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 // useSearchParams allows us to read ?tab=help from the URL
 import { useParams, useNavigate, Link as RouterLink, useSearchParams } from 'react-router-dom';
+import { MDXProvider } from '@mdx-js/react';
 
 import DocViewer from '../components/docs/DocViewer';
 import DirectoryListing from '../components/mirrors/DirectoryListing';
@@ -42,6 +44,7 @@ import StatusChip from '../components/mirrors/StatusChip';
 import SyncTimeline from '../components/mirrors/SyncTimeline';
 import { useGithubReleaseSubProjects } from '../data/githubReleaseSubprojects';
 import { hasMdxDoc } from '../docs';
+import { hasLicense, loadLicense } from '../licenses';
 import { useMirrorDetail, useMirrors } from '../hooks/useMirrors';
 import { useLocaleStore } from '../stores/mirrorStore';
 import type { Mirror, Locale } from '../types';
@@ -263,7 +266,11 @@ interface SubProjectViewProps {
   hasDoc?: boolean;
 }
 
-const SUB_PROJECT_TAB_LABELS = ['help', 'files', 'release'] as const;
+const buildSubTabOrder = (license: boolean): string[] => {
+  const base = ['help', 'files', 'release'];
+  if (license) base.splice(1, 0, 'license');
+  return base;
+};
 
 const SubProjectView: React.FC<SubProjectViewProps> = ({
   name,
@@ -287,31 +294,52 @@ const SubProjectView: React.FC<SubProjectViewProps> = ({
         ? `${ghBase}/${subOrg}/`
         : `${ghBase}/`;
   const hasDoc = hasDocProp ?? hasMdxDoc(name, locale);
+  const hasLicenseFile = hasLicense(name, locale);
+
+  // license 组件加载
+  const [LicenseComponent, setLicenseComponent] = useState<React.FC | null>(null);
+  const [licenseLoading, setLicenseLoading] = useState(false);
+
+  useEffect(() => {
+    if (hasLicenseFile) {
+      setLicenseLoading(true);
+      loadLicense(name, locale)
+        .then((component) => setLicenseComponent(() => component))
+        .catch(() => setLicenseComponent(null))
+        .finally(() => setLicenseLoading(false));
+    } else {
+      setLicenseComponent(null);
+    }
+  }, [name, locale, hasLicenseFile]);
 
   // 子项目自己的 tab 管理
   const tabParam = searchParams.get('tab');
-  const computeTab = (param: string | null, docAvailable: boolean): number => {
-    if (param === 'help' || param === '0') return 0;
-    if (param === 'files' || param === '1') return 1;
-    if (param === 'release' || param === '2') return 2;
-    return docAvailable ? 0 : 1;
+  const computeTab = (param: string | null, docAvailable: boolean, license: boolean): number => {
+    const order = buildSubTabOrder(license);
+    if (param && order.includes(param)) return order.indexOf(param);
+    return docAvailable ? 0 : order.indexOf('files');
   };
-  const [tabValue, setTabValue] = useState(() => computeTab(tabParam, hasDoc));
+  const [tabValue, setTabValue] = useState(() => computeTab(tabParam, hasDoc, hasLicenseFile));
 
   React.useEffect(() => {
-    setTabValue(computeTab(tabParam, hasDoc));
-  }, [tabParam, hasDoc]);
+    setTabValue(computeTab(tabParam, hasDoc, hasLicenseFile));
+  }, [tabParam, hasDoc, hasLicenseFile]);
 
   const handleTabChange = (_: React.SyntheticEvent, v: number) => {
     setTabValue(v);
+    const order = buildSubTabOrder(hasLicenseFile);
     setSearchParams(
       (prev) => {
-        prev.set('tab', SUB_PROJECT_TAB_LABELS[v] ?? 'help');
+        prev.set('tab', order[v] ?? 'help');
         return prev;
       },
       { replace: true },
     );
   };
+
+  // 预算 Tab 顺序和索引
+  const subTabOrder = buildSubTabOrder(hasLicenseFile);
+  const subTabIdx = (label: string) => subTabOrder.indexOf(label);
 
   if (subLoading) {
     return (
@@ -422,11 +450,12 @@ const SubProjectView: React.FC<SubProjectViewProps> = ({
             }}
           >
             <Tab label={t('detail.helpDoc')} />
+            {hasLicenseFile && <Tab label={t('detail.license')} />}
             <Tab label={t('detail.fileList')} />
             <Tab label={t('detail.release')} />
           </Tabs>
 
-          <TabPanel value={tabValue} index={0}>
+          <TabPanel value={tabValue} index={subTabIdx('help')}>
             {hasDoc ? (
               <DocViewer mirrorId={name} />
             ) : (
@@ -434,11 +463,29 @@ const SubProjectView: React.FC<SubProjectViewProps> = ({
             )}
           </TabPanel>
 
-          <TabPanel value={tabValue} index={1}>
+          {hasLicenseFile && (
+            <TabPanel value={tabValue} index={subTabIdx('license')}>
+              {licenseLoading ? (
+                <Box sx={{ py: 2, display: 'flex', justifyContent: 'center' }}>
+                  <CircularProgress size={24} />
+                </Box>
+              ) : LicenseComponent ? (
+                <Box sx={{ '& > *:first-of-type': { mt: 0 }, '& > *:last-child': { mb: 0 } }}>
+                  <MDXProvider>
+                    <LicenseComponent />
+                  </MDXProvider>
+                </Box>
+              ) : (
+                <Alert severity="info">{t('detail.noHelp')}</Alert>
+              )}
+            </TabPanel>
+          )}
+
+          <TabPanel value={tabValue} index={subTabIdx('files')}>
             <DirectoryListing mirrorUrl={browsePath} mirrorName={name} />
           </TabPanel>
 
-          <TabPanel value={tabValue} index={2}>
+          <TabPanel value={tabValue} index={subTabIdx('release')}>
             <GithubReleaseViewer rootPath={parentMirror.url} subProjectPath={browsePath} />
           </TabPanel>
         </Box>
@@ -461,25 +508,37 @@ const MirrorDetail: React.FC = () => {
   // Tab 初始值计算 —— 提取为纯函数，依赖完全显式，避免 effect 闭包过期
   const tabParam = searchParams.get('tab');
   const hasDoc = name ? hasMdxDoc(name, locale) : false;
+  const hasLicenseFile = name ? hasLicense(name, locale) : false;
   // github-release 镜像有额外的子项目 tab
   const isGithubRelease = name === 'github-release';
 
-  const computeTab = React.useCallback((param: string | null, docAvailable: boolean, isGH: boolean): number => {
-    if (param === 'help' || param === '0') return 0;
-    if (param === 'files' || param === '1') return 1;
-    if (isGH && (param === 'subprojects' || param === '2')) return 2;
-    if (!isGH && (param === 'downloads' || param === '2')) return 2;
-    if (isGH && param === 'downloads') return 3;
-    // 无参数时：有文档默认帮助，否则文件列表
-    return docAvailable ? 0 : 1;
+  // 动态构建 Tab 标签数组，支持条件性插入 license tab
+  const buildTabOrder = React.useCallback((license: boolean, isGH: boolean): string[] => {
+    const base = isGH
+      ? ['help', 'files', 'subprojects', 'downloads']
+      : ['help', 'files', 'downloads'];
+    if (license) base.splice(1, 0, 'license');
+    return base;
   }, []);
 
-  const [tabValue, setTabValue] = useState(() => computeTab(tabParam, hasDoc, isGithubRelease));
+  const computeTab = React.useCallback(
+    (param: string | null, docAvailable: boolean, license: boolean, isGH: boolean): number => {
+      const order = buildTabOrder(license, isGH);
+      if (param && order.includes(param)) return order.indexOf(param);
+      // 无参数时：有文档默认帮助，否则文件列表
+      return docAvailable ? 0 : order.indexOf('files');
+    },
+    [buildTabOrder],
+  );
+
+  const [tabValue, setTabValue] = useState(() =>
+    computeTab(tabParam, hasDoc, hasLicenseFile, isGithubRelease),
+  );
 
   // tabParam / locale / 文档可用性变化时重算 Tab，依赖完全显式
   React.useEffect(() => {
-    setTabValue(computeTab(tabParam, hasDoc, isGithubRelease));
-  }, [tabParam, hasDoc, isGithubRelease, computeTab]);
+    setTabValue(computeTab(tabParam, hasDoc, hasLicenseFile, isGithubRelease));
+  }, [tabParam, hasDoc, hasLicenseFile, isGithubRelease, computeTab]);
 
   // React 19 原生 metadata 不能 hoist <html>/<body>，必须直接同步 DOM
   // 放在 early return 之前以满足 Rules of Hooks
@@ -487,20 +546,38 @@ const MirrorDetail: React.FC = () => {
     document.documentElement.lang = locale === 'en' ? 'en' : 'zh-CN';
   }, [locale]);
 
+  // license 组件加载
+  const [LicenseComponent, setLicenseComponent] = useState<React.FC | null>(null);
+  const [licenseLoading, setLicenseLoading] = useState(false);
+
+  useEffect(() => {
+    if (name && hasLicenseFile) {
+      setLicenseLoading(true);
+      loadLicense(name, locale)
+        .then((component) => setLicenseComponent(() => component))
+        .catch(() => setLicenseComponent(null))
+        .finally(() => setLicenseLoading(false));
+    } else {
+      setLicenseComponent(null);
+    }
+  }, [name, locale, hasLicenseFile]);
+
   // Tab 切换时同步到 URL，保留已有的 org/repo 等参数，不产生历史记录（replace）
   const handleTabChange = (_: React.SyntheticEvent, v: number) => {
     setTabValue(v);
-    const ghLabels = ['help', 'files', 'subprojects', 'downloads'];
-    const normalLabels = ['help', 'files', 'downloads'];
-    const labels = isGithubRelease ? ghLabels : normalLabels;
+    const order = buildTabOrder(hasLicenseFile, isGithubRelease);
     setSearchParams(
       (prev) => {
-        prev.set('tab', labels[v] ?? 'help');
+        prev.set('tab', order[v] ?? 'help');
         return prev;
       },
       { replace: true },
     );
   };
+
+  // 预算 Tab 顺序和索引
+  const tabOrder = buildTabOrder(hasLicenseFile, isGithubRelease);
+  const tabIdx = (label: string) => tabOrder.indexOf(label);
 
   const [copiedUrl, setCopiedUrl] = useState(false);
   const copyUrlTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -819,27 +896,46 @@ const MirrorDetail: React.FC = () => {
             }}
           >
             <Tab label={t('detail.helpDoc')} />
+            {hasLicenseFile && <Tab label={t('detail.license')} />}
             <Tab label={t('detail.fileList')} />
             {isGithubRelease && <Tab label={t('detail.subprojects')} />}
             {hasFiles && <Tab label={t('detail.installImages')} />}
           </Tabs>
 
-          <TabPanel value={tabValue} index={0}>
+          <TabPanel value={tabValue} index={tabIdx('help')}>
             <DocViewer mirrorId={mirror.id} />
           </TabPanel>
 
-          <TabPanel value={tabValue} index={1}>
+          {hasLicenseFile && (
+            <TabPanel value={tabValue} index={tabIdx('license')}>
+              {licenseLoading ? (
+                <Box sx={{ py: 2, display: 'flex', justifyContent: 'center' }}>
+                  <CircularProgress size={24} />
+                </Box>
+              ) : LicenseComponent ? (
+                <Box sx={{ '& > *:first-of-type': { mt: 0 }, '& > *:last-child': { mb: 0 } }}>
+                  <MDXProvider>
+                    <LicenseComponent />
+                  </MDXProvider>
+                </Box>
+              ) : (
+                <Alert severity="info">{t('detail.noHelp')}</Alert>
+              )}
+            </TabPanel>
+          )}
+
+          <TabPanel value={tabValue} index={tabIdx('files')}>
             <DirectoryListing mirrorUrl={mirror.url} mirrorName={mirror.name[locale]} />
           </TabPanel>
 
           {isGithubRelease && (
-            <TabPanel value={tabValue} index={2}>
+            <TabPanel value={tabValue} index={tabIdx('subprojects')}>
               <GithubReleaseViewer rootPath={mirror.url} />
             </TabPanel>
           )}
 
           {hasFiles && (
-            <TabPanel value={tabValue} index={isGithubRelease ? 3 : 2}>
+            <TabPanel value={tabValue} index={tabIdx('downloads')}>
               <IsoFilesCard files={mirror.files} mirrorUrl={mirror.url} />
             </TabPanel>
           )}

@@ -99,7 +99,8 @@
     "release": "Release",
     "filesCount": "{{count}} 个文件",
     "scrollHint": " · 可滚动",
-    "fileList": "文件列表"
+    "fileList": "文件列表",
+    "license": "许可证"
   },
   "download": {
     "title": "常用下载",

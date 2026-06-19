@@ -99,7 +99,8 @@
     "release": "Release",
     "filesCount": "{{count}} files",
     "scrollHint": " · scroll",
-    "fileList": "File List"
+    "fileList": "File List",
+    "license": "License"
   },
   "download": {
     "title": "Frequently Used Downloads",
