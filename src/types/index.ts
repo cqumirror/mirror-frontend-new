@@ -53,7 +53,7 @@ export interface CampusNetworkStatus {
 /**
  * 主题模式
  */
-export type ThemeMode = 'light' | 'dark';
+export type ThemeMode = 'light' | 'dark' | 'system';
 
 /**
  * 语言选项

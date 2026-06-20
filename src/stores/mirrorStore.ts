@@ -22,12 +22,14 @@ const safeStorage = createJSONStorage(() => ({
 // ---- 主题 Store ----
 interface ThemeState {
   mode: ThemeMode;
+  /** 有效模式：'system' 解析为 'light' 或 'dark' */
+  effectiveMode: 'light' | 'dark';
   setMode: (mode: ThemeMode) => void;
-  toggleMode: () => void;
+  cycleMode: () => void;
 }
 
-/** 首次访问跟随系统深色偏好 */
-function getInitialThemeMode(): ThemeMode {
+/** 检测系统深色偏好 */
+function getSystemPreference(): 'light' | 'dark' {
   try {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   } catch {
@@ -35,30 +37,102 @@ function getInitialThemeMode(): ThemeMode {
   }
 }
 
+/** 解析模式为有效 light/dark */
+function resolveMode(mode: ThemeMode): 'light' | 'dark' {
+  return mode === 'system' ? getSystemPreference() : mode;
+}
+
+/** 将有效模式写入 data-theme 属性 */
+function applyThemeAttr(mode: 'light' | 'dark') {
+  try {
+    document.documentElement.setAttribute('data-theme', mode);
+  } catch {
+    /* SSR 兜底 */
+  }
+}
+
+// matchMedia 监听器（system 模式下自动响应系统偏好变化）
+let mediaQuery: MediaQueryList | null = null;
+let mediaHandler: ((e: MediaQueryListEvent) => void) | null = null;
+
+function setupSystemListener(set: (partial: Partial<ThemeState>) => void) {
+  cleanupSystemListener();
+  try {
+    mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    mediaHandler = (e: MediaQueryListEvent) => {
+      const mode = e.matches ? 'dark' : 'light';
+      applyThemeAttr(mode);
+      set({ effectiveMode: mode });
+    };
+    mediaQuery.addEventListener('change', mediaHandler);
+  } catch {
+    /* SSR 兜底 */
+  }
+}
+
+function cleanupSystemListener() {
+  if (mediaQuery && mediaHandler) {
+    mediaQuery.removeEventListener('change', mediaHandler);
+    mediaQuery = null;
+    mediaHandler = null;
+  }
+}
+
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set, get) => ({
-      mode: getInitialThemeMode(),
+      mode: 'system',
+      effectiveMode: getSystemPreference(),
       setMode: (mode) => {
-        try {
-          document.documentElement.setAttribute('data-theme', mode);
-        } catch {
-          /* SSR 兜底 */
+        const effective = resolveMode(mode);
+        applyThemeAttr(effective);
+        set({ mode, effectiveMode: effective });
+        if (mode === 'system') {
+          setupSystemListener(set);
+        } else {
+          cleanupSystemListener();
         }
-        set({ mode });
       },
-      toggleMode: () => {
-        get().setMode(get().mode === 'light' ? 'dark' : 'light');
+      cycleMode: () => {
+        const order: ThemeMode[] = ['light', 'dark', 'system'];
+        const next = order[(order.indexOf(get().mode) + 1) % order.length];
+        get().setMode(next);
       },
     }),
     {
       name: 'theme',
       storage: safeStorage,
-      version: 1,
+      version: 2,
       partialize: (s) => ({ mode: s.mode }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          const effective = resolveMode(state.mode);
+          applyThemeAttr(effective);
+          state.effectiveMode = effective;
+          if (state.mode === 'system') {
+            setupSystemListener((partial) => state.setMode((partial as { mode?: ThemeMode }).mode ?? state.mode));
+          }
+        }
+      },
     }
   )
 );
+
+// 初始化时如果 mode 是 system，设置监听器
+try {
+  const initial = useThemeStore.getState();
+  if (initial.mode === 'system') {
+    setupSystemListener((partial) => {
+      const state = useThemeStore.getState();
+      if (partial.effectiveMode !== undefined) {
+        // 只更新 effectiveMode，不触发 setMode
+        useThemeStore.setState({ effectiveMode: partial.effectiveMode as 'light' | 'dark' });
+      }
+    });
+  }
+} catch {
+  /* SSR 兜底 */
+}
 
 // ---- 语言 Store ----
 interface LocaleState {

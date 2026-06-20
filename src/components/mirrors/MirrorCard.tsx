@@ -18,7 +18,7 @@ interface MirrorCardProps {
   mirror: Mirror;
 }
 
-const MirrorCard: React.FC<MirrorCardProps> = ({ mirror }) => {
+const MirrorCard: React.FC<MirrorCardProps> = React.memo(({ mirror }) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { locale } = useLocaleStore();
@@ -109,6 +109,6 @@ const MirrorCard: React.FC<MirrorCardProps> = ({ mirror }) => {
       </CardActionArea>
     </Card>
   );
-};
+});
 
 export default MirrorCard;

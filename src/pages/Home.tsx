@@ -2,16 +2,10 @@
 // 首页
 
 import {
-  Storage as StorageIcon,
-  Speed as SpeedIcon,
-  Security as SecurityIcon,
   Wifi as WifiIcon,
   WifiTethering as Ipv6Icon,
-  Close as CloseIcon,
-  InfoOutlined as InfoIcon,
   Star as StarIcon,
   Code as CodeIcon,
-  Sync as SyncIcon,
   Download as DownloadIcon,
 } from '@mui/icons-material';
 import {
@@ -24,10 +18,7 @@ import {
   Skeleton,
   Paper,
   Tooltip,
-  Snackbar,
-  Fade,
   LinearProgress,
-  IconButton,
 } from '@mui/material';
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -35,7 +26,6 @@ import { useNavigate } from 'react-router-dom';
 
 import { getNewsList } from '@/news';
 import { SITE_ORIGIN, SITE_TITLE_ZH, KEYWORDS_ZH, DESC_ZH, canonicalUrl } from '@/utils/seo';
-import { safeGetItem, safeSetItem } from '@/utils/storage';
 
 import RefreshButton from '../components/common/RefreshButton';
 import AnnouncementBanner from '../components/home/AnnouncementBanner';
@@ -222,64 +212,6 @@ const Home: React.FC = () => {
   const hasNews = newsList.length > 0;
   const mirrorCount = hasNews ? 6 : 8;
 
-  // 统计数据
-  const totalCount = mirrors.length;
-  const { syncedTodayCount } = useMemo(() => {
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const synced = mirrors.filter((m) => {
-      if (!m.lastUpdated) return false;
-      const ts = Number(m.lastUpdated);
-      if (isNaN(ts) || ts <= 0) return false;
-      const ms = ts < 1e12 ? ts * 1000 : ts;
-      return ms >= todayStart.getTime();
-    }).length;
-    return { syncedTodayCount: synced };
-  }, [mirrors]);
-
-  // 校园网/IPv6 状态指示
-  const networkStat =
-    campusStatus?.status === '1'
-      ? {
-          icon: <WifiIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />,
-          label: t('network.campusLabel'),
-          dot: '#22C55E',
-          tooltip: t('network.campus'),
-        }
-      : campusStatus?.status === '6'
-        ? {
-            icon: <Ipv6Icon sx={{ fontSize: { xs: 16, sm: 18 } }} />,
-            label: 'IPv6',
-            dot: '#3B82F6',
-            tooltip: t('network.ipv6'),
-          }
-        : campusStatus
-          ? {
-              icon: <WifiIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />,
-              label: t('network.externalLabel'),
-              dot: '#94A3B8',
-              tooltip: t('network.external'),
-            }
-          : null;
-
-  // 浮动通知状态（Snackbar）
-  const [showIpv6Snackbar, setShowIpv6Snackbar] = useState(false);
-  const [ipv6Dismissed, setIpv6Dismissed] = useState(false);
-
-  // IPv6 通知 - 30 分钟内只显示一次
-  useEffect(() => {
-    if (campusStatus?.status === '6') {
-      const key = 'ipv6_notif_ts';
-      const last = Number(safeGetItem(key) ?? 0);
-      const now = Date.now();
-      if (now - last > 30 * 60 * 1000) {
-        setShowIpv6Snackbar(true);
-        setIpv6Dismissed(false);
-        safeSetItem(key, String(now));
-      }
-    }
-  }, [campusStatus]);
-
   return (
     <>
       <title>{SITE_TITLE_ZH} - CQU Mirror</title>
@@ -451,17 +383,6 @@ const Home: React.FC = () => {
                     {t('nav.gitMirrors')}
                   </Button>
                 </Tooltip>
-                <Tooltip title={t('nav.status')} placement="bottom">
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    startIcon={<SyncIcon sx={{ fontSize: 16 }} />}
-                    onClick={() => navigate('/status')}
-                    sx={{ borderRadius: 6, fontSize: '0.8rem', px: 1.5, py: 0.4, fontWeight: 600, textTransform: 'none' }}
-                  >
-                    {t('nav.status')}
-                  </Button>
-                </Tooltip>
                 <Tooltip title={t('nav.download')} placement="bottom">
                   <Button
                     variant="outlined"
@@ -500,157 +421,9 @@ const Home: React.FC = () => {
               {t('home.hero.description')}
             </Typography>
 
-            {/* 统计数据 —— 桌面显示图标+文字，移动端折叠成图标徽章 */}
-            {(() => {
-              const iconSx = { fontSize: { xs: 16, sm: 18 } };
-              const stats = [
-                {
-                  icon: <StorageIcon sx={iconSx} />,
-                  label: t('home.totalMirrors', { count: totalCount }),
-                },
-                {
-                  icon: <SpeedIcon sx={iconSx} />,
-                  label: t('home.syncedToday', { count: syncedTodayCount }),
-                },
-                ...(typeof window !== 'undefined' && window.location.protocol === 'https:'
-                  ? [
-                      {
-                        icon: <SecurityIcon sx={iconSx} />,
-                        label: t('network.https'),
-                      },
-                    ]
-                  : []),
-                ...(networkStat
-                  ? [
-                      {
-                        icon: networkStat.icon,
-                        label: networkStat.label,
-                        dot: networkStat.dot,
-                        tooltip: networkStat.tooltip,
-                      },
-                    ]
-                  : []),
-              ];
-              return (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    gap: { xs: 1, sm: 2 },
-                    flexWrap: 'wrap',
-                    alignItems: 'center',
-                  }}
-                >
-                  {stats.map((item, i) => (
-                    <Tooltip key={i} title={item.label} placement="top">
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 0.6,
-                          px: { xs: 1.2, sm: 0 },
-                          py: { xs: 0.6, sm: 0 },
-                          bgcolor: { xs: 'action.hover', sm: 'transparent' },
-                          borderRadius: { xs: 6, sm: 0 },
-                          color: 'text.secondary',
-                          cursor: 'default',
-                        }}
-                      >
-                        {item.icon}
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            color: 'text.secondary',
-                            fontWeight: 500,
-                            display: { xs: 'none', sm: 'block' },
-                          }}
-                        >
-                          {item.label}
-                        </Typography>
-                      </Box>
-                    </Tooltip>
-                  ))}
-                </Box>
-              );
-            })()}
           </Box>
         </Container>
       </Box>
-      {/* IPv6 浮动通知 - 右上角，毛玻璃效果，淡入淡出，5 秒自动消失 */}
-      <Snackbar
-        open={showIpv6Snackbar}
-        autoHideDuration={5000}
-        onClose={() => {
-          setShowIpv6Snackbar(false);
-          setIpv6Dismissed(true);
-        }}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        sx={{ mt: 9, mr: 2 }}
-        slots={{
-          transition: Fade,
-        }}
-      >
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            minWidth: 300,
-            maxWidth: 350,
-            borderRadius: 1,
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
-            background: (theme) =>
-              theme.palette.mode === 'dark' ? 'rgba(15, 23, 42, 0.7)' : 'rgba(255, 255, 255, 0.7)',
-            border: (theme) =>
-              theme.palette.mode === 'dark'
-                ? '1px solid rgba(255, 255, 255, 0.1)'
-                : '1px solid rgba(0, 0, 0, 0.05)',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-            borderLeft: '3px solid #3B82F6',
-            overflow: 'hidden',
-            position: 'relative',
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5 }}>
-            <InfoIcon sx={{ color: '#3B82F6', fontSize: 20 }} />
-            <Typography variant="body2" sx={{ flex: 1, fontSize: '0.875rem' }}>
-              {t('network.ipv6')}
-            </Typography>
-            <IconButton
-              size="small"
-              onClick={() => {
-                setShowIpv6Snackbar(false);
-                setIpv6Dismissed(true);
-              }}
-              sx={{ p: 0.5 }}
-            >
-              <CloseIcon sx={{ fontSize: 18 }} />
-            </IconButton>
-          </Box>
-          <Box
-            sx={{
-              height: 3,
-              bgcolor: (theme) =>
-                theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
-              position: 'relative',
-              overflow: 'hidden',
-              '&::after': {
-                content: '""',
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                height: '100%',
-                width: '100%',
-                bgcolor: '#3B82F6',
-                animation: 'progress-5s 5s linear',
-                '@keyframes progress-5s': {
-                  '0%': { transform: 'translateX(0)' },
-                  '100%': { transform: 'translateX(-100%)' },
-                },
-              },
-            }}
-          />
-        </Box>
-      </Snackbar>
       <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 } }}>
         {/* 常用镜像 + 最新动态（无搜索时显示） */}
         {!searchQuery && (

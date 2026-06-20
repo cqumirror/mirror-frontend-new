@@ -11,14 +11,16 @@ import i18n from '../../i18n';
 /** 检测当前是否为深色模式 */
 function isDarkMode(): boolean {
   try {
-    // 1. data-theme 属性
+    // 1. data-theme 属性（由 theme store 实时维护，system 模式下也是实际值）
     const attr = document.documentElement.getAttribute('data-theme');
     if (attr === 'dark') return true;
     if (attr === 'light') return false;
     // 2. localStorage
     const stored = JSON.parse(localStorage.getItem('theme') ?? '{}');
-    if (stored?.state?.mode === 'dark') return true;
-    // 3. 系统偏好
+    const mode = stored?.state?.mode;
+    if (mode === 'dark') return true;
+    if (mode === 'light') return false;
+    // 3. mode === 'system' 或无记录 → 跟随系统偏好
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
   } catch {
     return false;

@@ -48,16 +48,9 @@ import {
   type Platform,
 } from '@/utils/platform';
 import { sanitizeUrl } from '@/utils/url';
+import { fetchDirectoryListing, type DirEntry } from '@/api/directoryListing';
 
 // ─── 类型 ────────────────────────────────────────────────────────────────────
-
-interface DirEntry {
-  name: string;
-  href: string;
-  size: string;
-  date: string;
-  isDir: boolean;
-}
 
 interface Project {
   org: string;
@@ -149,7 +142,7 @@ async function loadDirectoryRecursive(
 ): Promise<{ releases: Release[]; files: FileEntry[] }> {
   if (depth > 3) return { releases: [], files: [] };
 
-  const entries = await fetchDir(path);
+  const entries = await fetchDirectoryListing(path);
   const { versionDirs, otherDirs, files, isVersioned } = classifyEntries(entries);
 
   if (isVersioned) {
@@ -216,60 +209,6 @@ function orgColorIndex(org: string): number {
   return h % AVATAR_COLORS.length;
 }
 
-// ─── 解析 fancyindex HTML ─────────────────────────────────────────────────────
-
-function parseDirEntries(html: string, baseUrl: string): DirEntry[] {
-  const doc = new DOMParser().parseFromString(html, 'text/html');
-  const table = doc.getElementById('list');
-  if (!table) return [];
-
-  return Array.from(table.querySelectorAll('tbody tr'))
-    .map((row): DirEntry | null => {
-      const cells = row.querySelectorAll('td');
-      if (cells.length < 2) return null;
-      const anchor = cells[0].querySelector('a');
-      if (!anchor) return null;
-      const name = anchor.textContent?.trim() ?? '';
-      const href = anchor.getAttribute('href') ?? '';
-      if (!href || href === '../' || name === 'Parent Directory') return null;
-      const size = cells[1]?.textContent?.trim() ?? '';
-      const date = cells[2]?.textContent?.trim() ?? '';
-      const isDir = href.endsWith('/');
-      const absHref = href.startsWith('http') ? href : new URL(href, baseUrl).href;
-      return { name: decodeURIComponent(name), href: absHref, size, date, isDir };
-    })
-    .filter((e): e is DirEntry => e !== null);
-}
-
-async function fetchDir(path: string): Promise<DirEntry[]> {
-  const url = path.startsWith('http') ? path : `${window.location.origin}${path}`;
-  const fetchOpts: RequestInit = {
-    headers: { Accept: 'text/html' },
-    credentials: 'same-origin',
-  };
-
-  let res = await fetch(url, fetchOpts);
-  if (!res.ok && res.status !== 503) throw new Error(`HTTP ${res.status}`);
-
-  let html: string;
-  if (res.status === 503) {
-    html = await res.text();
-    const match = html.match(/document\.cookie\s*=\s*'addr4=([^;]+)/);
-    if (match) {
-      document.cookie = `addr4=${match[1]};max-age=300;path=/;SameSite=Lax`;
-      res = await fetch(url, fetchOpts);
-      if (!res.ok) throw new Error(`HTTP ${res.status} (after challenge)`);
-      html = await res.text();
-    } else {
-      throw new Error('HTTP 503 (challenge page, no addr4 cookie found)');
-    }
-  } else {
-    html = await res.text();
-  }
-
-  return parseDirEntries(html, url);
-}
-
 // ─── 子组件：项目头像（加载中/失败显示彩色首字母 fallback） ──────────────────────
 
 interface ProjectAvatarProps {
@@ -324,6 +263,7 @@ const ProjectAvatar: React.FC<ProjectAvatarProps> = ({ org, size = 44 }) => {
         <Box
           component="img"
           src={avatarUrl}
+          loading="lazy"
           onLoad={() => setImgStatus('loaded')}
           onError={() => setImgStatus('error')}
           sx={{ display: 'none' }}
@@ -632,7 +572,7 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath, sub
 
         if (isOrgView) {
           // isOrgView: rootPath 已是 org 目录，条目直接就是 repo
-          const repoEntries = await fetchDir(norm);
+          const repoEntries = await fetchDirectoryListing(norm);
           if (signal?.aborted) return;
           const repoDirs = repoEntries.filter((e) => e.isDir);
           // 从路径提取 org 名
@@ -649,7 +589,7 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath, sub
           // 拉取每个 repo 的最新版本号
           const versionResults = await Promise.allSettled(
             repoDirs.map(async (r) => {
-              const versions = await fetchDir(r.href);
+              const versions = await fetchDirectoryListing(r.href);
               const versionDirs = versions
                 .filter((v) => v.isDir && looksLikeVersion(v.name.replace(/\/$/, '')) && v.name.replace(/\/$/, '').toLowerCase() !== 'latestrelease')
                 .sort((a, b) => compareVersionDesc(a.name.replace(/\/$/, ''), b.name.replace(/\/$/, '')));
@@ -674,14 +614,14 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath, sub
         } else {
           // 标准模式：rootPath → orgs → repos
           // Step1: 获取 org 列表
-          const orgs = await fetchDir(norm);
+          const orgs = await fetchDirectoryListing(norm);
           if (signal?.aborted) return;
           const orgDirs = orgs.filter((e) => e.isDir);
 
           // Step2: 并行拉取每个 org 下的 repo
           const results = await Promise.allSettled(
             orgDirs.map(async (org) => {
-              const repos = await fetchDir(org.href);
+              const repos = await fetchDirectoryListing(org.href);
               return repos
                 .filter((r) => r.isDir)
                 .map(
@@ -705,10 +645,10 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath, sub
             allProjects.map(async (proj) => {
               const rootOrg = orgs.find((o) => o.name.replace(/\/$/, '') === proj.org);
               if (!rootOrg) return null;
-              const orgEntries = (await fetchDir(rootOrg.href)).filter((e) => e.isDir);
+              const orgEntries = (await fetchDirectoryListing(rootOrg.href)).filter((e) => e.isDir);
               const repoEntry = orgEntries.find((r) => r.name.replace(/\/$/, '') === proj.repo);
               if (!repoEntry) return null;
-              const versions = await fetchDir(repoEntry.href);
+              const versions = await fetchDirectoryListing(repoEntry.href);
               const versionDirs = versions
                 .filter((v) => v.isDir && looksLikeVersion(v.name.replace(/\/$/, '')) && v.name.replace(/\/$/, '').toLowerCase() !== 'latestrelease')
                 .sort((a, b) => compareVersionDesc(a.name.replace(/\/$/, ''), b.name.replace(/\/$/, '')));
@@ -806,7 +746,7 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath, sub
     setFilesLoading(true);
     setFiles([]);
     try {
-      const entries = await fetchDir(releasePath);
+      const entries = await fetchDirectoryListing(releasePath);
       const fileEntries: FileEntry[] = entries
         .filter((e) => !e.isDir)
         .map(
@@ -884,11 +824,11 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath, sub
   }, [files, fileSearch]);
 
   // ── 按平台分组文件（基于过滤后的列表） ────────────────────────────────────
-  const filesByPlatform = PLATFORM_ORDER.reduce<Record<string, FileEntry[]>>((acc, p) => {
+  const filesByPlatform = useMemo(() => PLATFORM_ORDER.reduce<Record<string, FileEntry[]>>((acc, p) => {
     const group = filteredFiles.filter((f) => f.platform === p);
     if (group.length > 0) acc[p] = group;
     return acc;
-  }, {});
+  }, {}), [filteredFiles]);
 
   // ── 渲染：项目列表 ──────────────────────────────────────────────────────
 

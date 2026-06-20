@@ -32,69 +32,10 @@ import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react'
 import { useTranslation } from 'react-i18next';
 import { TableVirtuoso } from 'react-virtuoso';
 
-// ── 加载遮罩动画（与 PageTransition 同款） ─────────────────────────
+// ── 加载遮罩动画 ─────────────────────────────────────────────────
 const overlayFadeIn = keyframes`from { opacity: 0 } to { opacity: 1 }`;
 
-const LoadingGrid: React.FC = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="3em" height="3em" viewBox="0 0 24 24">
-    <path d="M0 0h24v24H0z" fill="none" />
-    <rect width="7.33" height="7.33" x="1" y="1" fill="currentColor">
-      <animate id="a" attributeName="x" begin="0;b.end+0.2s" dur="0.6s" values="1;4;1" />
-      <animate attributeName="y" begin="0;b.end+0.2s" dur="0.6s" values="1;4;1" />
-      <animate attributeName="width" begin="0;b.end+0.2s" dur="0.6s" values="7.33;1.33;7.33" />
-      <animate attributeName="height" begin="0;b.end+0.2s" dur="0.6s" values="7.33;1.33;7.33" />
-    </rect>
-    <rect width="7.33" height="7.33" x="8.33" y="1" fill="currentColor">
-      <animate attributeName="x" begin="a.begin+0.1s" dur="0.6s" values="8.33;11.33;8.33" />
-      <animate attributeName="y" begin="a.begin+0.1s" dur="0.6s" values="1;4;1" />
-      <animate attributeName="width" begin="a.begin+0.1s" dur="0.6s" values="7.33;1.33;7.33" />
-      <animate attributeName="height" begin="a.begin+0.1s" dur="0.6s" values="7.33;1.33;7.33" />
-    </rect>
-    <rect width="7.33" height="7.33" x="1" y="8.33" fill="currentColor">
-      <animate attributeName="x" begin="a.begin+0.1s" dur="0.6s" values="1;4;1" />
-      <animate attributeName="y" begin="a.begin+0.1s" dur="0.6s" values="8.33;11.33;8.33" />
-      <animate attributeName="width" begin="a.begin+0.1s" dur="0.6s" values="7.33;1.33;7.33" />
-      <animate attributeName="height" begin="a.begin+0.1s" dur="0.6s" values="7.33;1.33;7.33" />
-    </rect>
-    <rect width="7.33" height="7.33" x="15.66" y="1" fill="currentColor">
-      <animate attributeName="x" begin="a.begin+0.2s" dur="0.6s" values="15.66;18.66;15.66" />
-      <animate attributeName="y" begin="a.begin+0.2s" dur="0.6s" values="1;4;1" />
-      <animate attributeName="width" begin="a.begin+0.2s" dur="0.6s" values="7.33;1.33;7.33" />
-      <animate attributeName="height" begin="a.begin+0.2s" dur="0.6s" values="7.33;1.33;7.33" />
-    </rect>
-    <rect width="7.33" height="7.33" x="8.33" y="8.33" fill="currentColor">
-      <animate attributeName="x" begin="a.begin+0.2s" dur="0.6s" values="8.33;11.33;8.33" />
-      <animate attributeName="y" begin="a.begin+0.2s" dur="0.6s" values="8.33;11.33;8.33" />
-      <animate attributeName="width" begin="a.begin+0.2s" dur="0.6s" values="7.33;1.33;7.33" />
-      <animate attributeName="height" begin="a.begin+0.2s" dur="0.6s" values="7.33;1.33;7.33" />
-    </rect>
-    <rect width="7.33" height="7.33" x="1" y="15.66" fill="currentColor">
-      <animate attributeName="x" begin="a.begin+0.2s" dur="0.6s" values="1;4;1" />
-      <animate attributeName="y" begin="a.begin+0.2s" dur="0.6s" values="15.66;18.66;15.66" />
-      <animate attributeName="width" begin="a.begin+0.2s" dur="0.6s" values="7.33;1.33;7.33" />
-      <animate attributeName="height" begin="a.begin+0.2s" dur="0.6s" values="7.33;1.33;7.33" />
-    </rect>
-    <rect width="7.33" height="7.33" x="15.66" y="8.33" fill="currentColor">
-      <animate attributeName="x" begin="a.begin+0.3s" dur="0.6s" values="15.66;18.66;15.66" />
-      <animate attributeName="y" begin="a.begin+0.3s" dur="0.6s" values="8.33;11.33;8.33" />
-      <animate attributeName="width" begin="a.begin+0.3s" dur="0.6s" values="7.33;1.33;7.33" />
-      <animate attributeName="height" begin="a.begin+0.3s" dur="0.6s" values="7.33;1.33;7.33" />
-    </rect>
-    <rect width="7.33" height="7.33" x="8.33" y="15.66" fill="currentColor">
-      <animate attributeName="x" begin="a.begin+0.3s" dur="0.6s" values="8.33;11.33;8.33" />
-      <animate attributeName="y" begin="a.begin+0.3s" dur="0.6s" values="15.66;18.66;15.66" />
-      <animate attributeName="width" begin="a.begin+0.3s" dur="0.6s" values="7.33;1.33;7.33" />
-      <animate attributeName="height" begin="a.begin+0.3s" dur="0.6s" values="7.33;1.33;7.33" />
-    </rect>
-    <rect width="7.33" height="7.33" x="15.66" y="15.66" fill="currentColor">
-      <animate id="b" attributeName="x" begin="a.begin+0.4s" dur="0.6s" values="15.66;18.66;15.66" />
-      <animate attributeName="y" begin="a.begin+0.4s" dur="0.6s" values="15.66;18.66;15.66" />
-      <animate attributeName="width" begin="a.begin+0.4s" dur="0.6s" values="7.33;1.33;7.33" />
-      <animate attributeName="height" begin="a.begin+0.4s" dur="0.6s" values="7.33;1.33;7.33" />
-    </rect>
-  </svg>
-);
-
+import LoadingGrid from '../common/LoadingGrid';
 import RefreshButton from '../common/RefreshButton';
 
 interface DirEntry {

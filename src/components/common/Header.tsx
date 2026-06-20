@@ -9,6 +9,7 @@ import {
   InfoOutlined as AboutIcon,
   Menu as MenuIcon,
   Search as SearchIcon,
+  Sync as SyncIcon,
 } from '@mui/icons-material';
 import {
   AppBar,
@@ -118,6 +119,13 @@ const Header: React.FC = () => {
         setDrawerOpen(false);
       },
     },
+    {
+      label: t('nav.status'),
+      action: () => {
+        navigate('/status');
+        setDrawerOpen(false);
+      },
+    },
   ];
 
   return (
@@ -207,6 +215,15 @@ const Header: React.FC = () => {
           {/* 桌面端右侧工具栏 */}
           {!isMobile && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<SyncIcon sx={{ fontSize: 16 }} />}
+                onClick={() => navigate('/status')}
+                sx={{ borderRadius: 6, fontSize: '0.8rem', px: 1.5, py: 0.4, fontWeight: 600, textTransform: 'none' }}
+              >
+                {t('nav.status')}
+              </Button>
               <Button
                 variant="outlined"
                 size="small"

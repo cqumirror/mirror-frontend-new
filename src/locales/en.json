@@ -190,6 +190,7 @@
   "theme": {
     "light": "Light Mode",
     "dark": "Dark Mode",
+    "system": "Follow System",
     "toggle": "Toggle Theme"
   },
   "locale": {

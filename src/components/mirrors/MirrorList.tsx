@@ -71,7 +71,7 @@ const Highlight: React.FC<{ text: string; query: string }> = ({ text, query }) =
   return <>{parts}</>;
 };
 
-const MirrorList: React.FC<MirrorListProps> = ({ grouped, loading, error }) => {
+const MirrorList: React.FC<MirrorListProps> = React.memo(({ grouped, loading, error }) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { locale } = useLocaleStore();
@@ -341,6 +341,6 @@ const MirrorList: React.FC<MirrorListProps> = ({ grouped, loading, error }) => {
       ))}
     </Box>
   );
-};
+});
 
 export default MirrorList;

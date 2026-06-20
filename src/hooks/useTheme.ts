@@ -1,13 +1,15 @@
 // src/hooks/useTheme.ts
 // 主题切换 Hook
 
+import { useMemo } from 'react';
+
 import { useThemeStore } from '../stores/mirrorStore';
 import { lightTheme, darkTheme } from '../theme/theme';
 
 export const useTheme = () => {
-  const { mode, toggleMode, setMode } = useThemeStore();
-  const theme = mode === 'light' ? lightTheme : darkTheme;
-  const isDark = mode === 'dark';
+  const { mode, effectiveMode, cycleMode, setMode } = useThemeStore();
+  const theme = effectiveMode === 'light' ? lightTheme : darkTheme;
+  const isDark = effectiveMode === 'dark';
 
-  return { mode, theme, isDark, toggleMode, setMode };
+  return useMemo(() => ({ mode, effectiveMode, theme, isDark, cycleMode, setMode }), [mode, effectiveMode, theme, isDark, cycleMode, setMode]);
 };
