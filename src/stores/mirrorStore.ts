@@ -104,6 +104,14 @@ export const useThemeStore = create<ThemeState>()(
       storage: safeStorage,
       version: 2,
       partialize: (s) => ({ mode: s.mode }),
+      migrate: (persisted, version) => {
+        const p = persisted as Record<string, unknown>;
+        const raw = p?.mode;
+        if (raw === 'light' || raw === 'dark' || raw === 'system') {
+          return { mode: raw as ThemeMode };
+        }
+        return { mode: 'system' as ThemeMode };
+      },
       onRehydrateStorage: () => (state) => {
         if (state) {
           const effective = resolveMode(state.mode);

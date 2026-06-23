@@ -56,26 +56,16 @@ export default defineConfig({
         manualChunks(id) {
           if (!id.includes('node_modules')) return undefined;
 
-          // ⚠ 谨慎拆包：之前把 react-router / zustand / react-helmet 塞进 react-vendor
-          // 触发 Vite 7 + Rollup 4 的循环依赖检测漏洞，导致 minified `let` 在初始化前
-          // 被引用 (TDZ: "Cannot access 'jt' before initialization")，全站白屏。
-          // 现在只拆 **反向无引用、tree 末端** 的库；让 vite 自动处理其余。
+          // ⚠ 谨慎拆包：之前把 react / react-router / zustand 等手动分组
+          // 触发 Vite 7 + Rollup 4 的循环依赖 / 多实例问题。
+          // 现在只拆与 React 无直接依赖的纯工具库；核心库交给 Vite 自动处理。
 
-          // 1. React 运行时 (react / react-dom / scheduler) —— 最叶子
-          if (
-            id.includes('node_modules/react/') ||
-            id.includes('node_modules/react-dom/') ||
-            id.includes('node_modules/scheduler/')
-          ) {
-            return 'react-core';
-          }
-
-          // 2. 代码高亮（最大、且只详情页需要，自然就单 chunk 更好）
+          // 1. 代码高亮（最大、且只详情页需要，自然就单 chunk 更好）
           if (id.includes('react-syntax-highlighter') || id.includes('refractor')) {
             return 'syntax-highlighter';
           }
 
-          // 3. MUI icons —— 大量小图标，单独 chunk 利于浏览器并行
+          // 2. MUI icons —— 大量小图标，单独 chunk 利于浏览器并行
           if (id.includes('@mui/icons-material')) {
             return 'mui-icons';
           }
