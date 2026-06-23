@@ -38,9 +38,6 @@ export default defineConfig({
     dedupe: ['react', 'react-dom', '@emotion/react'],
   },
 
-  optimizeDeps: {
-    include: ['react', 'react-dom', '@emotion/react', '@emotion/styled'],
-  },
   server: { port: 3000, allowedHosts: ['mirrors.tano.asia'], proxy: proxyConfig },
   preview: { port: 4173, proxy: proxyConfig },
 
