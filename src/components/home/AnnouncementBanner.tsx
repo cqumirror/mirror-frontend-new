@@ -13,18 +13,16 @@ import {
 } from '@mui/icons-material';
 import { Box, Typography, IconButton, Link, Chip } from '@mui/material';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
-import { useLocaleStore } from '../../stores/mirrorStore';
-import { safeGetItem, safeSetItem } from '../../utils/storage';
-import { safeNavigate } from '../../utils/urlWhitelist';
+import { safeGetItem, safeSetItem } from '@/utils/storage.ts';
+import { safeNavigate } from '@/utils/urlWhitelist.ts';
 
 type AnnouncementType = 'info' | 'warning' | 'error' | 'success';
 
 interface AnnouncementLink {
   url: string;
-  label: { zh: string; en: string };
+  label: string;
 }
 
 interface Announcement {
@@ -33,8 +31,8 @@ interface Announcement {
   pinned: boolean;
   dismissible: boolean;
   date: string;
-  title: { zh: string; en: string };
-  content: { zh: string; en: string };
+  title: string;
+  content: string;
   link: AnnouncementLink | null;
 }
 
@@ -88,8 +86,6 @@ const SEVERITY_COLOR: Record<
 };
 
 const AnnouncementBanner: React.FC = () => {
-  const { t } = useTranslation();
-  const { locale } = useLocaleStore();
   const navigate = useNavigate();
 
   const [items, setItems] = useState<Announcement[]>([]);
@@ -185,7 +181,7 @@ const AnnouncementBanner: React.FC = () => {
           {/* 置顶徽章 */}
           {item.pinned && (
             <Chip
-              label={t('news.pinned')}
+              label={"置顶"}
               size="small"
               sx={{
                 height: 18,
@@ -210,10 +206,10 @@ const AnnouncementBanner: React.FC = () => {
               }}
             >
               <Box component="span" sx={{ fontWeight: 700, mr: 0.8 }}>
-                {item.title[locale]}
+                {item.title}
               </Box>
               <Box component="span" sx={{ opacity: 0.75 }}>
-                {item.content[locale]}
+                {item.content}
               </Box>
             </Typography>
 
@@ -238,7 +234,7 @@ const AnnouncementBanner: React.FC = () => {
                   whiteSpace: 'nowrap',
                 }}
               >
-                {item.link.label[locale]}
+                {item.link.label}
                 <LinkIcon sx={{ fontSize: 11 }} />
               </Link>
             )}

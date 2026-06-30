@@ -5,7 +5,6 @@ import { ThemeProvider, CssBaseline, Box, GlobalStyles } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import './i18n';
 
 import Footer from './components/common/Footer';
 import GlobalAlertModal from './components/common/GlobalAlertModal';

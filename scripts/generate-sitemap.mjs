@@ -45,7 +45,7 @@ function getNewsSlugs() {
  */
 function getDocIds() {
   try {
-    const docsDir = resolve(__dirname, '..', 'content', 'docs', 'mdx', 'zh');
+    const docsDir = resolve(__dirname, '..', 'content', 'docs', 'mdx');
     if (!existsSync(docsDir)) return [];
     return readdirSync(docsDir)
       .filter((f) => f.endsWith('.mdx'))

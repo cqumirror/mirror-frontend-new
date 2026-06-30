@@ -4,11 +4,9 @@
 import { ArrowForward as ArrowIcon, Article as ArticleIcon } from '@mui/icons-material';
 import { Box, Typography, Button, Divider, Chip, useMediaQuery, useTheme } from '@mui/material';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
-import { getNewsList } from '../../news';
-import { useLocaleStore } from '../../stores/mirrorStore';
+import { getNewsList } from '@/news';
 
 const MIN_ITEMS = 3;
 const MAX_ITEMS_DESKTOP = 10;
@@ -22,11 +20,9 @@ interface NewsWidgetProps {
 
 const NewsWidget: React.FC<NewsWidgetProps> = ({ siblingHeight }) => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
-  const { locale } = useLocaleStore();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
-  const allNews = useMemo(() => getNewsList(locale), [locale]);
+  const allNews = useMemo(() => getNewsList(), []);
 
   // 自身容器高度测量（备用）
   const containerRef = useRef<HTMLDivElement>(null);
@@ -88,7 +84,7 @@ const NewsWidget: React.FC<NewsWidgetProps> = ({ siblingHeight }) => {
               fontWeight: 700,
             }}
           >
-            {t('news.latestNews')}
+            {"最新动态"}
           </Typography>
         </Box>
         <Button
@@ -97,7 +93,7 @@ const NewsWidget: React.FC<NewsWidgetProps> = ({ siblingHeight }) => {
           onClick={() => navigate('/news')}
           sx={{ fontSize: '0.75rem', p: '2px 6px', minHeight: 0 }}
         >
-          {t('news.all')}
+          {"全部"}
         </Button>
       </Box>
       {/* 新闻列表 */}

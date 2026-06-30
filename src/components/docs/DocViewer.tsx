@@ -17,12 +17,10 @@ import {
   CircularProgress,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-import { loadHelpDoc, hasMdxDoc } from '../../docs';
-import { useLocaleStore } from '../../stores/mirrorStore';
+import { loadHelpDoc, hasMdxDoc } from '@/docs';
 
 import CodeBlock from './CodeBlock';
 
@@ -155,16 +153,14 @@ interface DocViewerProps {
  * 使用 react-markdown 渲染，并自定义 MUI 组件映射
  */
 const DocViewer: React.FC<DocViewerProps> = ({ mirrorId, content, loading }) => {
-  const { t } = useTranslation();
-  const { locale } = useLocaleStore();
   const [MdxComponent, setMdxComponent] = useState<React.FC | null>(null);
   const [mdxLoading, setMdxLoading] = useState(false);
 
   useEffect(() => {
     // 尝试加载 MDX 文档
-    if (mirrorId && hasMdxDoc(mirrorId, locale)) {
+    if (mirrorId && hasMdxDoc(mirrorId)) {
       setMdxLoading(true);
-      loadHelpDoc(mirrorId, locale)
+      loadHelpDoc(mirrorId)
         .then((component) => {
           setMdxComponent(() => component);
         })
@@ -178,7 +174,7 @@ const DocViewer: React.FC<DocViewerProps> = ({ mirrorId, content, loading }) => 
     } else {
       setMdxComponent(null);
     }
-  }, [mirrorId, locale]);
+  }, [mirrorId]);
 
   // 优先显示 MDX 加载状态
   if (mdxLoading) {
@@ -191,7 +187,7 @@ const DocViewer: React.FC<DocViewerProps> = ({ mirrorId, content, loading }) => 
             color: 'text.secondary',
           }}
         >
-          {t('docs.loading')}
+          {"加载文档中..."}
         </Typography>
       </Box>
     );
@@ -235,7 +231,7 @@ const DocViewer: React.FC<DocViewerProps> = ({ mirrorId, content, loading }) => 
   }
 
   if (!content) {
-    return <Alert severity="info">{t('detail.noHelp')}</Alert>;
+    return <Alert severity="info">{"暂无使用说明"}</Alert>;
   }
 
   return (

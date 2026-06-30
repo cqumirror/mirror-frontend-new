@@ -3,9 +3,8 @@
 
 import { Box, Chip, Tooltip } from '@mui/material';
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 
-import type { MirrorStatus } from '../../types';
+import type { MirrorStatus } from '@/types';
 
 interface StatusChipProps {
   status: MirrorStatus;
@@ -13,6 +12,15 @@ interface StatusChipProps {
   iconOnly?: boolean;
 }
 
+const statusTextMap: Record<MirrorStatus, string> = {
+  succeeded: '同步成功',
+  failed: '同步失败',
+  syncing: '正在同步',
+  cached: '缓存反代',
+  paused: '同步暂停',
+  disabled: '同步禁用',
+  unknown: '未知状态',
+};
 const statusColorMap: Record<MirrorStatus, 'success' | 'error' | 'info' | 'default' | 'warning'> = {
   succeeded: 'success',
   failed: 'error',
@@ -69,8 +77,7 @@ const StatusDot: React.FC<{ status: MirrorStatus; label: string }> = ({ status, 
 
 // ── 主组件 ───────────────────────────────────────────────────────────────────
 const StatusChip: React.FC<StatusChipProps> = ({ status, size = 'small', iconOnly = false }) => {
-  const { t } = useTranslation();
-  const label = t(`mirror.status.${status}`);
+  const label = statusTextMap[status];
   const isSyncing = status === 'syncing';
   const chipH = size === 'small' ? 22 : 28;
 

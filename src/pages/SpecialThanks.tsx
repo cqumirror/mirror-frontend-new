@@ -4,20 +4,16 @@
 import { ArrowBack as BackIcon, OpenInNew as LinkIcon } from '@mui/icons-material';
 import { Container, Typography, Paper, List, ListItem, ListItemButton, ListItemText, ListItemIcon, Divider, Skeleton, Button, Breadcrumbs, Link } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 import { sanitizeUrl } from '@/utils/url';
 
 interface ThanksEntry {
-  zh: string;
-  en: string;
+  desc: string;
   url?: string;
 }
 
 const SpecialThanks: React.FC = () => {
-  const { t, i18n } = useTranslation();
-  const isEn = i18n.language === 'en';
   const navigate = useNavigate();
   const [entries, setEntries] = useState<ThanksEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,10 +37,10 @@ const SpecialThanks: React.FC = () => {
           underline="hover"
           sx={{ color: 'text.secondary' }}
         >
-          {t('nav.home')}
+          {"首页"}
         </Link>
         <Typography variant="body2" color="text.primary">
-          {isEn ? 'Special Thanks' : '特别致谢'}
+          {'特别致谢'}
         </Typography>
       </Breadcrumbs>
 
@@ -55,21 +51,19 @@ const SpecialThanks: React.FC = () => {
         size="small"
         sx={{ mb: 3, color: 'text.secondary' }}
       >
-        {t('common.backToHome')}
+        {"返回首页"}
       </Button>
 
       <Typography variant="h4" sx={{ fontWeight: 800 }} gutterBottom>
-        {isEn ? 'Special Thanks' : '特别致谢'}
+        {'特别致谢'}
       </Typography>
 
       <Typography variant="body1" color="text.secondary" sx={{ mb: 1 }}>
-        {isEn
-          ? 'High tribute shall be paid to the individuals and communities listed below.'
-          : '感谢所有为重大开源镜像站建设贡献力量的个人以及团体，没有你们的帮助我们无法将镜像站建设成为今天的模样。'}
+        {'感谢所有为重大开源镜像站建设贡献力量的个人以及团体，没有你们的帮助我们无法将镜像站建设成为今天的模样。'}
       </Typography>
 
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        {isEn ? '(Order by timeline)' : '（按时间排序）'}
+        {'（按时间排序）'}
       </Typography>
 
       <Paper variant="outlined" sx={{ borderRadius: 2 }}>
@@ -87,11 +81,11 @@ const SpecialThanks: React.FC = () => {
         ) : (
           <List disablePadding>
             {entries.map((entry, i) => {
-              const primary = isEn ? entry.en : entry.zh;
-              const secondary = isEn ? entry.zh : entry.en;
+              const primary = entry.desc;
+              const secondary = entry.desc
 
               return (
-                <React.Fragment key={entry.zh}>
+                <React.Fragment key={entry.desc}>
                   {i > 0 && <Divider component="li" />}
                   {entry.url ? (
                     <ListItemButton

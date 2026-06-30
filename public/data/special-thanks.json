@@ -1,65 +1,51 @@
 [
   {
-    "zh": "来自重庆大学、开源社区的同伴们",
-    "en": "Mates from Chongqing University and open source communities"
+    "desc": "来自重庆大学、开源社区的同伴们"
   },
   {
-    "zh": "重庆大学信息化办公室",
-    "en": "Information Office of Chongqing University",
+    "desc": "重庆大学信息化办公室",
     "url": "https://net.cqu.edu.cn/"
   },
   {
-    "zh": "重庆大学蓝盟",
-    "en": "Lanunion, CQU",
+    "desc": "重庆大学蓝盟",
     "url": "https://mirrors.cqu.edu.cn/introductions/"
   },
   {
-    "zh": "重庆大学蓝盟运维部",
-    "en": "Operation Department of Lanunion, CQU"
+    "desc": "重庆大学蓝盟运维部"
   },
   {
-    "zh": "陈泱宇",
-    "en": "Chen Yangyu"
+    "desc": "陈泱宇"
   },
   {
-    "zh": "周博翰",
-    "en": "Zhou Bohan"
+    "desc": "周博翰"
   },
   {
-    "zh": "郭俊余",
-    "en": "Guo Junyu"
+    "desc": "郭俊余"
   },
   {
-    "zh": "齐彬烨",
-    "en": "Qi Binye"
+    "desc": "齐彬烨"
   },
   {
-    "zh": "冯子佩",
+    "desc": "冯子佩",
     "en": "Feng Zipei"
   },
   {
-    "zh": "王一帆",
-    "en": "Wang Yifan"
+    "desc": "王一帆"
   },
   {
-    "zh": "重庆 LUG",
-    "en": "Chongqing LUG",
+    "desc": "重庆 LUG",
     "url": "https://cqulug.club/"
   },
   {
-    "zh": "闻其详",
-    "en": "Bootingman"
+    "desc": "闻其详"
   },
   {
-    "zh": "徐紫辰",
-    "en": "Alceatraz Wraprays"
+    "desc": "徐紫辰"
   },
   {
-    "zh": "何志强",
-    "en": "He Zhiqiang"
+    "desc": "何志强"
   },
   {
-    "zh": "谭洋",
-    "en": "Tan Yang"
+    "desc": "谭洋"
   }
 ]

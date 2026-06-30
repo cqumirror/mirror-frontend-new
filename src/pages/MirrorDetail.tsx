@@ -1,6 +1,7 @@
 // src/pages/MirrorDetail.tsx
 // 镜像详情页
 
+import { MDXProvider } from '@mdx-js/react';
 import {
   ArrowBack as BackIcon,
   ContentCopy as CopyIcon,
@@ -38,23 +39,23 @@ import {
   InputBase,
 } from '@mui/material';
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 // useSearchParams allows us to read ?tab=help from the URL
 import { useParams, useNavigate, Link as RouterLink, useSearchParams } from 'react-router-dom';
-import { MDXProvider } from '@mdx-js/react';
 
+import { hasMdxDoc } from '@/docs';
+import { hasLicense, loadLicense } from '@/licenses';
+
+import type { Mirror } from '@/types';
 import DocViewer, { mdxComponents } from '../components/docs/DocViewer';
 import DirectoryListing from '../components/mirrors/DirectoryListing';
 import GithubReleaseViewer from '../components/mirrors/GithubReleaseViewer';
 import StatusChip from '../components/mirrors/StatusChip';
 import SyncTimeline from '../components/mirrors/SyncTimeline';
 import { useGithubReleaseSubProjects } from '../data/githubReleaseSubprojects';
-import { hasMdxDoc } from '../docs';
-import { hasLicense, loadLicense } from '../licenses';
+
 import { useMirrorDetail, useMirrors } from '../hooks/useMirrors';
-import { useLocaleStore } from '../stores/mirrorStore';
-import type { Mirror, Locale } from '../types';
-import { SITE_ORIGIN, canonicalUrl, mirrorJsonLd, breadcrumbJsonLd } from '../utils/seo';
+
+
 import {
   detectPlatform,
   detectArch,
@@ -63,6 +64,7 @@ import {
   PLATFORM_ORDER,
   type Platform,
 } from '../utils/platform';
+import { SITE_ORIGIN, canonicalUrl, mirrorJsonLd, breadcrumbJsonLd } from '../utils/seo';
 import { sanitizeUrl, toFullUrl } from '../utils/url';
 
 // ─── Tab 面板 ────────────────────────────────────────────────────────────────
@@ -90,9 +92,8 @@ const LIST_MAX_HEIGHT = 36 * 5 + 8; // px
 // isoinfo 文件行 —— 与 GithubReleaseViewer FileRow 风格一致
 interface IsoFileRowProps {
   file: { name: string; url: string; platform: Platform; arch: string };
-  t: (key: string) => string;
 }
-const IsoFileRow: React.FC<IsoFileRowProps> = ({ file, t }) => {
+const IsoFileRow: React.FC<IsoFileRowProps> = ({ file }) => {
   const [copied, setCopied] = useState(false);
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => () => { if (copyTimerRef.current) clearTimeout(copyTimerRef.current); }, []);
@@ -155,12 +156,12 @@ const IsoFileRow: React.FC<IsoFileRowProps> = ({ file, t }) => {
         </Box>
       </Box>
       <Box sx={{ display: 'flex', gap: 0.25, flexShrink: 0 }}>
-        <Tooltip title={copied ? t('common.copied') : t('common.copyLink')}>
+        <Tooltip title={copied ? "已复制" : "复制链接"}>
           <IconButton size="small" sx={{ p: 0.5 }} onClick={handleCopy} color={copied ? 'success' : 'default'}>
             {copied ? <CheckIcon sx={{ fontSize: 14 }} /> : <CopyIcon sx={{ fontSize: 14 }} />}
           </IconButton>
         </Tooltip>
-        <Tooltip title={t('common.download')}>
+        <Tooltip title={"下载"}>
           <IconButton size="small" sx={{ p: 0.5 }} component="a" href={sanitizeUrl(file.url)} target="_blank" rel="noopener noreferrer" color="primary">
             <DownloadIcon sx={{ fontSize: 14 }} />
           </IconButton>
@@ -171,7 +172,6 @@ const IsoFileRow: React.FC<IsoFileRowProps> = ({ file, t }) => {
 };
 
 const IsoFilesCard: React.FC<IsoFilesCardProps> = ({ files, mirrorUrl }) => {
-  const { t } = useTranslation();
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -207,16 +207,16 @@ const IsoFilesCard: React.FC<IsoFilesCardProps> = ({ files, mirrorUrl }) => {
           }}
         >
           <FolderIcon sx={{ fontSize: 16, color: 'primary.main' }} />
-          {t('detail.downloads')}
+          {"下载文件"}
         </Typography>
-        <Tooltip title={t('common.openInBrowser')}>
+        <Tooltip title={"在浏览器中打开"}>
           <IconButton
             size="small"
             component="a"
             href={toFullUrl(mirrorUrl)}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label={t('common.openInBrowser')}
+            aria-label={"在浏览器中打开"}
           >
             <OpenIcon sx={{ fontSize: 15 }} />
           </IconButton>
@@ -249,7 +249,7 @@ const IsoFilesCard: React.FC<IsoFilesCardProps> = ({ files, mirrorUrl }) => {
             fontWeight: 600,
           }}
         >
-          {t('detail.installImages')}
+          {"安装镜像"}
         </Typography>
         {/* 文件数量角标，超过可视行数时提示"可滚动" */}
         <Typography
@@ -258,8 +258,8 @@ const IsoFilesCard: React.FC<IsoFilesCardProps> = ({ files, mirrorUrl }) => {
             color: 'text.disabled',
           }}
         >
-          {t('detail.filesCount', { count: files.length })}
-          {files.length > 5 ? t('detail.scrollHint') : ''}
+          {`${files.length} 个文件`}
+          {files.length > 5 ? " · 可滚动" : ''}
         </Typography>
       </Box>
       {/* 固定高度 + 滚动区域 —— 5 行可见，更多文件直接向下滚动 */}
@@ -312,13 +312,13 @@ const IsoFilesCard: React.FC<IsoFilesCardProps> = ({ files, mirrorUrl }) => {
                   sx={{ m: 0 }}
                 />
                 <Box sx={{ display: 'flex', gap: 0.3, ml: 0.5, flexShrink: 0 }}>
-                  <Tooltip title={copiedIdx === idx ? t('common.copied') : t('common.copyLink')}>
+                  <Tooltip title={copiedIdx === idx ? "已复制" : "复制链接"}>
                     <IconButton
                       size="small"
                       sx={{ p: 0.4 }}
                       onClick={() => handleCopy(file.url, idx)}
                       color={copiedIdx === idx ? 'success' : 'default'}
-                      aria-label={`${t('common.copyLink')}: ${file.name}`}
+                      aria-label={`复制链接: ${file.name}`}
                     >
                       {copiedIdx === idx ? (
                         <CheckIcon sx={{ fontSize: 13 }} />
@@ -327,7 +327,7 @@ const IsoFilesCard: React.FC<IsoFilesCardProps> = ({ files, mirrorUrl }) => {
                       )}
                     </IconButton>
                   </Tooltip>
-                  <Tooltip title={t('common.download')}>
+                  <Tooltip title={"下载"}>
                     <IconButton
                       size="small"
                       sx={{ p: 0.4 }}
@@ -336,7 +336,7 @@ const IsoFilesCard: React.FC<IsoFilesCardProps> = ({ files, mirrorUrl }) => {
                       target="_blank"
                       rel="noopener noreferrer"
                       color="primary"
-                      aria-label={`${t('common.download')}: ${file.name}`}
+                      aria-label={`下载: ${file.name}`}
                     >
                       <DownloadIcon sx={{ fontSize: 13 }} />
                     </IconButton>
@@ -356,9 +356,7 @@ const IsoFilesCard: React.FC<IsoFilesCardProps> = ({ files, mirrorUrl }) => {
 interface SubProjectViewProps {
   name: string;
   parentMirror: Mirror;
-  locale: Locale;
   navigate: (to: string) => void;
-  t: (key: string, options?: Record<string, unknown>) => string;
   /** 是否有该子项目专属的帮助文档（默认按 name 检查） */
   hasDoc?: boolean;
 }
@@ -372,9 +370,7 @@ const buildSubTabOrder = (license: boolean): string[] => {
 const SubProjectView: React.FC<SubProjectViewProps> = ({
   name,
   parentMirror,
-  locale,
   navigate,
-  t,
   hasDoc: hasDocProp,
 }) => {
   const { data: subProjects, isLoading: subLoading } = useGithubReleaseSubProjects();
@@ -390,8 +386,8 @@ const SubProjectView: React.FC<SubProjectViewProps> = ({
       : subOrg
         ? `${ghBase}/${subOrg}/`
         : `${ghBase}/`;
-  const hasDoc = hasDocProp ?? hasMdxDoc(name, locale);
-  const hasLicenseFile = hasLicense(name, locale);
+  const hasDoc = hasDocProp ?? hasMdxDoc(name);
+  const hasLicenseFile = hasLicense(name);
 
   // license 组件加载
   const [LicenseComponent, setLicenseComponent] = useState<React.FC | null>(null);
@@ -400,14 +396,14 @@ const SubProjectView: React.FC<SubProjectViewProps> = ({
   useEffect(() => {
     if (hasLicenseFile) {
       setLicenseLoading(true);
-      loadLicense(name, locale)
+      loadLicense(name)
         .then((component) => setLicenseComponent(() => component))
         .catch(() => setLicenseComponent(null))
         .finally(() => setLicenseLoading(false));
     } else {
       setLicenseComponent(null);
     }
-  }, [name, locale, hasLicenseFile]);
+  }, [name, hasLicenseFile]);
 
   // 从文件名提取版本号（如 Office_Tool_v11.5.7.0_x64.zip → v11.5.7.0）
   const extractVersionFromName = (name: string): string => {
@@ -516,7 +512,7 @@ const SubProjectView: React.FC<SubProjectViewProps> = ({
         {/* 面包屑 */}
         <Breadcrumbs sx={{ mb: 2 }}>
           <Link component={RouterLink} to="/" underline="hover" sx={{ color: 'text.secondary' }}>
-            {t('nav.home')}
+            {"首页"}
           </Link>
           <Link
             component={RouterLink}
@@ -524,7 +520,7 @@ const SubProjectView: React.FC<SubProjectViewProps> = ({
             underline="hover"
             sx={{ color: 'text.secondary' }}
           >
-            {parentMirror.name[locale]}
+            {parentMirror.name}
           </Link>
           <Typography sx={{ color: 'text.primary', fontWeight: 500 }}>{name}</Typography>
         </Breadcrumbs>
@@ -535,14 +531,14 @@ const SubProjectView: React.FC<SubProjectViewProps> = ({
           size="small"
           sx={{ mb: 3, color: 'text.secondary' }}
         >
-          {t('common.backToList')}
+          {"返回列表"}
         </Button>
 
         {/* ── 顶部信息卡 ── */}
         <Paper variant="outlined" sx={{ p: { xs: 2.5, md: 3 }, borderRadius: 2, mb: 3 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.5, flexWrap: 'wrap' }}>
             <Typography variant="h4" sx={{ fontWeight: 800, fontSize: { xs: '1.5rem', md: '2rem' } }}>
-              {mapped ? mapped.split('/')[1] : parentMirror.name[locale]}
+              {mapped ? mapped.split('/')[1] : parentMirror.name}
             </Typography>
             <StatusChip status={parentMirror.status} size="medium" />
             <Chip
@@ -554,7 +550,7 @@ const SubProjectView: React.FC<SubProjectViewProps> = ({
             />
           </Box>
           <Typography variant="body1" sx={{ color: 'text.secondary', lineHeight: 1.7, mb: 2 }}>
-            {parentMirror.desc[locale]}
+            {parentMirror.desc}
           </Typography>
           <Box
             sx={{
@@ -585,7 +581,7 @@ const SubProjectView: React.FC<SubProjectViewProps> = ({
         {/* 同步状态（父镜像） */}
         <Box sx={{ mb: 3 }}>
           <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-            {t('detail.syncStatus')}
+            {"同步状态"}
           </Typography>
           <SyncTimeline mirror={parentMirror} />
         </Box>
@@ -606,18 +602,18 @@ const SubProjectView: React.FC<SubProjectViewProps> = ({
               '& .MuiTab-root': { fontWeight: 600, minWidth: { xs: 80, sm: 120 } },
             }}
           >
-            <Tab label={t('detail.helpDoc')} />
-            {hasLicenseFile && <Tab label={t('detail.license')} />}
-            <Tab label={t('detail.fileList')} />
-            <Tab label={t('detail.release')} />
-            <Tab label={t('detail.downloads')} />
+            <Tab label={"使用说明"} />
+            {hasLicenseFile && <Tab label={"许可证"} />}
+            <Tab label={"文件列表"} />
+            <Tab label={"Release"} />
+            <Tab label={"下载文件"} />
           </Tabs>
 
           <TabPanel value={tabValue} index={subTabIdx('help')}>
             {hasDoc ? (
               <DocViewer mirrorId={name} />
             ) : (
-              <Alert severity="info">{t('detail.noHelp')}</Alert>
+              <Alert severity="info">{"暂无使用说明"}</Alert>
             )}
           </TabPanel>
 
@@ -634,7 +630,7 @@ const SubProjectView: React.FC<SubProjectViewProps> = ({
                   </MDXProvider>
                 </Box>
               ) : (
-                <Alert severity="info">{t('detail.noHelp')}</Alert>
+                <Alert severity="info">{"暂无使用说明"}</Alert>
               )}
             </TabPanel>
           )}
@@ -705,12 +701,12 @@ const SubProjectView: React.FC<SubProjectViewProps> = ({
                     variant="caption"
                     sx={{ fontFamily: '"JetBrains Mono", monospace', color: 'text.secondary' }}
                   >
-                    {t('detail.installImages')}
+                    {"安装镜像"}
                   </Typography>
                   {!isoLoading && isoFiles.length > 0 && (
                     <Chip
                       size="small"
-                      label={t('githubRelease.fileCount', { count: isoFiles.length })}
+                      label={`${isoFiles.length} 个文件`}
                       variant="outlined"
                       sx={{ fontSize: '0.68rem', height: 20 }}
                     />
@@ -741,7 +737,7 @@ const SubProjectView: React.FC<SubProjectViewProps> = ({
                     }}
                   >
                     <EmptyIcon sx={{ fontSize: 36 }} />
-                    <Typography variant="body2">{t('githubRelease.noFiles')}</Typography>
+                    <Typography variant="body2">{"该 Release 暂无文件"}</Typography>
                   </Box>
                 ) : (
                   <>
@@ -769,8 +765,8 @@ const SubProjectView: React.FC<SubProjectViewProps> = ({
                           value={isoSearch}
                           onChange={(e) => setIsoSearch(e.target.value)}
                           onKeyDown={(e) => e.key === 'Escape' && setIsoSearch('')}
-                          placeholder={t('githubRelease.searchFiles')}
-                          inputProps={{ 'aria-label': t('githubRelease.searchFiles') }}
+                          placeholder={"搜索文件…"}
+                          inputProps={{ 'aria-label': "搜索文件…" }}
                           sx={{
                             flex: 1,
                             fontSize: '0.82rem',
@@ -797,7 +793,7 @@ const SubProjectView: React.FC<SubProjectViewProps> = ({
                               setIsoSearch('');
                               isoSearchRef.current?.focus();
                             }}
-                            aria-label={t('common.clear')}
+                            aria-label={"清除"}
                             sx={{ p: 0.25 }}
                           >
                             <ClearIcon sx={{ fontSize: 14 }} />
@@ -810,7 +806,7 @@ const SubProjectView: React.FC<SubProjectViewProps> = ({
                     {isoSearch && filteredIsoFiles.length === 0 ? (
                       <Box sx={{ py: 3, textAlign: 'center', color: 'text.disabled' }}>
                         <Typography variant="body2">
-                          {t('directory.noResults', { query: isoSearch })}
+                          {`未找到 \"${isoSearch}\"`}
                         </Typography>
                       </Box>
                     ) : (
@@ -887,7 +883,7 @@ const SubProjectView: React.FC<SubProjectViewProps> = ({
                                 />
                               </Box>
                               {ver.byPlatform[platform].map((file, fileIdx) => (
-                                <IsoFileRow key={file.url || fileIdx} file={file} t={t} />
+                                <IsoFileRow key={file.url || fileIdx} file={file} />
                               ))}
                             </Box>
                           ))}
@@ -909,8 +905,6 @@ const SubProjectView: React.FC<SubProjectViewProps> = ({
 const MirrorDetail: React.FC = () => {
   const { name } = useParams<{ name: string }>();
   const navigate = useNavigate();
-  const { t } = useTranslation();
-  const { locale } = useLocaleStore();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const { data: mirror, isLoading, error } = useMirrorDetail(name || '');
@@ -918,8 +912,8 @@ const MirrorDetail: React.FC = () => {
 
   // Tab 初始值计算 —— 提取为纯函数，依赖完全显式，避免 effect 闭包过期
   const tabParam = searchParams.get('tab');
-  const hasDoc = name ? hasMdxDoc(name, locale) : false;
-  const hasLicenseFile = name ? hasLicense(name, locale) : false;
+  const hasDoc = name ? hasMdxDoc(name) : false;
+  const hasLicenseFile = name ? hasLicense(name) : false;
   // github-release 镜像有额外的子项目 tab
   const isGithubRelease = name === 'github-release';
 
@@ -954,8 +948,7 @@ const MirrorDetail: React.FC = () => {
   // React 19 原生 metadata 不能 hoist <html>/<body>，必须直接同步 DOM
   // 放在 early return 之前以满足 Rules of Hooks
   React.useEffect(() => {
-    document.documentElement.lang = locale === 'en' ? 'en' : 'zh-CN';
-  }, [locale]);
+  });
 
   // license 组件加载
   const [LicenseComponent, setLicenseComponent] = useState<React.FC | null>(null);
@@ -964,14 +957,14 @@ const MirrorDetail: React.FC = () => {
   useEffect(() => {
     if (name && hasLicenseFile) {
       setLicenseLoading(true);
-      loadLicense(name, locale)
+      loadLicense(name)
         .then((component) => setLicenseComponent(() => component))
         .catch(() => setLicenseComponent(null))
         .finally(() => setLicenseLoading(false));
     } else {
       setLicenseComponent(null);
     }
-  }, [name, locale, hasLicenseFile]);
+  }, [name, hasLicenseFile]);
 
   // Tab 切换时同步到 URL，保留已有的 org/repo 等参数，不产生历史记录（replace）
   const handleTabChange = (_: React.SyntheticEvent, v: number) => {
@@ -1033,7 +1026,7 @@ const MirrorDetail: React.FC = () => {
       if (!parentMirror) {
         return (
           <Container maxWidth="lg" sx={{ py: 4 }}>
-            <Alert severity="error">{t('error.loadFailed')}</Alert>
+            <Alert severity="error">{"加载失败"}</Alert>
           </Container>
         );
       }
@@ -1041,9 +1034,7 @@ const MirrorDetail: React.FC = () => {
         <SubProjectView
           name={name}
           parentMirror={parentMirror}
-          locale={locale}
           navigate={navigate}
-          t={t}
         />
       );
     }
@@ -1054,11 +1045,11 @@ const MirrorDetail: React.FC = () => {
           severity="error"
           action={
             <Button color="inherit" size="small" onClick={() => navigate('/')}>
-              {t('error.backHome')}
+              {"返回首页"}
             </Button>
           }
         >
-          {error ? t('error.loadFailed') : t('error.notFound')}
+          {error ? "加载失败" : "页面不存在"}
         </Alert>
       </Container>
     );
@@ -1070,9 +1061,7 @@ const MirrorDetail: React.FC = () => {
       <SubProjectView
         name={name || mirror.id}
         parentMirror={mirror}
-        locale={locale}
         navigate={navigate}
-        t={t}
         hasDoc={false}
       />
     );
@@ -1081,45 +1070,37 @@ const MirrorDetail: React.FC = () => {
   return (
     <>
       <title>
-        {locale === 'en'
-          ? `${mirror.name.en} Mirror — CQU Mirror`
-          : `${mirror.name.zh} 镜像 - 重庆大学开源软件镜像站 CQU Mirror`}
+        {`${mirror.name} 镜像 - 重庆大学开源软件镜像站 CQU Mirror`}
       </title>
       <meta
         name="description"
-        content={
-          locale === 'en'
-            ? `${mirror.name.en} - ${mirror.desc.en} High-speed mirror provided by CQU Mirror.`
-            : `${mirror.name.zh} - ${mirror.desc.zh} 由重庆大学开源软件镜像站（CQU Mirror）提供高速下载。`
+        content={`${mirror.name} - ${mirror.desc} 由重庆大学开源软件镜像站（CQU Mirror）提供高速下载。`
         }
       />
       <meta
         name="keywords"
-        content={
-          locale === 'en'
-            ? `${mirror.name.en},${mirror.id},${mirror.name.en} mirror,${mirror.name.en} download,CQU Mirror,open source mirror`
-            : `${mirror.name.zh},${mirror.id},${mirror.name.zh}镜像,${mirror.name.zh}下载,CQU Mirror,重庆大学镜像站,开源软件镜像`
+        content={`${mirror.name},${mirror.id},${mirror.name}镜像,${mirror.name}下载,CQU Mirror,重庆大学镜像站,开源软件镜像`
         }
       />
       <link rel="canonical" href={canonicalUrl(`/mirrors/${mirror.id}`)} />
       <meta property="og:type" content="website" />
-      <meta property="og:title" content={`${mirror.name[locale]} - CQU Mirror`} />
-      <meta property="og:description" content={mirror.desc[locale]} />
+      <meta property="og:title" content={`${mirror.name} - CQU Mirror`} />
+      <meta property="og:description" content={mirror.desc} />
       <meta property="og:url" content={canonicalUrl(`/mirrors/${mirror.id}`)} />
       <meta property="og:image" content={`${SITE_ORIGIN}/favicon.svg`} />
       <meta name="twitter:card" content="summary" />
-      <meta name="twitter:title" content={`${mirror.name[locale]} - CQU Mirror`} />
-      <meta name="twitter:description" content={mirror.desc[locale]} />
+      <meta name="twitter:title" content={`${mirror.name} - CQU Mirror`} />
+      <meta name="twitter:description" content={mirror.desc} />
       {/* 结构化数据：面包屑 */}
       <script type="application/ld+json">
         {breadcrumbJsonLd([
-          { name: locale === 'en' ? 'Home' : '首页', url: '/' },
-          { name: mirror.name[locale], url: `/mirrors/${mirror.id}` },
+          { name: '首页', url: '/' },
+          { name: mirror.name, url: `/mirrors/${mirror.id}` },
         ])}
       </script>
       {/* 结构化数据：软件应用 */}
       <script type="application/ld+json">
-        {mirrorJsonLd(mirror.name[locale], mirror.desc[locale], `/mirrors/${mirror.id}`)}
+        {mirrorJsonLd(mirror.name, mirror.desc, `/mirrors/${mirror.id}`)}
       </script>
       <Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}>
         {/* 面包屑 */}
@@ -1132,7 +1113,7 @@ const MirrorDetail: React.FC = () => {
               color: 'text.secondary',
             }}
           >
-            {t('nav.home')}
+            {"首页"}
           </Link>
           <Typography
             sx={{
@@ -1140,7 +1121,7 @@ const MirrorDetail: React.FC = () => {
               fontWeight: 500,
             }}
           >
-            {mirror.name[locale]}
+            {mirror.name}
           </Typography>
         </Breadcrumbs>
 
@@ -1158,7 +1139,7 @@ const MirrorDetail: React.FC = () => {
           size="small"
           sx={{ mb: 3, color: 'text.secondary' }}
         >
-          {t('common.backToList')}
+          {"返回列表"}
         </Button>
 
         {/* ── 顶部信息卡 ── */}
@@ -1183,7 +1164,7 @@ const MirrorDetail: React.FC = () => {
                     fontSize: { xs: '1.5rem', md: '2rem' },
                   }}
                 >
-                  {mirror.name[locale]}
+                  {mirror.name}
                 </Typography>
                 <StatusChip status={mirror.status} size="medium" />
                 {/* id 在详情页保留作为标签，因为详情页有充足空间展示 */}
@@ -1212,7 +1193,7 @@ const MirrorDetail: React.FC = () => {
                   mb: 2,
                 }}
               >
-                {mirror.desc[locale]}
+                {mirror.desc}
               </Typography>
 
               {/* 完整 URL 行 */}
@@ -1244,7 +1225,7 @@ const MirrorDetail: React.FC = () => {
                   </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', gap: 0.5, flexShrink: 0 }}>
-                  <Tooltip title={copiedUrl ? t('mirror.copied') : t('mirror.copyUrl')}>
+                  <Tooltip title={copiedUrl ? "已复制！" : "复制地址"}>
                     <Button
                       size="small"
                       onClick={handleCopyUrl}
@@ -1254,10 +1235,10 @@ const MirrorDetail: React.FC = () => {
                       }
                       sx={{ fontFamily: '"JetBrains Mono", monospace' }}
                     >
-                      {copiedUrl ? t('mirror.copied') : t('mirror.copyUrl')}
+                      {copiedUrl ? "已复制！" : "复制地址"}
                     </Button>
                   </Tooltip>
-                  <Tooltip title={t('common.openInBrowser')}>
+                  <Tooltip title={"在浏览器中打开"}>
                     <IconButton
                       size="small"
                       component="a"
@@ -1265,7 +1246,7 @@ const MirrorDetail: React.FC = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                       color="primary"
-                      aria-label={t('common.openInBrowser')}
+                      aria-label={"在浏览器中打开"}
                     >
                       <OpenIcon fontSize="small" />
                     </IconButton>
@@ -1285,7 +1266,7 @@ const MirrorDetail: React.FC = () => {
               mb: 2,
             }}
           >
-            {t('detail.syncStatus')}
+            {"同步状态"}
           </Typography>
           <SyncTimeline mirror={mirror} />
         </Box>
@@ -1306,11 +1287,11 @@ const MirrorDetail: React.FC = () => {
               '& .MuiTab-root': { fontWeight: 600, minWidth: { xs: 80, sm: 120 } },
             }}
           >
-            <Tab label={t('detail.helpDoc')} />
-            {hasLicenseFile && <Tab label={t('detail.license')} />}
-            <Tab label={t('detail.fileList')} />
-            {isGithubRelease && <Tab label={t('detail.subprojects')} />}
-            {hasFiles && <Tab label={t('detail.installImages')} />}
+            <Tab label={"使用说明"} />
+            {hasLicenseFile && <Tab label={"许可证"} />}
+            <Tab label={"文件列表"} />
+            {isGithubRelease && <Tab label={"子项目"} />}
+            {hasFiles && <Tab label={"安装镜像"} />}
           </Tabs>
 
           <TabPanel value={tabValue} index={tabIdx('help')}>
@@ -1330,13 +1311,13 @@ const MirrorDetail: React.FC = () => {
                   </MDXProvider>
                 </Box>
               ) : (
-                <Alert severity="info">{t('detail.noHelp')}</Alert>
+                <Alert severity="info">{"暂无使用说明"}</Alert>
               )}
             </TabPanel>
           )}
 
           <TabPanel value={tabValue} index={tabIdx('files')}>
-            <DirectoryListing mirrorUrl={mirror.url} mirrorName={mirror.name[locale]} />
+            <DirectoryListing mirrorUrl={mirror.url} mirrorName={mirror.name} />
           </TabPanel>
 
           {isGithubRelease && (

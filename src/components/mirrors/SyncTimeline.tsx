@@ -11,11 +11,9 @@ import {
 } from '@mui/icons-material';
 import { Box, Typography, Paper, Grid, Tooltip, IconButton } from '@mui/material';
 import React, { useState, useRef, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 
-import { useLocaleStore } from '../../stores/mirrorStore';
-import type { Mirror } from '../../types';
-import { formatAbsoluteTime } from '../../utils/time';
+import type { Mirror } from '@/types';
+import { formatAbsoluteTime } from '@/utils/time.ts';
 
 interface SyncTimelineProps {
   mirror: Mirror;
@@ -72,7 +70,6 @@ const UpstreamCard: React.FC<{ label: string; value: string }> = ({ label, value
   const display = value && value !== '-' ? value : '—';
   const hasValue = display !== '—';
   const [copied, setCopied] = useState(false);
-  const { t } = useTranslation();
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(
     () => () => {
@@ -157,12 +154,12 @@ const UpstreamCard: React.FC<{ label: string; value: string }> = ({ label, value
             </Typography>
           </Tooltip>
           {hasValue && (
-            <Tooltip title={copied ? t('common.copied') : t('common.clickToCopy')} placement="top">
+            <Tooltip title={copied ? "已复制" : "点击复制"} placement="top">
               <IconButton
                 size="small"
                 onClick={handleCopy}
                 sx={{ p: 0.3, flexShrink: 0 }}
-                aria-label={t('common.clickToCopy')}
+                aria-label={"点击复制"}
               >
                 {copied ? (
                   <CheckIcon sx={{ fontSize: 13, color: 'success.main' }} />
@@ -180,8 +177,6 @@ const UpstreamCard: React.FC<{ label: string; value: string }> = ({ label, value
 
 // ── 主组件 ────────────────────────────────────────────────────────────────────
 const SyncTimeline: React.FC<SyncTimelineProps> = ({ mirror }) => {
-  const { t } = useTranslation();
-  const { locale } = useLocaleStore();
 
   const statusColor = {
     succeeded: 'success.main',
@@ -191,6 +186,7 @@ const SyncTimeline: React.FC<SyncTimelineProps> = ({ mirror }) => {
     paused: 'warning.main',
     disabled: 'text.disabled',
     unknown: 'text.secondary',
+    proxy: 'text.secondary'
   }[mirror.status];
 
   return (
@@ -206,8 +202,8 @@ const SyncTimeline: React.FC<SyncTimelineProps> = ({ mirror }) => {
         <Grid size={{ xs: 6, md: 3 }} sx={{ display: 'flex' }}>
           <TimeCard
             icon={<SyncIcon fontSize="small" />}
-            label={t('mirror.lastUpdated')}
-            value={formatAbsoluteTime(mirror.lastUpdated, locale)}
+            label={"最后更新"}
+            value={formatAbsoluteTime(mirror.lastUpdated)}
             color={statusColor}
           />
         </Grid>
@@ -215,8 +211,8 @@ const SyncTimeline: React.FC<SyncTimelineProps> = ({ mirror }) => {
         <Grid size={{ xs: 6, md: 3 }} sx={{ display: 'flex' }}>
           <TimeCard
             icon={<SuccessIcon fontSize="small" />}
-            label={t('mirror.lastSuccess')}
-            value={formatAbsoluteTime(mirror.lastSuccess, locale)}
+            label={"上次成功"}
+            value={formatAbsoluteTime(mirror.lastSuccess)}
             color="success.main"
           />
         </Grid>
@@ -224,15 +220,15 @@ const SyncTimeline: React.FC<SyncTimelineProps> = ({ mirror }) => {
         <Grid size={{ xs: 6, md: 3 }} sx={{ display: 'flex' }}>
           <TimeCard
             icon={<ScheduleIcon fontSize="small" />}
-            label={t('mirror.nextScheduled')}
-            value={formatAbsoluteTime(mirror.nextScheduled, locale)}
+            label={"下次同步"}
+            value={formatAbsoluteTime(mirror.nextScheduled)}
             color="info.main"
           />
         </Grid>
 
         {/* 上游地址：同行第四列，单行截断 + hover Tooltip */}
         <Grid size={{ xs: 6, md: 3 }} sx={{ display: 'flex' }}>
-          <UpstreamCard label={t('mirror.upstream')} value={mirror.upstream || '-'} />
+          <UpstreamCard label={"上游源"} value={mirror.upstream || '-'} />
         </Grid>
 
         {/* 同步失败警告条 */}
@@ -259,7 +255,7 @@ const SyncTimeline: React.FC<SyncTimelineProps> = ({ mirror }) => {
                   fontWeight: 500,
                 }}
               >
-                {t('sync.failedWarning', { time: formatAbsoluteTime(mirror.lastSuccess, locale) })}
+                {`该镜像当前同步失败，请暂时使用官方源。上次成功同步：${formatAbsoluteTime(mirror.lastSuccess) }`}
               </Typography>
             </Paper>
           </Grid>

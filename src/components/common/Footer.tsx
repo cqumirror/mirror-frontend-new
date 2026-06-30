@@ -14,15 +14,12 @@ import {
   useTheme,
 } from '@mui/material';
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 
-import { useLocaleStore } from '../../stores/mirrorStore';
 
 // 2x2 网格卡片数据
 const GRID_CARDS = [
   {
     title: '指导单位',
-    titleEn: 'Guided By',
     href: 'https://net.cqu.edu.cn/',
     imgLight: '/img/guide-placeholder.png',
     imgDark: '/img/guide-placeholder-dark.png',
@@ -30,7 +27,6 @@ const GRID_CARDS = [
   },
   {
     title: '运营维护',
-    titleEn: 'Maintained By',
     href: 'https://lanunion.cqu.edu.cn/',
     imgLight: '/img/maintain-placeholder.png',
     imgDark: '/img/maintain-placeholder-dark.png',
@@ -46,7 +42,6 @@ const GRID_CARDS = [
   },
   // {
   //   title: '赞助',
-  //   titleEn: 'Sponsors',
   //   img: '/img/sponsor-1.jpg',
   //   alt: '上海睿尔智创网络科技有限公司',
   //   href: 'https://www.rezcwl.com',
@@ -56,24 +51,22 @@ const GRID_CARDS = [
 
 // 友情链接数据
 const FRIEND_LINKS = [
-  { label: { zh: '校园网联合镜像站', en: 'CERNET Mirror' }, href: 'https://mirrors.cernet.edu.cn' },
+  { label:'校园网联合镜像站', href: 'https://mirrors.cernet.edu.cn' },
   {
-    label: { zh: '清华 TUNA 镜像站', en: 'TUNA Mirror' },
+    label:'清华 TUNA 镜像站',
     href: 'https://mirrors.tuna.tsinghua.edu.cn',
   },
   {
-    label: { zh: '重庆大学信息化办公室', en: 'Information Office of Chongqing University' },
+    label:'重庆大学信息化办公室',
     href: 'https://net.cqu.edu.cn/',
   },
-  { label: { zh: '重庆大学蓝盟', en: 'CQU Lanunion' }, href: 'https://lanunion.cqu.edu.cn/' },
+  { label: '重庆大学蓝盟', href: 'https://lanunion.cqu.edu.cn/' },
 ];
 
 /**
  * 站点页脚
  */
 const Footer: React.FC = () => {
-  const { t } = useTranslation();
-  const { locale } = useLocaleStore();
   const theme = useTheme();
   const year = new Date().getFullYear();
   const isDark = theme.palette.mode === 'dark';
@@ -122,7 +115,9 @@ const Footer: React.FC = () => {
                 whiteSpace: 'pre-line',
               }}
             >
-              {t('footer.description')}
+              {"本站在重庆大学信息化办公室的支持下创办，由重庆大学蓝盟运营维护，为校内外用户提供快速的软件下载服务。" +
+                "\n本站镜像同步工具 fork 自清华大学 TUNA 协会的镜像管理器项目。 镜像站前端 fork 自 荆楚理工学院开源镜像站前端项目。" +
+                "\n根据相关法律法规，本站不对欧盟用户提供服务。"}
             </Typography>
             <Box sx={{ display: 'flex', gap: 0.5, mb: 2 }}>
               <Tooltip title="GitHub">
@@ -137,7 +132,7 @@ const Footer: React.FC = () => {
                   <GitHubIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
-              <Tooltip title={t('footer.contact')}>
+              <Tooltip title={"联系我们"}>
                 <IconButton
                   size="small"
                   component="a"
@@ -155,7 +150,7 @@ const Footer: React.FC = () => {
                 variant="caption"
                 sx={{ color: 'text.secondary', fontWeight: 600, mr: 0.5 }}
               >
-                {t('footer.friendLinks')}
+                {"友情链接"}
               </Typography>
               {FRIEND_LINKS.map((link) => (
                 <Link
@@ -174,7 +169,7 @@ const Footer: React.FC = () => {
                     '&:hover': { bgcolor: 'action.hover', color: 'primary.main' },
                   }}
                 >
-                  {locale === 'en' ? link.label.en : link.label.zh}
+                  {link.label}
                 </Link>
               ))}
             </Box>
@@ -317,10 +312,10 @@ const Footer: React.FC = () => {
           }}
         >
           <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-            {t('footer.copyright', { year })}
+            {`© ${year} CQU Mirror. All rights reserved.`}
           </Typography>
           <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-            {t('footer.poweredBy')}
+            {"Powered by tunasync"}
           </Typography>
         </Box>
       </Container>

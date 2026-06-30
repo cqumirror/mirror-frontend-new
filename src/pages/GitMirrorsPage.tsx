@@ -27,7 +27,6 @@ import {
   Typography,
 } from '@mui/material';
 import React, { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 import type { GithubReleaseProject } from '../api/directoryListing';
@@ -35,7 +34,6 @@ import StatusChip from '../components/mirrors/StatusChip';
 import { hasMdxDoc } from '../docs';
 import { useGithubReleaseProjects } from '../hooks/useGithubReleaseProjects';
 import { useMirrors } from '../hooks/useMirrors';
-import { useLocaleStore } from '../stores/mirrorStore';
 import { canonicalUrl } from '../utils/seo';
 import { formatRelativeTime } from '../utils/time';
 
@@ -97,21 +95,21 @@ const ProjectAvatar: React.FC<{ org: string; size?: number }> = ({ org, size = 4
 // ── GitHub Release 项目卡片 ───────────────────────────────────────────────────
 
 /** 尝试将 repo 名映射到 github-release-* 帮助文档 slug */
-function repoToDocId(repo: string, locale: string): string | null {
+function repoToDocId(repo: string): string | null {
   const lower = repo.toLowerCase();
   const candidates = [`github-release-${lower}`];
   // repo 名含 '.' 时也尝试 '-' 版本（如 Smiley-Sans -> smiley-sans）
   if (lower.includes('.')) candidates.push(`github-release-${lower.replace(/\./g, '-')}`);
   for (const id of candidates) {
-    if (hasMdxDoc(id, locale)) return id;
+    if (hasMdxDoc(id)) return id;
   }
   return null;
 }
 
-const ProjectCard: React.FC<{ project: GithubReleaseProject; locale: string }> = ({ project, locale }) => {
+const ProjectCard: React.FC<{ project: GithubReleaseProject}> = ({ project }) => {
   const navigate = useNavigate();
   const handleClick = () => {
-    const docId = repoToDocId(project.repo, locale);
+    const docId = repoToDocId(project.repo);
     if (docId) {
       // 传递 org/repo 参数，使 GithubReleaseViewer 自动选中子项目
       navigate(`/mirrors/${docId}?org=${encodeURIComponent(project.org)}&repo=${encodeURIComponent(project.repo)}`);
@@ -186,8 +184,6 @@ const ProjectCard: React.FC<{ project: GithubReleaseProject; locale: string }> =
 // ── 主页面 ────────────────────────────────────────────────────────────────────
 
 const GitMirrorsPage: React.FC = () => {
-  const { t } = useTranslation();
-  const { locale } = useLocaleStore();
   const navigate = useNavigate();
 
   // Git 仓库镜像（从已有数据中过滤）
@@ -204,8 +200,8 @@ const GitMirrorsPage: React.FC = () => {
 
   return (
     <>
-      <title>{`${t('gitPage.title')} - 重庆大学开源软件镜像站 CQU Mirror`}</title>
-      <meta name="description" content={t('gitPage.gitDesc')} />
+      <title>{`${"Git 仓库镜像 & GitHub Release"} - 重庆大学开源软件镜像站 CQU Mirror`}</title>
+      <meta name="description" content={"以下镜像为 Git 仓库的完整克隆，可直接 git clone 使用"} />
       <link rel="canonical" href={canonicalUrl('/mirrors/git')} />
 
       <Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}>
@@ -217,11 +213,11 @@ const GitMirrorsPage: React.FC = () => {
             size="small"
             sx={{ color: 'text.secondary' }}
           >
-            {t('common.backToHome')}
+            {"返回首页"}
           </Button>
           <Typography sx={{ color: 'text.disabled', display: { xs: 'none', sm: 'block' } }}>/</Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            {t('gitPage.title')}
+            {"Git 仓库镜像 & GitHub Release"}
           </Typography>
         </Box>
 
@@ -229,17 +225,17 @@ const GitMirrorsPage: React.FC = () => {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 4 }}>
           <CodeIcon sx={{ fontSize: 32, color: 'primary.main' }} />
           <Typography variant="h4" sx={{ fontWeight: 800 }}>
-            {t('gitPage.title')}
+            {"Git 仓库镜像 & GitHub Release"}
           </Typography>
         </Box>
 
         {/* ── Section 1: Git 仓库镜像 ────────────────────────────────────────── */}
         <Box sx={{ mb: 5 }}>
           <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-            {t('gitPage.gitSection')}
+            {"Git 仓库镜像"}
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
-            {t('gitPage.gitDesc')}
+            {"以下镜像为 Git 仓库的完整克隆，可直接 git clone 使用"}
           </Typography>
 
           {mirrorsLoading ? (
@@ -270,23 +266,23 @@ const GitMirrorsPage: React.FC = () => {
           ) : mirrorsError ? (
             <Alert severity="error">{String(mirrorsError)}</Alert>
           ) : gitMirrors.length === 0 ? (
-            <Alert severity="info">{t('gitPage.noGitMirrors')}</Alert>
+            <Alert severity="info">{"暂无 Git 仓库镜像"}</Alert>
           ) : (
             <TableContainer component={Paper} variant="outlined">
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 700 }}>{t('gitPage.colName')}</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>{"镜像名称"}</TableCell>
                     <TableCell sx={{ fontWeight: 700, fontFamily: '"JetBrains Mono", monospace' }}>
                       ID
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>{t('gitPage.colStatus')}</TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>{t('gitPage.colLastUpdated')}</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>{"状态"}</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>{"最后更新"}</TableCell>
                     <TableCell sx={{ fontWeight: 700, display: { xs: 'none', md: 'table-cell' } }}>
-                      {t('gitPage.colSize')}
+                      {"大小"}
                     </TableCell>
                     <TableCell sx={{ fontWeight: 700, display: { xs: 'none', md: 'table-cell' } }}>
-                      {t('gitPage.colUpstream')}
+                      {"上游源"}
                     </TableCell>
                   </TableRow>
                 </TableHead>
@@ -300,7 +296,7 @@ const GitMirrorsPage: React.FC = () => {
                     >
                       <TableCell>
                         <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                          {m.name[locale]}
+                          {m.name}
                         </Typography>
                       </TableCell>
                       <TableCell>
@@ -316,7 +312,7 @@ const GitMirrorsPage: React.FC = () => {
                       </TableCell>
                       <TableCell>
                         <Typography variant="body2" sx={{ whiteSpace: 'nowrap' }}>
-                          {formatRelativeTime(m.lastUpdated, locale)}
+                          {formatRelativeTime(m.lastUpdated)}
                         </Typography>
                       </TableCell>
                       <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
@@ -350,11 +346,11 @@ const GitMirrorsPage: React.FC = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
             <GitHubIcon sx={{ fontSize: 20 }} />
             <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              {t('gitPage.githubSection')}
+              {"GitHub Release 项目"}
             </Typography>
             {!projectsLoading && !projectsError && (
               <Chip
-                label={t('gitPage.projectCount', { count: projects.length })}
+                label={`共 ${projects.length} 个项目`}
                 size="small"
                 variant="outlined"
                 sx={{ ml: 1, fontSize: '0.75rem' }}
@@ -362,7 +358,7 @@ const GitMirrorsPage: React.FC = () => {
             )}
           </Box>
           <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
-            {t('gitPage.githubDesc')}
+            {"以下为 GitHub Release 镜像的项目列表，点击查看详情和下载"}
           </Typography>
 
           {projectsLoading ? (
@@ -386,19 +382,19 @@ const GitMirrorsPage: React.FC = () => {
               severity="error"
               action={
                 <Button color="inherit" size="small" onClick={() => refetchProjects()}>
-                  {t('common.refresh')}
+                  {"刷新"}
                 </Button>
               }
             >
               {String(projectsError)}
             </Alert>
           ) : projects.length === 0 ? (
-            <Alert severity="info">{t('gitPage.noProjects')}</Alert>
+            <Alert severity="info">{"暂无 GitHub Release 项目"}</Alert>
           ) : (
             <Grid container spacing={2}>
               {projects.map((proj) => (
                 <Grid size={{ xs: 6, sm: 4, md: 3 }} key={`${proj.org}/${proj.repo}`}>
-                  <ProjectCard project={proj} locale={locale} />
+                  <ProjectCard project={proj} />
                 </Grid>
               ))}
             </Grid>

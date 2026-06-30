@@ -12,7 +12,6 @@ import {
 } from '@mui/icons-material';
 import { Box, Container, Typography, Button, Stack, Tooltip, Link } from '@mui/material';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 interface ErrorPageProps {
@@ -32,13 +31,8 @@ interface ClientInfo {
 // ── 主组件 ────────────────────────────────────────────────────────────────────
 const ErrorPage: React.FC<ErrorPageProps> = ({ code = 404 }) => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
-
-  // 尝试读取 error.title{code}，若该 key 不存在则降级为 titleDefault
-  const titleKey = `error.title${code}`;
-  const descKey = `error.desc${code}`;
-  const title = t(titleKey, { defaultValue: '' }) || t('error.titleDefault');
-  const desc = t(descKey, { defaultValue: '' }) || t('error.descDefault');
+  const title = "发生错误";
+  const desc = "访问出现了异常，请稍后再试或返回首页。";
   const canRefresh = REFRESHABLE_CODES.has(code);
 
   // 客户端信息
@@ -223,7 +217,7 @@ const ErrorPage: React.FC<ErrorPageProps> = ({ code = 404 }) => {
               size="large"
               sx={{ borderRadius: 6 }}
             >
-              {t('error.backHome')}
+              {"返回首页"}
             </Button>
             {canRefresh && (
               <Button
@@ -233,14 +227,14 @@ const ErrorPage: React.FC<ErrorPageProps> = ({ code = 404 }) => {
                 size="large"
                 sx={{ borderRadius: 6 }}
               >
-                {t('error.refreshPage')}
+                {"刷新页面"}
               </Button>
             )}
           </Stack>
 
           {/* 联系方式 */}
           <Typography variant="body2" sx={{ color: 'text.secondary', mt: 4 }}>
-            {t('error.contactHint')}
+            {"如问题持续，请携带以上错误信息联系我们："}
           </Typography>
           <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 0.5, alignItems: 'center' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

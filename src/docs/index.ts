@@ -7,48 +7,32 @@ import type React from 'react';
  * 使用 Vite 的 import.meta.glob 自动发现 MDX 文档
  * 只需将 .mdx 文件放入对应目录，无需手动注册
  */
-const zhDocsRaw = import.meta.glob<{ default: React.FC }>('../../content/docs/mdx/zh/*.mdx', {
+const docsRaw = import.meta.glob<{ default: React.FC }>('../../content/docs/mdx/*.mdx', {
   eager: false,
 }) as Record<string, () => Promise<{ default: React.FC }>>;
 
-const enDocsRaw = import.meta.glob<{ default: React.FC }>('../../content/docs/mdx/en/*.mdx', {
-  eager: false,
-}) as Record<string, () => Promise<{ default: React.FC }>>;
-
-// 转换为 mirrorId -> importFn 映射
-const zhDocs: Record<string, () => Promise<{ default: React.FC }>> = {};
-const enDocs: Record<string, () => Promise<{ default: React.FC }>> = {};
-
-Object.entries(zhDocsRaw).forEach(([path, importFn]) => {
+Object.entries(docsRaw).forEach(([path, importFn]) => {
   const mirrorId = path.replace(/.*\//, '').replace('.mdx', '');
-  zhDocs[mirrorId] = importFn;
-});
-
-Object.entries(enDocsRaw).forEach(([path, importFn]) => {
-  const mirrorId = path.replace(/.*\//, '').replace('.mdx', '');
-  enDocs[mirrorId] = importFn;
+  docsRaw[mirrorId] = importFn;
 });
 
 /**
  * 获取指定镜像的帮助文档组件
  * @param mirrorId 镜像 ID
- * @param locale 语言环境 'zh' 或 'en'
  * @returns Promise 返回 React 组件，不存在则返回 null
  */
 export const loadHelpDoc = async (
   mirrorId: string,
-  locale: string = 'zh'
 ): Promise<React.FC | null> => {
   try {
-    const docMap = locale === 'en' ? enDocs : zhDocs;
-    const importFn = docMap[mirrorId];
+    const importFn = docsRaw[mirrorId];
     if (importFn) {
       const module = await importFn();
       return module.default || null;
     }
     return null;
   } catch (error) {
-    if (import.meta.env.DEV) console.warn(`Failed to load help doc for ${mirrorId} (${locale}):`, error);
+    if (import.meta.env.DEV) console.warn(`Failed to load help doc for ${mirrorId}:`, error);
     return null;
   }
 };
@@ -56,10 +40,8 @@ export const loadHelpDoc = async (
 /**
  * 检查指定镜像是否有 MDX 文档
  * @param mirrorId 镜像 ID
- * @param locale 语言环境 'zh' 或 'en'
  * @returns boolean
  */
-export const hasMdxDoc = (mirrorId: string, locale: string = 'zh'): boolean => {
-  const docMap = locale === 'en' ? enDocs : zhDocs;
-  return !!docMap[mirrorId];
+export const hasMdxDoc = (mirrorId: string): boolean => {
+  return !!docsRaw[mirrorId];
 };

@@ -20,13 +20,11 @@ import {
   TableCell,
 } from '@mui/material';
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 
 import { getNewsArticle, getNewsItem } from '@/news';
 
 import CodeBlock from '../components/docs/CodeBlock';
-import { useLocaleStore } from '../stores/mirrorStore';
 import { canonicalUrl } from '../utils/seo';
 
 
@@ -127,18 +125,14 @@ const mdxComponents = {
 const NewsDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { t } = useTranslation();
-  const { locale } = useLocaleStore();
 
-  const meta = slug ? getNewsItem(slug, locale) : undefined;
-  const ArticleComponent = slug ? getNewsArticle(slug, locale) : null;
+  const meta = slug ? getNewsItem(slug) : undefined;
+  const ArticleComponent = slug ? getNewsArticle(slug) : null;
   const notFound = !ArticleComponent && !meta;
 
   const displayTitle = meta
     ? meta.title
-    : locale === 'zh'
-      ? '新闻详情'
-      : 'News';
+    : '新闻详情';
 
   const pageTitle = `${displayTitle} - 重庆大学开源软件镜像站 CQU Mirror`;
 
@@ -149,11 +143,11 @@ const NewsDetailPage: React.FC = () => {
           severity="error"
           action={
             <Button color="inherit" size="small" onClick={() => navigate('/news')}>
-              {t('news.backToList')}
+              {"返回列表"}
             </Button>
           }
         >
-          {t('news.notFound')}
+          {"新闻不存在"}
         </Alert>
       </Container>
     );
@@ -174,7 +168,7 @@ const NewsDetailPage: React.FC = () => {
               color: 'text.secondary',
             }}
           >
-            {t('nav.home')}
+            {"首页"}
           </Link>
           <Link
             component={RouterLink}
@@ -184,7 +178,7 @@ const NewsDetailPage: React.FC = () => {
               color: 'text.secondary',
             }}
           >
-            {t('news.breadcrumb')}
+            {"新闻动态"}
           </Link>
           <Typography
             noWrap
@@ -204,7 +198,7 @@ const NewsDetailPage: React.FC = () => {
           size="small"
           sx={{ mb: 3, color: 'text.secondary' }}
         >
-          {t('news.backToList')}
+          {"返回列表"}
         </Button>
 
         {/* 文章头部元信息 */}

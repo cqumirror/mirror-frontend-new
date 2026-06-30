@@ -21,10 +21,10 @@ import {
   LinearProgress,
 } from '@mui/material';
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 import { getNewsList } from '@/news';
+import type { Mirror } from '@/types';
 import { SITE_ORIGIN, SITE_TITLE_ZH, KEYWORDS_ZH, DESC_ZH, canonicalUrl } from '@/utils/seo';
 
 import RefreshButton from '../components/common/RefreshButton';
@@ -42,7 +42,7 @@ import {
   sortedGroupKeys,
 } from '../hooks/useMirrors';
 import { useMirrorSearchStore, useFavoriteStore } from '../stores/mirrorStore';
-import type { Mirror } from '../types';
+
 
 
 // ── 字母索引导航子组件（roving tabindex）────────────────────────────────────
@@ -170,7 +170,6 @@ const TestErrorPageButton: React.FC = () => {
  * 首页 - 展示镜像站概览
  */
 const Home: React.FC = () => {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const [downloadOpen, setDownloadOpen] = useState(false);
   const [triggerError, setTriggerError] = useState(false);
@@ -270,7 +269,7 @@ const Home: React.FC = () => {
                 campusStatus.status === '1'
                   ? {
                       icon: <WifiIcon sx={{ fontSize: 14 }} />,
-                      label: t('network.campusChip'),
+                      label: "校园网",
                       color: 'success' as const,
                       dot: '#22C55E',
                     }
@@ -283,17 +282,17 @@ const Home: React.FC = () => {
                       }
                     : {
                         icon: <WifiIcon sx={{ fontSize: 14 }} />,
-                        label: t('network.externalLabel'),
+                        label: "校外网络",
                         color: 'default' as const,
                         dot: '#94A3B8',
                       };
 
               const tooltip =
                 campusStatus.status === '1'
-                  ? t('network.campus')
+                  ? "您正在使用校园网，可使用内网镜像源获得更快速度"
                   : campusStatus.status === '6'
-                    ? t('network.ipv6')
-                    : t('network.external');
+                    ? "已检测到 IPv6 连接，可使用 IPv6 镜像源"
+                    : "当前为校外网络，速度可能较慢";
 
               return (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, mb: 2 }}>
@@ -355,7 +354,7 @@ const Home: React.FC = () => {
                   letterSpacing: '-0.03em',
                 }}
               >
-                {t('home.hero.title')}
+                {"重庆大学开源软件镜像站"}
               </Typography>
               {import.meta.env.DEV && (
                 <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
@@ -372,7 +371,7 @@ const Home: React.FC = () => {
                 </Box>
               )}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                <Tooltip title={t('nav.gitMirrors')} placement="bottom">
+                <Tooltip title={"Git & GitHub"} placement="bottom">
                   <Button
                     variant="outlined"
                     size="small"
@@ -380,10 +379,10 @@ const Home: React.FC = () => {
                     onClick={() => navigate('/mirrors/git')}
                     sx={{ borderRadius: 6, fontSize: '0.8rem', px: 1.5, py: 0.4, fontWeight: 600, textTransform: 'none' }}
                   >
-                    {t('nav.gitMirrors')}
+                    {"Git & GitHub"}
                   </Button>
                 </Tooltip>
-                <Tooltip title={t('nav.download')} placement="bottom">
+                <Tooltip title={"常用下载"} placement="bottom">
                   <Button
                     variant="outlined"
                     size="small"
@@ -391,7 +390,7 @@ const Home: React.FC = () => {
                     onClick={() => setDownloadOpen(true)}
                     sx={{ borderRadius: 6, fontSize: '0.8rem', px: 1.5, py: 0.4, fontWeight: 600, textTransform: 'none' }}
                   >
-                    {t('nav.download')}
+                    {"常用下载"}
                   </Button>
                 </Tooltip>
               </Box>
@@ -406,7 +405,7 @@ const Home: React.FC = () => {
                 fontSize: { xs: '1rem', md: '1.25rem' },
               }}
             >
-              {t('home.hero.subtitle')}
+              {"CQU Mirror"}
             </Typography>
 
             <Typography
@@ -418,7 +417,7 @@ const Home: React.FC = () => {
                 maxWidth: 520,
               }}
             >
-              {t('home.hero.description')}
+              {"致力于为国内和校内用户提供高质量的开源软件镜像、Linux 镜像源服务"}
             </Typography>
 
           </Box>
@@ -445,7 +444,7 @@ const Home: React.FC = () => {
                       mb: 3,
                     }}
                   >
-                    {t('home.news')}
+                    {"最新动态"}
                   </Typography>
                   <NewsWidget siblingHeight={leftHeight} />
                 </Grid>
@@ -460,7 +459,7 @@ const Home: React.FC = () => {
                     mb: 3,
                   }}
                 >
-                  {t('home.popularMirrors')}
+                  {"常用镜像"}
                 </Typography>
                 {isLoading ? (
                   <Grid container spacing={2}>
@@ -495,7 +494,7 @@ const Home: React.FC = () => {
                   fontWeight: 700,
                 }}
               >
-                {t('favorites.title')}
+                {"我的收藏"}
               </Typography>
               <Chip
                 label={favoriteMirrors.length}
@@ -534,8 +533,8 @@ const Home: React.FC = () => {
               }}
             >
               {searchQuery
-                ? t('search.results', { count: filteredMirrors.length })
-                : t('home.allMirrors')}
+                ? `找到 ${filteredMirrors.length} 个镜像`
+                : "所有镜像"}
             </Typography>
 
             {/* 刷新按钮 */}
@@ -557,10 +556,10 @@ const Home: React.FC = () => {
           {error && (
             <Paper variant="outlined" sx={{ p: 3, textAlign: 'center', borderRadius: 2, mb: 3 }}>
               <Typography color="error" gutterBottom>
-                {t('error.loadFailed')}
+                {"加载失败"}
               </Typography>
               <Button variant="contained" size="small" onClick={() => refetch()}>
-                {t('error.retry')}
+                {"重试"}
               </Button>
             </Paper>
           )}
@@ -569,7 +568,7 @@ const Home: React.FC = () => {
           {!isLoading && Object.keys(groupedMirrors).length > 0 && (
             <LetterIndexNav
               letters={sortedGroupKeys(groupedMirrors)}
-              ariaLabel={t('home.letterIndex')}
+              ariaLabel={"按字母跳转"}
             />
           )}
 

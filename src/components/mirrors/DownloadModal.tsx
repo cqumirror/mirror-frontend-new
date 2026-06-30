@@ -27,12 +27,9 @@ import {
   useTheme,
 } from '@mui/material';
 import React, { useMemo, useState, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
 
 import { sanitizeUrl } from '@/utils/url';
-
-import { useMirrors } from '../../hooks/useMirrors';
-import { useLocaleStore } from '../../stores/mirrorStore';
+import { useMirrors } from '@/hooks/useMirrors.ts';
 
 import DistroLogo from './DistroLogo';
 // 根据文件 URL 后缀返回合适的图标
@@ -87,7 +84,7 @@ function extractGithubProject(url: string): string {
 //     "8-latest x86_64 Rocky Dvd" → [8]
 //     "latest" → []
 function extractVersion(name: string): number[] {
-  const m = name.match(/^[\d]+(?:[.-][\d]+)*/);
+  const m = name.match(/^\d+(?:[.-]\d+)*/);
   if (!m) return [];
   return m[0]
     .split(/[.-]/)
@@ -119,8 +116,6 @@ interface DownloadModalProps {
 }
 
 const DownloadModal: React.FC<DownloadModalProps> = ({ open, onClose }) => {
-  const { t } = useTranslation();
-  const { locale } = useLocaleStore();
   const { data: mirrors = [] } = useMirrors();
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
@@ -137,8 +132,7 @@ const DownloadModal: React.FC<DownloadModalProps> = ({ open, onClose }) => {
     return distros.filter(
       (m) =>
         m.id.toLowerCase().includes(q) ||
-        m.name.zh.toLowerCase().includes(q) ||
-        m.name.en.toLowerCase().includes(q)
+        m.name.toLowerCase().includes(q)
     );
   }, [distros, search]);
 
@@ -228,7 +222,7 @@ const DownloadModal: React.FC<DownloadModalProps> = ({ open, onClose }) => {
               fontWeight: 700,
             }}
           >
-            {t('download.title')}
+            {"常用下载"}
           </Typography>
           <Typography
             variant="caption"
@@ -237,7 +231,7 @@ const DownloadModal: React.FC<DownloadModalProps> = ({ open, onClose }) => {
               ml: 0.5,
             }}
           >
-            {t('download.distroCount', { count: distros.length })}
+            {`共 ${distros.length } 个发行版`}
           </Typography>
         </Box>
         <IconButton size="small" onClick={handleClose} aria-label="关闭">
@@ -261,7 +255,7 @@ const DownloadModal: React.FC<DownloadModalProps> = ({ open, onClose }) => {
             <TextField
               size="small"
               fullWidth
-              placeholder={t('download.search')}
+              placeholder={"搜索发行版…"}
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
@@ -291,7 +285,7 @@ const DownloadModal: React.FC<DownloadModalProps> = ({ open, onClose }) => {
                     color: 'text.secondary',
                   }}
                 >
-                  {t('search.noResults')}
+                  {"未找到匹配的镜像"}
                 </Typography>
               </Box>
             ) : (
@@ -317,8 +311,8 @@ const DownloadModal: React.FC<DownloadModalProps> = ({ open, onClose }) => {
                       <DistroLogo id={m.id} size={20} />
                     </ListItemIcon>
                     <ListItemText
-                      primary={m.name[locale]}
-                      secondary={t('download.fileCount', { count: m.files.length })}
+                      primary={m.name}
+                      secondary={`${m.files.length} 个文件`}
                       slotProps={{
                         primary: {
                           variant: 'body2',
@@ -366,7 +360,7 @@ const DownloadModal: React.FC<DownloadModalProps> = ({ open, onClose }) => {
                       lineHeight: 1.2,
                     }}
                   >
-                    {activeMirror.name[locale]}
+                    {activeMirror.name}
                   </Typography>
                   <Typography
                     variant="caption"
@@ -374,7 +368,7 @@ const DownloadModal: React.FC<DownloadModalProps> = ({ open, onClose }) => {
                       color: 'text.secondary',
                     }}
                   >
-                    {activeMirror.desc[locale]}
+                    {activeMirror.desc}
                   </Typography>
                 </Box>
               </Box>
@@ -399,7 +393,7 @@ const DownloadModal: React.FC<DownloadModalProps> = ({ open, onClose }) => {
                         <ChevronLeftIcon sx={{ fontSize: 18, mr: 0.5, color: 'text.secondary' }} />
                         <ListItemText
                           primary={selectedProject}
-                          secondary={t('download.fileCount', { count: activeProjectFiles.length })}
+                          secondary={`${activeProjectFiles.length} 个文件`}
                           slotProps={{
                             primary: { variant: 'body2', sx: { fontWeight: 700 } },
                             secondary: { sx: { fontSize: '0.72rem' } },
@@ -456,7 +450,7 @@ const DownloadModal: React.FC<DownloadModalProps> = ({ open, onClose }) => {
                                   }}
                                 />
                               </Tooltip>
-                              <Tooltip title={t('common.download')} placement="left">
+                              <Tooltip title={"下载"} placement="left">
                                 <DownloadIcon
                                   className="dl-icon"
                                   sx={{
@@ -495,7 +489,7 @@ const DownloadModal: React.FC<DownloadModalProps> = ({ open, onClose }) => {
                           </ListItemIcon>
                           <ListItemText
                             primary={proj.name}
-                            secondary={t('download.fileCount', { count: proj.count })}
+                            secondary={`${proj.count} 个文件`}
                             slotProps={{
                               primary: {
                                 variant: 'body2',
@@ -560,7 +554,7 @@ const DownloadModal: React.FC<DownloadModalProps> = ({ open, onClose }) => {
                               }}
                             />
                           </Tooltip>
-                          <Tooltip title={t('common.download')} placement="left">
+                          <Tooltip title={"下载"} placement="left">
                             <DownloadIcon
                               className="dl-icon"
                               sx={{
@@ -596,7 +590,7 @@ const DownloadModal: React.FC<DownloadModalProps> = ({ open, onClose }) => {
                   color: 'text.secondary',
                 }}
               >
-                {t('download.selectDistro')}
+                {"← 请先选择发行版"}
               </Typography>
             </Box>
           )}

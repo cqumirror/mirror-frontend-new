@@ -7,10 +7,9 @@
 //   transformOldJobs()              → Mirror[]（前端完成格式转换）
 //   GET /api/getip                  → { is_cqu: 1|0 } 校园网检测
 
-import type { Mirror, CampusNetworkStatus } from '../types';
-
-import { fetchOldTunasyncData, transformOldJobs } from './oldBackendAdapter';
-import type { LocalMeta } from './transform';
+import { LocalMeta, transformJobs } from '@/api/tunasync.ts';
+import {fetchTunasyncData } from '@/api/tunasync.ts';
+import type { Mirror, CampusNetworkStatus } from '@/types';
 
 // ── 本地元数据缓存（只需加载一次）────────────────────────────────────────────
 // 缓存 Promise 本身而非结果，避免并发请求时重复发起网络请求（竞态）
@@ -52,8 +51,8 @@ function mergeIsoInfo(
     } else {
       // 没有元数据，创建基本条目
       result[mirrorId] = {
-        name: { zh: entry.distro, en: entry.distro },
-        desc: { zh: '', en: '' },
+        name: entry.distro,
+        desc: '',
         type: entry.category,
         files,
       };
@@ -104,14 +103,14 @@ function getLocalData(): Promise<Record<string, LocalMeta>> {
 
 /**
  * 获取所有镜像列表
- * 从旧后端 /static/tunasync.json 获取同步状态，与本地 local_data.json 合并
+ * 从后端 /static/tunasync.json 获取同步状态，与本地 local_data.json 合并
  */
 export const fetchMirrors = async (): Promise<Mirror[]> => {
   const [jobs, localData] = await Promise.all([
-    fetchOldTunasyncData(),
+    fetchTunasyncData(),
     getLocalData(),
   ]);
-  return transformOldJobs(jobs, localData);
+  return transformJobs(jobs, localData);
 };
 
 /**

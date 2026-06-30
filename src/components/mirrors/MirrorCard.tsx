@@ -4,12 +4,10 @@
 import { Storage as StorageIcon } from '@mui/icons-material';
 import { Card, CardContent, CardActionArea, Typography, Box, Tooltip } from '@mui/material';
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
-import { useLocaleStore } from '../../stores/mirrorStore';
-import type { Mirror } from '../../types';
-import { formatRelativeTime } from '../../utils/time';
+import type { Mirror } from '@/types';
+import { formatRelativeTime } from '@/utils/time.ts';
 
 import DistroLogo from './DistroLogo';
 import StatusChip from './StatusChip';
@@ -20,9 +18,7 @@ interface MirrorCardProps {
 
 const MirrorCard: React.FC<MirrorCardProps> = React.memo(({ mirror }) => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
-  const { locale } = useLocaleStore();
-  const lastUpdatedText = formatRelativeTime(mirror.lastUpdated, locale);
+  const lastUpdatedText = formatRelativeTime(mirror.lastUpdated);
 
   return (
     <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }} role="article">
@@ -47,7 +43,7 @@ const MirrorCard: React.FC<MirrorCardProps> = React.memo(({ mirror }) => {
                 variant="h6"
                 sx={{ fontSize: '1rem', fontWeight: 700, color: 'text.primary', lineHeight: 1.3 }}
               >
-                {mirror.name[locale]}
+                {mirror.name}
               </Typography>
             </Box>
             <StatusChip status={mirror.status} size="small" />
@@ -67,7 +63,7 @@ const MirrorCard: React.FC<MirrorCardProps> = React.memo(({ mirror }) => {
               minHeight: '3em',
             }}
           >
-            {mirror.desc[locale]}
+            {mirror.desc}
           </Typography>
 
           {/* 底部：大小 + 更新时间 */}
@@ -81,7 +77,7 @@ const MirrorCard: React.FC<MirrorCardProps> = React.memo(({ mirror }) => {
               borderColor: 'divider',
             }}
           >
-            <Tooltip title={t('mirror.size')} placement="bottom">
+            <Tooltip title={"存储大小"} placement="bottom">
               <Box
                 sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'text.secondary' }}
               >

@@ -10,7 +10,6 @@ import {
 import { Button, CircularProgress } from '@mui/material';
 import type { SxProps, Theme } from '@mui/material';
 import React, { useState, useCallback, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
 
 type RefreshState = 'idle' | 'loading' | 'success' | 'error';
 
@@ -31,7 +30,6 @@ const RefreshButton: React.FC<RefreshButtonProps> = ({
   variant = 'outlined',
   sx,
 }) => {
-  const { t } = useTranslation();
   const [state, setState] = useState<RefreshState>('idle');
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -68,12 +66,12 @@ const RefreshButton: React.FC<RefreshButtonProps> = ({
   );
 
   const label = isLoading
-    ? t('common.refreshing')
+    ? "请稍候"
     : isSuccess
-      ? t('common.refreshed')
+      ? "已完成"
       : isError
-        ? t('common.refreshFailed')
-        : t('common.refresh');
+        ? "出错了"
+        : "刷新";
 
   return (
     <Button

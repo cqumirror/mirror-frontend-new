@@ -4,7 +4,6 @@
 import { ContentCopy as CopyIcon, CheckCircle as CheckIcon } from '@mui/icons-material';
 import { Box, IconButton, Tooltip, Typography } from '@mui/material';
 import React, { useState, useRef, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import bash from 'react-syntax-highlighter/dist/esm/languages/hljs/bash';
 import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';
@@ -33,7 +32,6 @@ interface CodeBlockProps {
 const CodeBlock: React.FC<CodeBlockProps> = ({ children, language = 'bash', inline = false }) => {
   const [copied, setCopied] = useState(false);
   const { mode } = useThemeStore();
-  const { t } = useTranslation();
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(
     () => () => {
@@ -110,13 +108,13 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ children, language = 'bash', inli
         >
           {language}
         </Typography>
-        <Tooltip title={copied ? t('mirror.copied') : t('mirror.copyScript')} placement="left">
+        <Tooltip title={copied ? "已复制！" : "复制脚本"} placement="left">
           <IconButton
             size="small"
             onClick={handleCopy}
             color={copied ? 'success' : 'default'}
             sx={{ p: 0.5 }}
-            aria-label={t('mirror.copyScript')}
+            aria-label={"复制脚本"}
           >
             {copied ? <CheckIcon sx={{ fontSize: 16 }} /> : <CopyIcon sx={{ fontSize: 16 }} />}
           </IconButton>

@@ -4,12 +4,10 @@
 import { KeyboardArrowUp as ArrowUpIcon } from '@mui/icons-material';
 import { Fab, Zoom, Tooltip } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 
 const SCROLL_THRESHOLD = 400;
 
 const ScrollToTop: React.FC = () => {
-  const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -26,12 +24,12 @@ const ScrollToTop: React.FC = () => {
 
   return (
     <Zoom in={visible}>
-      <Tooltip title={t('nav.backToTop', '回到顶部')} placement="left">
+      <Tooltip title={'回到顶部'} placement="left">
         <Fab
           size="small"
           color="primary"
           onClick={handleClick}
-          aria-label={t('nav.backToTop', '回到顶部')}
+          aria-label={'回到顶部'}
           sx={{
             position: 'fixed',
             bottom: 24,

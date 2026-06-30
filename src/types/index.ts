@@ -14,6 +14,15 @@ export type MirrorStatus =
   | 'unknown';
 
 /**
+ * 镜像存储方式枚举
+ */
+export type MirrorStorageType =
+  | 'local'
+  | 'campusOnly'
+  | 'proxy'
+  | 'proxyWithCache'
+  | 'redirect';
+/**
  * 镜像文件信息
  */
 export interface MirrorFile {
@@ -27,8 +36,8 @@ export interface MirrorFile {
 export interface Mirror {
   id: string;
   url: string;
-  name: { zh: string; en: string };
-  desc: { zh: string; en: string };
+  name: string;
+  desc: string;
   helpUrl: string;
   upstream: string;
   size: string;
@@ -38,6 +47,8 @@ export interface Mirror {
   lastSuccess: string;
   type: string;
   files: MirrorFile[];
+  popular: boolean;
+  storageType: MirrorStorageType;
 }
 
 /**
@@ -58,7 +69,6 @@ export type ThemeMode = 'light' | 'dark' | 'system';
 /**
  * 语言选项
  */
-export type Locale = 'zh' | 'en';
 
 /**
  * 按字母分组的镜像映射

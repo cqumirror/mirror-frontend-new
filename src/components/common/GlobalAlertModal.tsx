@@ -4,26 +4,24 @@
 
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
-import { Box, Button, Dialog, Divider, IconButton, Link, Typography } from '@mui/material';
+import { Box, Button, Dialog, Divider, Link, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
-import { useLocaleStore } from '../../stores/mirrorStore';
-import { safeGetItem, safeSetItem } from '../../utils/storage';
-import { safeNavigate } from '../../utils/urlWhitelist';
+import { safeGetItem, safeSetItem } from '@/utils/storage.ts';
+import { safeNavigate } from '@/utils/urlWhitelist.ts';
 
 interface AlertLink {
   url: string;
-  label: { zh: string; en: string };
+  label: string;
 }
 
 interface AlertItem {
   id: string;
   level: string;
   active: boolean;
-  title: { zh: string; en: string };
-  content: { zh: string; en: string };
+  title: string;
+  content: string;
   link: AlertLink | null;
   date: string;
 }
@@ -43,8 +41,6 @@ function saveDismissed(ids: Set<string>) {
 }
 
 const GlobalAlertModal: React.FC = () => {
-  const { t } = useTranslation();
-  const { locale } = useLocaleStore();
   const navigate = useNavigate();
 
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
@@ -110,8 +106,8 @@ const GlobalAlertModal: React.FC = () => {
         <ReportProblemIcon sx={{ color: '#fff', fontSize: 20 }} />
         <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#fff', flex: 1 }}>
           {alerts.length > 1
-            ? t('alert.multipleTitle', { count: alerts.length })
-            : alerts[0].title[locale]}
+            ? `有 ${alerts.length} 条通知`
+            : alerts[0].title}
         </Typography>
       </Box>
 
@@ -129,11 +125,11 @@ const GlobalAlertModal: React.FC = () => {
             <Box sx={{ px: 2.5, py: 2 }}>
               {alerts.length > 1 && (
                 <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>
-                  {alert.title[locale]}
+                  {alert.title}
                 </Typography>
               )}
               <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.6 }}>
-                {alert.content[locale]}
+                {alert.content}
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', mt: 1.5, gap: 1.5 }}>
                 {alert.link && (
@@ -153,7 +149,7 @@ const GlobalAlertModal: React.FC = () => {
                       cursor: 'pointer',
                     }}
                   >
-                    {alert.link.label[locale]}
+                    {alert.link.label}
                     <OpenInNewIcon sx={{ fontSize: 13 }} />
                   </Link>
                 )}
@@ -163,7 +159,7 @@ const GlobalAlertModal: React.FC = () => {
                   onClick={() => dismissOne(alert.id)}
                   sx={{ fontSize: '0.78rem', minWidth: 0, color: 'text.secondary' }}
                 >
-                  {t('alert.dismiss')}
+                  {"忽略"}
                 </Button>
               </Box>
             </Box>
@@ -190,7 +186,7 @@ const GlobalAlertModal: React.FC = () => {
             onClick={dismissAll}
             sx={{ fontSize: '0.82rem', color: 'text.secondary' }}
           >
-            {t('alert.dismissAll')}
+            {"全部忽略"}
           </Button>
         )}
         <Button
@@ -200,7 +196,7 @@ const GlobalAlertModal: React.FC = () => {
           onClick={dismissAll}
           sx={{ fontWeight: 700, borderRadius: 1.5, px: 3 }}
         >
-          {t('alert.acknowledge')}
+          {"我已知晓"}
         </Button>
       </Box>
     </Dialog>

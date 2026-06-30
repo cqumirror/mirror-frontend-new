@@ -3,7 +3,6 @@
 
 import { Box, FormControl, InputLabel, Select, MenuItem, Paper, Typography } from '@mui/material';
 import React, { useState, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 
 import CodeBlock from '../docs/CodeBlock';
 
@@ -31,7 +30,6 @@ const ConfigGenerator: React.FC<ConfigGeneratorProps> = ({
   configGen,
   language = 'bash',
 }) => {
-  const { t } = useTranslation();
   // 确保 versionList 不为空
   const safeVersionList = useMemo(() => {
     if (!Array.isArray(versionList) || versionList.length === 0) {
@@ -80,7 +78,7 @@ const ConfigGenerator: React.FC<ConfigGeneratorProps> = ({
             color: 'text.secondary',
           }}
         >
-          {t('configGenerator.noVersions')}
+          {"暂无可用版本"}
         </Typography>
       </Paper>
     );

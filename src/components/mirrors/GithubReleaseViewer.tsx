@@ -36,7 +36,6 @@ import {
   InputBase,
 } from '@mui/material';
 import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 
 import {
@@ -400,7 +399,6 @@ interface FileRowProps {
 }
 
 const FileRow: React.FC<FileRowProps> = ({ file }) => {
-  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(
@@ -488,7 +486,7 @@ const FileRow: React.FC<FileRowProps> = ({ file }) => {
 
       {/* 操作按钮 */}
       <Box sx={{ display: 'flex', gap: 0.25, flexShrink: 0 }}>
-        <Tooltip title={copied ? t('common.copied') : t('common.copyLink')}>
+        <Tooltip title={copied ? "已复制" : "复制链接"}>
           <IconButton
             size="small"
             sx={{ p: 0.5 }}
@@ -498,7 +496,7 @@ const FileRow: React.FC<FileRowProps> = ({ file }) => {
             {copied ? <CheckIcon sx={{ fontSize: 14 }} /> : <CopyIcon sx={{ fontSize: 14 }} />}
           </IconButton>
         </Tooltip>
-        <Tooltip title={t('common.download')}>
+        <Tooltip title={"下载"}>
           <IconButton
             size="small"
             sx={{ p: 0.5 }}
@@ -534,7 +532,6 @@ interface GithubReleaseViewerProps {
 }
 
 const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath, subProjectPath, isOrgView }) => {
-  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
 
   // ── 状态 ──────────────────────────────────────────────────────────────────
@@ -839,7 +836,7 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath, sub
           severity="error"
           action={
             <Button size="small" onClick={() => loadProjects()} startIcon={<RefreshIcon />}>
-              {t('common.retry')}
+              {"重试"}
             </Button>
           }
         >
@@ -861,10 +858,10 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath, sub
         >
           <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
             {projectsLoading
-              ? t('githubRelease.loadingProjects')
-              : t('githubRelease.projectCount', { count: projects.length })}
+              ? "正在加载项目列表…"
+              : `共 ${projects.length} 个项目`}
           </Typography>
-          <Tooltip title={t('common.refresh')}>
+          <Tooltip title={"刷新"}>
             <IconButton size="small" onClick={() => loadProjects()} disabled={projectsLoading}>
               <RefreshIcon sx={{ fontSize: 16 }} />
             </IconButton>
@@ -910,7 +907,7 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath, sub
           onClick={handleBack}
           sx={{ mb: 2, color: 'text.secondary' }}
         >
-          {t('githubRelease.backToProjects')}
+          {"返回项目列表"}
         </Button>
       )}
 
@@ -945,7 +942,7 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath, sub
         <Skeleton variant="rectangular" height={40} sx={{ borderRadius: 1, mb: 2 }} />
       ) : releases.length === 0 && files.length === 0 ? (
         <Alert severity="info" sx={{ mb: 2 }}>
-          {t('githubRelease.noReleases')}
+          {"该项目暂无 Release"}
         </Alert>
       ) : releases.length > 0 || files.length > 0 ? (
         <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', minWidth: 0 }}>
@@ -983,7 +980,7 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath, sub
                           sx={{ fontSize: '0.6rem', height: 16, mr: 0.25 }}
                         />
                       )}
-                      {rel.isLatest ? t('githubRelease.latestRelease') : rel.name}
+                      {rel.isLatest ? "最新 Release" : rel.name}
                     </Box>
                   }
                   value={idx}
@@ -1018,7 +1015,7 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath, sub
                   }}
                 >
                   {selectedRelease.isLatest
-                    ? t('githubRelease.latestRelease')
+                    ? "最新 Release"
                     : selectedRelease.name}
                 </Typography>
                 {selectedRelease.date && (
@@ -1034,13 +1031,13 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath, sub
                 {!filesLoading && files.length > 0 && (
                   <Chip
                     size="small"
-                    label={t('githubRelease.fileCount', { count: files.length })}
+                    label={`${files.length} 个文件`}
                     variant="outlined"
                     sx={{ fontSize: '0.68rem', height: 20 }}
                   />
                 )}
               </Box>
-              <Tooltip title={t('common.openInBrowser')}>
+              <Tooltip title={"在浏览器中打开"}>
                 <IconButton
                   size="small"
                   component="a"
@@ -1077,7 +1074,7 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath, sub
                 }}
               >
                 <EmptyIcon sx={{ fontSize: 36 }} />
-                <Typography variant="body2">{t('githubRelease.noFiles')}</Typography>
+                <Typography variant="body2">{"该 Release 暂无文件"}</Typography>
               </Box>
             ) : (
               <>
@@ -1105,8 +1102,8 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath, sub
                       value={fileSearch}
                       onChange={(e) => setFileSearch(e.target.value)}
                       onKeyDown={(e) => e.key === 'Escape' && setFileSearch('')}
-                      placeholder={t('githubRelease.searchFiles')}
-                      inputProps={{ 'aria-label': t('githubRelease.searchFiles') }}
+                      placeholder={"搜索文件…"}
+                      inputProps={{ 'aria-label': "搜索文件…" }}
                       sx={{
                         flex: 1,
                         fontSize: '0.82rem',
@@ -1133,7 +1130,7 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath, sub
                           setFileSearch('');
                           fileSearchRef.current?.focus();
                         }}
-                        aria-label={t('common.clear')}
+                        aria-label={"清除"}
                         sx={{ p: 0.25 }}
                       >
                         <ClearIcon sx={{ fontSize: 14 }} />
@@ -1146,7 +1143,7 @@ const GithubReleaseViewer: React.FC<GithubReleaseViewerProps> = ({ rootPath, sub
                 {fileSearch && filteredFiles.length === 0 ? (
                   <Box sx={{ py: 3, textAlign: 'center', color: 'text.disabled' }}>
                     <Typography variant="body2">
-                      {t('directory.noResults', { query: fileSearch })}
+                      {`未找到 \"${fileSearch}\"`}
                     </Typography>
                   </Box>
                 ) : (

@@ -45,11 +45,11 @@ This directory contains JSON data files loaded at runtime via `fetch()`. **No re
 | `id` | string | 是 | 唯一标识，用于确认状态持久化 |
 | `level` | string | 是 | 警报等级（预留扩展，目前仅 `critical`） |
 | `active` | boolean | 是 | 是否激活。`false` 不显示 |
-| `title` | {zh, en} | 是 | 警报标题 |
-| `content` | {zh, en} | 是 | 警报正文 |
+| `title` | string | 是 | 警报标题 |
+| `content` | string | 是 | 警报正文 |
 | `link` | object \| null | 是 | 附带链接，`null` 表示无链接 |
 | `link.url` | string | 是 | 链接地址 |
-| `link.label` | {zh, en} | 是 | 链接显示文字 |
+| `link.label` | string | 是 | 链接显示文字 |
 | `date` | string | 是 | 日期，格式 `YYYY-MM-DD`。多条活跃警报取最新 |
 
 - 空数组 `[]` = 无警报，不显示弹窗

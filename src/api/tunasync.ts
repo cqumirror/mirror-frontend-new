@@ -1,26 +1,28 @@
-// src/api/oldBackendAdapter.ts
-// 适配旧版后端（CQU tunasync）的静态 JSON 数据格式
-//
-// 旧后端数据源：
-//   GET /static/tunasync.json  → OldTunasyncJob[]
-//
-// 与新版后端（tunasync-rs /jobs）的主要差异：
-//   - 时间戳是 "YYYY-MM-DD HH:MM:SS" 字符串（UTC+8），不是 Unix 秒
-//   - 状态值用 "success" 而非 "succeeded"
-//   - 没有 next_schedule_ts / last_ended_ts / error_msg 字段
+// src/api/tunasync.ts
+// 适配tunasync的静态 JSON 数据格式
+//   GET /static/tunasync.json  → tunasyncJob[]
 
-import type { Mirror, MirrorFile, MirrorStatus } from '@/types';
+import type { Mirror, MirrorFile, MirrorStatus, MirrorStorageType } from '@/types';
 import { SAFE_URL_RE } from '@/utils/url';
 
-import type { LocalMeta } from './transform';
-
+export interface LocalMeta {
+  name?: string;
+  desc?: string;
+  type?: string;
+  files?: { name: string; url: string }[];
+  helpUrl?: string;
+  status?: MirrorStatus;
+  popular?: boolean;
+  storageType?: MirrorStorageType;
+  upstream?: string;
+}
 // 数据源地址：本地开发走 Vite proxy（相对路径），Cloudflare 等外部部署需指向 CQU 服务器
 const API_BASE = import.meta.env.VITE_API_BASE ?? '';
 
-// ── 旧后端原始类型 ─────────────────────────────────────────────────────────
+// ── tunasync原始类型 ─────────────────────────────────────────────────────────
 
 /** CQU tunasync.json 条目 */
-export interface OldTunasyncJob {
+export interface tunasyncJob {
   name: string;
   last_update: string; // "YYYY-MM-DD HH:MM:SS +0800"
   last_update_ts: number; // Unix 秒
@@ -30,30 +32,28 @@ export interface OldTunasyncJob {
   last_ended_ts?: number;
   next_schedule?: string;
   next_schedule_ts?: number;
-  status: 'success' | 'syncing' | 'paused' | 'failed' | 'pre-syncing' | string;
+  status: 'success' | 'syncing' | 'paused' | 'failed' | string;
   upstream: string;
   size: string;
 }
 
-// ── 状态映射（旧后端状态值 → 前端 MirrorStatus）────────────────────────────
 
-const OLD_STATUS_MAP: Record<string, MirrorStatus> = {
+const _STATUS_MAP: Record<string, MirrorStatus> = {
   success: 'succeeded',
   syncing: 'syncing',
   paused: 'paused',
   failed: 'failed',
-  'pre-syncing': 'cached',
 };
 
 // ── 时间戳转换 ─────────────────────────────────────────────────────────────
 
 /**
- * 将旧后端 "YYYY-MM-DD HH:MM:SS"（UTC+8）转换为 Unix 秒字符串
+ * 将tunasync "YYYY-MM-DD HH:MM:SS"（UTC+8）转换为 Unix 秒字符串
  * 旧前端的 timeConvert 方法：new Date(Date.UTC(y, m-1, d, h-8, min, sec))
  * 即把输入视为 UTC+8 并转为 UTC
  */
-export function parseOldTimestamp(timeStr: string): string {
-  if (!timeStr || typeof timeStr !== 'string') return '';
+export function parseTimestamp(timeStr: string): string {
+  if (!timeStr) return '';
 
   // 匹配 "YYYY-MM-DD HH:MM:SS" 格式，可选时区后缀 "+0800" / "+08:00"
   const match = timeStr.match(
@@ -113,10 +113,10 @@ function sanitizeFiles(files: unknown): MirrorFile[] {
 // ── 数据获取 ───────────────────────────────────────────────────────────────
 
 /**
- * 获取旧后端 tunasync.json
+ * 获取tunasync tunasync.json
  * 失败时返回空数组（降级处理，避免整页崩溃）
  */
-export async function fetchOldTunasyncData(): Promise<OldTunasyncJob[]> {
+export async function fetchTunasyncData(): Promise<tunasyncJob[]> {
   try {
     const res = await fetch(`${API_BASE}/static/tunasync.json`, { cache: 'no-cache' });
     if (!res.ok) throw new Error(`tunasync.json HTTP ${res.status}`);
@@ -124,9 +124,9 @@ export async function fetchOldTunasyncData(): Promise<OldTunasyncJob[]> {
     if (!Array.isArray(data)) {
       throw new Error('tunasync.json: expected array');
     }
-    return data as OldTunasyncJob[];
+    return data as tunasyncJob[];
   } catch (e) {
-    console.error('[oldBackendAdapter] tunasync.json 加载失败:', e);
+    console.error('[BackendAdapter] tunasync.json 加载失败:', e);
     return [];
   }
 }
@@ -134,41 +134,37 @@ export async function fetchOldTunasyncData(): Promise<OldTunasyncJob[]> {
 // ── 数据转换 ───────────────────────────────────────────────────────────────
 
 /**
- * 将单条旧后端数据 + 本地元数据转换为前端 Mirror 对象
+ * 将单条tunasync数据 + 本地元数据转换为前端 Mirror 对象
  */
-function convertOldItem(raw: OldTunasyncJob, local: LocalMeta = {}): Mirror {
+function convertItem(raw: tunasyncJob, local: LocalMeta = {}): Mirror {
   const id = raw.name;
   const defaultLabel = id.charAt(0).toUpperCase() + id.slice(1);
 
   return {
     id,
     url: `/${id}/`,
-    name: {
-      zh: local.name?.zh ?? defaultLabel,
-      en: local.name?.en ?? defaultLabel,
-    },
-    desc: {
-      zh: local.desc?.zh ?? `${defaultLabel} 镜像`,
-      en: local.desc?.en ?? `Mirror of ${defaultLabel}`,
-    },
-    helpUrl: local.helpUrl ?? `/docs/${id}`,
+    name: local.name ?? defaultLabel,
+    desc: local.desc ?? `${defaultLabel} 镜像`,
+    helpUrl: local.helpUrl ?? `/mirrors/${id}`,
     upstream: raw.upstream ?? '',
     size: raw.size ?? '1G',
-    status: local.status ?? OLD_STATUS_MAP[raw.status] ?? 'unknown',
-    lastUpdated: raw.last_update_ts ? String(raw.last_update_ts) : parseOldTimestamp(raw.last_update),
+    status: local.status ?? _STATUS_MAP[raw.status] ?? 'unknown',
+    lastUpdated: raw.last_update_ts ? String(raw.last_update_ts) : parseTimestamp(raw.last_update),
     nextScheduled: raw.next_schedule_ts ? String(raw.next_schedule_ts) : '',
     lastSuccess: raw.last_ended_ts ? String(raw.last_ended_ts) : '',
     type: local.type ?? 'none',
     files: sanitizeFiles(local.files),
+    popular: local.popular ?? false,
+    storageType: local.storageType ?? 'local',
   };
 }
 
 /**
- * 批量转换：将旧后端 OldTunasyncJob[] + LocalData 合并为 Mirror[]
+ * 批量转换：将tunasync tunasyncJob[] + LocalData 合并为 Mirror[]
  * 跳过非法条目而不是抛错，避免单个坏数据让整页崩溃
  */
-export function transformOldJobs(
-  jobs: OldTunasyncJob[],
+export function transformJobs(
+  jobs: tunasyncJob[],
   localData: Record<string, LocalMeta> = {}
 ): Mirror[] {
   const out: Mirror[] = [];
@@ -176,30 +172,26 @@ export function transformOldJobs(
 
   for (const job of jobs) {
     if (!job || typeof job.name !== 'string' || !job.name) {
-      if (import.meta.env.DEV) console.warn('[oldBackendAdapter] skipping job with missing name:', job);
+      if (import.meta.env.DEV) console.warn('[BackendAdapter] skipping job with missing name:', job);
       continue;
     }
     seen.add(job.name);
-    out.push(convertOldItem(job, localData[job.name]));
+    out.push(convertItem(job, localData[job.name]));
   }
 
-  // local_data.json 中有但后端没有的条目（纯文档/虚拟镜像）
+  // local_data.json 中有但后端没有的条目
   for (const [id, local] of Object.entries(localData)) {
     if (seen.has(id)) continue;
+    //应该是后端有同步的镜像，没有，说明同步下架了，不显示
+    if (!local.storageType || local.storageType === 'local') continue;
     const defaultLabel = id.charAt(0).toUpperCase() + id.slice(1);
     out.push({
       id,
       url: `/${id}/`,
-      name: {
-        zh: local.name?.zh ?? defaultLabel,
-        en: local.name?.en ?? defaultLabel,
-      },
-      desc: {
-        zh: local.desc?.zh ?? `${defaultLabel} 镜像`,
-        en: local.desc?.en ?? `Mirror of ${defaultLabel}`,
-      },
-      helpUrl: local.helpUrl ?? `/docs/${id}`,
-      upstream: '',
+      name: local.name ?? defaultLabel,
+      desc: local.desc ?? `${defaultLabel} 镜像`,
+      helpUrl: local.helpUrl ?? `/mirrors/${id}`,
+      upstream: local.upstream ?? '',
       size: '',
       status: local.status ?? 'cached',
       lastUpdated: '',
@@ -207,6 +199,8 @@ export function transformOldJobs(
       lastSuccess: '',
       type: local.type ?? 'none',
       files: sanitizeFiles(local.files),
+      popular: local.popular ?? false,
+      storageType: local.storageType ?? 'local',
     });
   }
 
