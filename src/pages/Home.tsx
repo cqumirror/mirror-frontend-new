@@ -266,33 +266,22 @@ const Home: React.FC = () => {
                 );
               }
               const netConfig =
-                campusStatus.status === '1'
+                campusStatus.status
                   ? {
                       icon: <WifiIcon sx={{ fontSize: 14 }} />,
                       label: "校园网",
                       color: 'success' as const,
                       dot: '#22C55E',
                     }
-                  : campusStatus.status === '6'
-                    ? {
-                        icon: <Ipv6Icon sx={{ fontSize: 14 }} />,
-                        label: 'IPv6',
-                        color: 'info' as const,
-                        dot: '#3B82F6',
-                      }
-                    : {
+                  : {
                         icon: <WifiIcon sx={{ fontSize: 14 }} />,
                         label: "校外网络",
                         color: 'default' as const,
                         dot: '#94A3B8',
-                      };
+                    };
 
               const tooltip =
-                campusStatus.status === '1'
-                  ? "您正在使用校园网，可使用内网镜像源获得更快速度"
-                  : campusStatus.status === '6'
-                    ? "已检测到 IPv6 连接，可使用 IPv6 镜像源"
-                    : "当前为校外网络，速度可能较慢";
+                campusStatus.status ? "您正在使用校园网，可使用内网镜像源获得更快速度" : "当前为校外网络，部分镜像源可能无法提供";
 
               return (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, mb: 2 }}>
@@ -315,7 +304,7 @@ const Home: React.FC = () => {
                           bgcolor: netConfig.dot,
                           ml: 0.5,
                           animation:
-                            campusStatus.status !== '0' ? 'net-pulse 2.4s ease-in-out infinite' : 'none',
+                            campusStatus.status ? 'net-pulse 2.4s ease-in-out infinite' : 'none',
                         },
                         '@keyframes net-pulse': {
                           '0%, 100%': { opacity: 1, transform: 'scale(1)' },
@@ -473,7 +462,15 @@ const Home: React.FC = () => {
                   <Grid container spacing={2}>
                     {popularMirrors.slice(0, mirrorCount).map((mirror) => (
                       <Grid key={mirror.id} size={{ xs: 12, sm: 6, md: hasNews ? 4 : 3 }}>
-                        <MirrorCard mirror={mirror} />
+                        <MirrorCard
+                          name={mirror.name}
+                          id={mirror.id}
+                          desc={mirror.desc}
+                          size={mirror.size}
+                          status={mirror.status}
+                          lastUpdated={mirror.lastUpdated}
+                          type={'mirror'}
+                        />
                       </Grid>
                     ))}
                   </Grid>
@@ -507,7 +504,15 @@ const Home: React.FC = () => {
             <Grid container spacing={2}>
               {favoriteMirrors.map((mirror) => (
                 <Grid key={mirror.id} size={{ xs: 12, sm: 6, md: 3 }}>
-                  <MirrorCard mirror={mirror} />
+                  <MirrorCard
+                    name={mirror.name}
+                    id={mirror.id}
+                    desc={mirror.desc}
+                    size={mirror.size}
+                    status={mirror.status}
+                    lastUpdated={mirror.lastUpdated}
+                    type={'mirror'}
+                  />
                 </Grid>
               ))}
             </Grid>

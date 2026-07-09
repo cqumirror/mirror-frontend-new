@@ -259,7 +259,7 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
           <RefreshButton size="small" variant="text" onClick={() => loadDirectory(currentUrl)} />
         }
       >
-        {"无法加载目录列表，请确认在生产环境访问或检查网络。"}
+        {"无法加载目录列表，请确认在生产环境访问或检查网络。部分重定向类型的仓库无法加载目录列表为正常现象。"}
         <Box sx={{ mt: 1 }}>
           <Link href={absCurrentUrl} target="_blank" rel="noopener noreferrer">
             {"在新标签页中打开 →"}

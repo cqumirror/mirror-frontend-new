@@ -15,13 +15,15 @@ export interface LocalMeta {
   popular?: boolean;
   storageType?: MirrorStorageType;
   upstream?: string;
+  gitRepo?: boolean;
+  message?: string;
 }
 // 数据源地址：本地开发走 Vite proxy（相对路径），Cloudflare 等外部部署需指向 CQU 服务器
 const API_BASE = import.meta.env.VITE_API_BASE ?? '';
 
 // ── tunasync原始类型 ─────────────────────────────────────────────────────────
 
-/** CQU tunasync.json 条目 */
+/** tunasync.json 条目 */
 export interface tunasyncJob {
   name: string;
   last_update: string; // "YYYY-MM-DD HH:MM:SS +0800"
@@ -142,7 +144,7 @@ function convertItem(raw: tunasyncJob, local: LocalMeta = {}): Mirror {
 
   return {
     id,
-    url: `/${id}/`,
+    url: (local.gitRepo ? '/git' : '') + `/${id}/`,
     name: local.name ?? defaultLabel,
     desc: local.desc ?? `${defaultLabel} 镜像`,
     helpUrl: local.helpUrl ?? `/mirrors/${id}`,
@@ -156,6 +158,8 @@ function convertItem(raw: tunasyncJob, local: LocalMeta = {}): Mirror {
     files: sanitizeFiles(local.files),
     popular: local.popular ?? false,
     storageType: local.storageType ?? 'local',
+    gitRepo: local.gitRepo ?? false,
+    message: local.message ?? '',
   };
 }
 
@@ -187,7 +191,7 @@ export function transformJobs(
     const defaultLabel = id.charAt(0).toUpperCase() + id.slice(1);
     out.push({
       id,
-      url: `/${id}/`,
+      url: (local.gitRepo ? '/git' : '') + `/${id}/`,
       name: local.name ?? defaultLabel,
       desc: local.desc ?? `${defaultLabel} 镜像`,
       helpUrl: local.helpUrl ?? `/mirrors/${id}`,
@@ -201,6 +205,8 @@ export function transformJobs(
       files: sanitizeFiles(local.files),
       popular: local.popular ?? false,
       storageType: local.storageType ?? 'local',
+      gitRepo: local.gitRepo ?? false,
+      message: local.message ?? '',
     });
   }
 

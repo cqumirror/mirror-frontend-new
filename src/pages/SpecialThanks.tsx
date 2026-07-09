@@ -19,7 +19,7 @@ const SpecialThanks: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/data/special-thanks.json')
+    fetch('/static/special-thanks.json')
       .then((res) => res.json())
       .then((data: ThanksEntry[]) => setEntries(data))
       .catch(() => {})
@@ -82,7 +82,7 @@ const SpecialThanks: React.FC = () => {
           <List disablePadding>
             {entries.map((entry, i) => {
               const primary = entry.desc;
-              const secondary = entry.desc
+              const secondary = entry.url
 
               return (
                 <React.Fragment key={entry.desc}>

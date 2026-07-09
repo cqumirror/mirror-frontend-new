@@ -4,7 +4,7 @@
 import { Box, Chip, Tooltip } from '@mui/material';
 import React from 'react';
 
-import type { MirrorStatus } from '@/types';
+import { MirrorStatus, MirrorStorageType } from '@/types';
 
 interface StatusChipProps {
   status: MirrorStatus;
@@ -12,7 +12,7 @@ interface StatusChipProps {
   iconOnly?: boolean;
 }
 
-const statusTextMap: Record<MirrorStatus, string> = {
+export const statusTextMap: Record<MirrorStatus, string> = {
   succeeded: '同步成功',
   failed: '同步失败',
   syncing: '正在同步',
@@ -20,6 +20,14 @@ const statusTextMap: Record<MirrorStatus, string> = {
   paused: '同步暂停',
   disabled: '同步禁用',
   unknown: '未知状态',
+};
+export const storageTypeMap: Record<MirrorStorageType, string> = {
+  local: '本地存储',
+  campusProxy: '校内反向代理，校外重定向，建议校外用户使用其他镜像站',
+  cache: '反向代理',
+  campusOnly: '仅校内访问，建议校外用户使用其他镜像站',
+  campusLocal: '校内访问本地存储，校外重定向，建议校外用户使用其他镜像站',
+  redirect: '重定向，建议校外用户使用其他镜像站',
 };
 const statusColorMap: Record<MirrorStatus, 'success' | 'error' | 'info' | 'default' | 'warning'> = {
   succeeded: 'success',

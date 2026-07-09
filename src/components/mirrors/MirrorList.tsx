@@ -1,7 +1,11 @@
 // src/components/mirrors/MirrorList.tsx
 // 镜像列表组件 - 按字母A-Z分组展示
 
-import { Star as StarIcon, StarBorder as StarBorderIcon } from '@mui/icons-material';
+import {
+  Star as StarIcon,
+  StarBorder as StarBorderIcon,
+  Info as InfoIcon,
+} from '@mui/icons-material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutlined';
 import {
   Box,
@@ -24,6 +28,7 @@ import {
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { storageTypeMap} from '@/components/mirrors/StatusChip';
 import { useMirrorSearchStore, useFavoriteStore } from '@/stores/mirrorStore.ts';
 import type { GroupedMirrors } from '@/types';
 import { formatRelativeTime } from '@/utils/time.ts';
@@ -268,10 +273,7 @@ const MirrorList: React.FC<MirrorListProps> = React.memo(({ grouped, loading, er
                           }}
                         >
                           {/* 收藏按钮 */}
-                          <Tooltip
-                            title={starred ? "取消收藏" : "收藏"}
-                            placement="top"
-                          >
+                          <Tooltip title={starred ? '取消收藏' : '收藏'} placement="top">
                             <IconButton
                               size="small"
                               sx={{
@@ -284,7 +286,7 @@ const MirrorList: React.FC<MirrorListProps> = React.memo(({ grouped, loading, er
                                 e.stopPropagation();
                                 toggleFavorite(mirror.id);
                               }}
-                              aria-label={starred ? "取消收藏" : "收藏"}
+                              aria-label={starred ? '取消收藏' : '收藏'}
                             >
                               {starred ? (
                                 <StarIcon sx={{ fontSize: '1rem' }} />
@@ -310,9 +312,9 @@ const MirrorList: React.FC<MirrorListProps> = React.memo(({ grouped, loading, er
                               navigate(`/mirrors/${mirror.id}?tab=help`);
                             }}
                           >
-                            {"使用帮助"}
+                            {'使用帮助'}
                           </Button>
-                          <Tooltip title={"使用帮助"} placement="left">
+                          <Tooltip title={'使用帮助'} placement="left">
                             <IconButton
                               size="small"
                               color="primary"
@@ -321,9 +323,48 @@ const MirrorList: React.FC<MirrorListProps> = React.memo(({ grouped, loading, er
                                 e.stopPropagation();
                                 navigate(`/mirrors/${mirror.id}?tab=help`);
                               }}
-                              aria-label={"使用帮助"}
+                              aria-label={'使用帮助'}
                             >
                               <HelpOutlineIcon sx={{ fontSize: '1.1rem' }} />
+                            </IconButton>
+                          </Tooltip>
+                          {/*显示存储信息*/}
+                          <Tooltip
+                            title={
+                              mirror.storageType !== 'local'
+                                ? storageTypeMap[mirror.storageType] || '未知存储类型'
+                                : ''
+                            }
+                            placement="top"
+                            disableHoverListener={mirror.storageType === 'local'}
+                          >
+                            <IconButton
+                              size="small"
+                              disableRipple={mirror.storageType === 'local'}
+                              sx={{
+                                p: '3px',
+                                color: starred ? 'warning.main' : 'text.disabled',
+                                transition: 'color 0.15s',
+                                display: { xs: 'none', sm: 'inline-flex' },
+                                ...(mirror.storageType === 'local'
+                                  ? {
+                                      '&:hover': {
+                                        backgroundColor: 'transparent',
+                                        color: 'text.disabled',
+                                      },
+                                      pointerEvents: 'none',
+                                      cursor: 'default',
+                                    }
+                                  : {
+                                      '&:hover': { color: 'warning.main' },
+                                    }),
+                              }}
+                            >
+                              {mirror.storageType !== 'local' ? (
+                                <InfoIcon sx={{ fontSize: '1rem' }} />
+                              ) : (
+                                <div style={{ width: '1rem', height: '1rem', flexShrink: 0 }} />
+                              )}
                             </IconButton>
                           </Tooltip>
                         </Box>
@@ -332,7 +373,7 @@ const MirrorList: React.FC<MirrorListProps> = React.memo(({ grouped, loading, er
                   );
                 })}
               </TableBody>
-            </Table>
+             </Table>
           </TableContainer>
         </Box>
       ))}

@@ -96,7 +96,7 @@ const AnnouncementBanner: React.FC = () => {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    fetch('/data/announcements.json')
+    fetch('/static/announcements.json')
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((data: Announcement[]) => {
         const dis = loadDismissed();

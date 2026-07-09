@@ -155,7 +155,7 @@ npm run test          # Vitest 单元测试
 
 ```
 GET /static/tunasync.json  → 同步状态
-GET /data/local_data.json  → 镜像名称/描述/文件列表（静态）
+GET /static/local_data.json  → 镜像名称/描述/文件列表（静态）
 GET /static/isoinfo.json   → ISO 文件列表（运行时合并）
        ↓
 transformOldJobs()         → 合并为 Mirror[]

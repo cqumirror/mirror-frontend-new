@@ -46,7 +46,7 @@ const GlobalAlertModal: React.FC = () => {
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
 
   useEffect(() => {
-    fetch('/data/alerts.json')
+    fetch('/static/alerts.json')
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((data: AlertItem[]) => {
         const dismissed = loadDismissed();

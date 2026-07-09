@@ -3,7 +3,7 @@
 //
 // 数据流：
 //   GET /static/tunasync.json       → OldTunasyncJob[]（旧后端静态 JSON）
-//   GET /data/local_data.json       → LocalMeta（本地补充元数据，随前端构建发布）
+//   GET /static/local_data.json       → LocalMeta（本地补充元数据，随前端构建发布）
 //   transformOldJobs()              → Mirror[]（前端完成格式转换）
 //   GET /api/getip                  → { is_cqu: 1|0 } 校园网检测
 
@@ -64,13 +64,13 @@ function mergeIsoInfo(
 
 /**
  * 失败时回到空对象作为兜底，但**保留** Promise 拒绝信息给上层 logger
- * 同时拉取 /data/local_data.json（描述/类型/helpUrl）和 isoinfo.json（文件列表），合并输出
+ * 同时拉取 /static/local_data.json（描述/类型/helpUrl）和 isoinfo.json（文件列表），合并输出
  */
 function getLocalData(): Promise<Record<string, LocalMeta>> {
   if (_localDataPromise) return _localDataPromise;
 
   _localDataPromise = Promise.all([
-    fetch('/data/local_data.json', { cache: 'no-cache' })
+    fetch('/static/local_data.json', { cache: 'no-cache' })
       .then(async (res) => {
         if (!res.ok) throw new Error(`local_data.json HTTP ${res.status}`);
         const json = (await res.json()) as unknown;
@@ -126,7 +126,7 @@ export const fetchMirrorByName = async (name: string): Promise<Mirror> => {
 /**
  * 判断客户端网络类型
  * GET /api/getip → { is_cqu: 1|0, remote_addr: "..." }
- * status: is_cqu=1 → "1" | 非校内且纯 IPv6 → "6" | 其他 → "0"
+ * status: is_cqu=1 → true | 非校内且纯 IPv6 → false | 其他 → false
  * ipv6: 纯 IPv6 地址（排除 "::ffff:" 前缀的 IPv4-mapped）
  */
 export const fetchCampusNetworkStatus = async (): Promise<CampusNetworkStatus> => {
@@ -136,7 +136,7 @@ export const fetchCampusNetworkStatus = async (): Promise<CampusNetworkStatus> =
   const json = (await res.json()) as { is_cqu?: number | string; remote_addr?: string };
   const addr = json.remote_addr ?? '';
   const ipv6 = addr.includes(':') && !addr.startsWith('::ffff:');
-  const status: CampusNetworkStatus['status'] = Number(json.is_cqu) === 1 ? '1' : ipv6 ? '6' : '0';
+  const status = Number(json.is_cqu) === 1;
 
   // 将 IP 写入 cookie，供目录浏览等请求通过 JS 质询
   if (addr) {

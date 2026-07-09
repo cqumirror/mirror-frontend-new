@@ -1,0 +1,1027 @@
+{
+  "YerongAI/Office-Tool": {
+    "config": {
+      "flat": false,
+      "tarball": false,
+      "pre_release": false,
+      "versions": 3,
+      "name": "Office Tool Plus",
+      "desc": "用于安装Office的第三方工具。"
+    },
+    "releases": [
+      {
+        "version": "Office Tool Plus v11.5.7.0",
+        "tag": "v11.5.7.0",
+        "files": [
+          "Office_Tool_v11.5.7.0_arm64.zip",
+          "Office_Tool_v11.5.7.0_x64.zip",
+          "Office_Tool_with_runtime_v11.5.7.0_arm64.7z",
+          "Office_Tool_with_runtime_v11.5.7.0_arm64.zip",
+          "Office_Tool_with_runtime_v11.5.7.0_x64.7z",
+          "Office_Tool_with_runtime_v11.5.7.0_x64.zip"
+        ],
+        "published_at": "2026-06-10T05:22:59Z",
+        "pre_release": false
+      },
+      {
+        "version": "Office Tool Plus v11.4.17.0",
+        "tag": "v11.4.17.0",
+        "files": [
+          "Office_Tool_v11.4.17.0_arm64.zip",
+          "Office_Tool_v11.4.17.0_x64.zip",
+          "Office_Tool_with_runtime_v11.4.17.0_arm64.7z",
+          "Office_Tool_with_runtime_v11.4.17.0_arm64.zip",
+          "Office_Tool_with_runtime_v11.4.17.0_x64.7z",
+          "Office_Tool_with_runtime_v11.4.17.0_x64.zip"
+        ],
+        "published_at": "2026-05-29T14:20:56Z",
+        "pre_release": false
+      },
+      {
+        "version": "Office Tool Plus v11.3.12.0",
+        "tag": "v11.3.12.0",
+        "files": [
+          "Office_Tool_v11.3.12.0_arm64.zip",
+          "Office_Tool_v11.3.12.0_x64.zip",
+          "Office_Tool_with_runtime_v11.3.12.0_arm64.7z",
+          "Office_Tool_with_runtime_v11.3.12.0_arm64.zip",
+          "Office_Tool_with_runtime_v11.3.12.0_x64.7z",
+          "Office_Tool_with_runtime_v11.3.12.0_x64.zip"
+        ],
+        "published_at": "2026-04-23T11:34:56Z",
+        "pre_release": false
+      }
+    ],
+    "latest": {
+      "version": "Office Tool Plus v11.5.7.0",
+      "tag": "v11.5.7.0"
+    }
+  },
+  "obsproject/obs-studio": {
+    "config": {
+      "flat": false,
+      "tarball": false,
+      "pre_release": false,
+      "versions": 1
+    },
+    "releases": [
+      {
+        "version": "OBS Studio 32.1.2",
+        "tag": "32.1.2",
+        "files": [
+          "OBS-Studio-32.1.2-macOS-Apple.dmg",
+          "OBS-Studio-32.1.2-macOS-Intel.dmg",
+          "OBS-Studio-32.1.2-Windows-x64-Installer.exe"
+        ],
+        "published_at": "2026-04-21T20:10:35Z",
+        "pre_release": false
+      }
+    ],
+    "latest": {
+      "version": "OBS Studio 32.1.2",
+      "tag": "32.1.2"
+    }
+  },
+  "balena-io/etcher": {
+    "config": {
+      "flat": false,
+      "tarball": false,
+      "pre_release": false,
+      "versions": 1
+    },
+    "releases": [
+      {
+        "version": "v2.1.6",
+        "tag": "v2.1.6",
+        "files": [
+          "balenaEtcher-2.1.6-arm64.dmg",
+          "balenaEtcher-2.1.6-x64.dmg",
+          "balenaEtcher-2.1.6.Setup.exe",
+          "SHA256SUMS.Darwin.arm64.txt",
+          "SHA256SUMS.Darwin.x64.txt",
+          "SHA256SUMS.Linux.x64.txt",
+          "SHA256SUMS.Windows.x64.txt"
+        ],
+        "published_at": "2026-05-13T16:40:26Z",
+        "pre_release": false
+      }
+    ],
+    "latest": {
+      "version": "v2.1.6",
+      "tag": "v2.1.6"
+    }
+  },
+  "lxgw/LxgwWenKai": {
+    "config": {
+      "flat": true,
+      "tarball": false,
+      "pre_release": false,
+      "versions": 1
+    },
+    "releases": [
+      {
+        "version": "v1.522 26/03/17",
+        "tag": "v1.522",
+        "files": [
+          "lxgw-wenkai-v1.522.tar.gz",
+          "lxgw-wenkai-v1.522.zip",
+          "LXGWWenKai-Light.ttf",
+          "LXGWWenKai-Medium.ttf",
+          "LXGWWenKai-Regular.ttf",
+          "LXGWWenKaiMono-Light.ttf",
+          "LXGWWenKaiMono-Medium.ttf",
+          "LXGWWenKaiMono-Regular.ttf"
+        ],
+        "published_at": "2026-03-17T15:15:14Z",
+        "pre_release": false
+      }
+    ],
+    "latest": {
+      "version": "v1.522 26/03/17",
+      "tag": "v1.522"
+    }
+  },
+  "lxgw/LxgwWenKai-Screen": {
+    "config": {
+      "flat": true,
+      "tarball": false,
+      "pre_release": false,
+      "versions": 1
+    },
+    "releases": [
+      {
+        "version": "v1.522",
+        "tag": "v1.522",
+        "files": [
+          "LXGWWenKaiGBScreen.ttf",
+          "LXGWWenKaiMonoGBScreen.ttf",
+          "LXGWWenKaiMonoScreen.ttf",
+          "LXGWWenKaiScreen.ttf"
+        ],
+        "published_at": "2026-03-18T16:41:47Z",
+        "pre_release": false
+      }
+    ],
+    "latest": {
+      "version": "v1.522",
+      "tag": "v1.522"
+    }
+  },
+  "lxgw/LxgwWenKai-Lite": {
+    "config": {
+      "flat": true,
+      "tarball": false,
+      "pre_release": false,
+      "versions": 1
+    },
+    "releases": [
+      {
+        "version": "v1.522 26/03/17",
+        "tag": "v1.522",
+        "files": [
+          "lxgw-wenkai-lite-v1.522.tar.gz",
+          "lxgw-wenkai-lite-v1.522.zip",
+          "LXGWWenKaiLite-Light.ttf",
+          "LXGWWenKaiLite-Medium.ttf",
+          "LXGWWenKaiLite-Regular.ttf",
+          "LXGWWenKaiMonoLite-Light.ttf",
+          "LXGWWenKaiMonoLite-Medium.ttf",
+          "LXGWWenKaiMonoLite-Regular.ttf"
+        ],
+        "published_at": "2026-03-17T15:10:36Z",
+        "pre_release": false
+      }
+    ],
+    "latest": {
+      "version": "v1.522 26/03/17",
+      "tag": "v1.522"
+    }
+  },
+  "lxgw/LxgwWenkaiGB": {
+    "config": {
+      "flat": true,
+      "tarball": false,
+      "pre_release": false,
+      "versions": 1
+    },
+    "releases": [
+      {
+        "version": "v1.522 26/03/17",
+        "tag": "v1.522",
+        "files": [
+          "lxgw-wenkai-gb-v1.522.tar.gz",
+          "lxgw-wenkai-gb-v1.522.zip",
+          "LXGWWenKaiGB-Light.ttf",
+          "LXGWWenKaiGB-Medium.ttf",
+          "LXGWWenKaiGB-Regular.ttf",
+          "LXGWWenKaiMonoGB-Light.ttf",
+          "LXGWWenKaiMonoGB-Medium.ttf",
+          "LXGWWenKaiMonoGB-Regular.ttf"
+        ],
+        "published_at": "2026-03-17T15:03:02Z",
+        "pre_release": false
+      }
+    ],
+    "latest": {
+      "version": "v1.522 26/03/17",
+      "tag": "v1.522"
+    }
+  },
+  "lxgw/LxgwWenkaiTC": {
+    "config": {
+      "flat": true,
+      "tarball": false,
+      "pre_release": false,
+      "versions": 1
+    },
+    "releases": [
+      {
+        "version": "v1.522 26/03/17",
+        "tag": "v1.522",
+        "files": [
+          "lxgw-wenkai-tc-v1.522.tar.gz",
+          "lxgw-wenkai-tc-v1.522.zip",
+          "LXGWWenKaiMonoTC-Light.ttf",
+          "LXGWWenKaiMonoTC-Medium.ttf",
+          "LXGWWenKaiMonoTC-Regular.ttf",
+          "LXGWWenKaiTC-Light.ttf",
+          "LXGWWenKaiTC-Medium.ttf",
+          "LXGWWenKaiTC-Regular.ttf"
+        ],
+        "published_at": "2026-03-17T15:21:03Z",
+        "pre_release": false
+      }
+    ],
+    "latest": {
+      "version": "v1.522 26/03/17",
+      "tag": "v1.522"
+    }
+  },
+  "atelier-anchor/smiley-sans": {
+    "config": {
+      "flat": true,
+      "tarball": false,
+      "pre_release": false,
+      "versions": 3
+    },
+    "releases": [
+      {
+        "version": "Smiley Sans v2.0.1",
+        "tag": "v2.0.1",
+        "files": [
+          "smiley-sans-v2.0.1.zip"
+        ],
+        "published_at": "2024-02-07T10:27:43Z",
+        "pre_release": false
+      },
+      {
+        "version": "Smiley Sans v2.0.0",
+        "tag": "v2.0.0",
+        "files": [
+          "smiley-sans-v2.0.0.zip"
+        ],
+        "published_at": "2024-02-06T17:58:30Z",
+        "pre_release": false
+      },
+      {
+        "version": "Smiley Sans v1.1.1",
+        "tag": "v1.1.1",
+        "files": [
+          "smiley-sans-v1.1.1.zip"
+        ],
+        "published_at": "2023-01-07T09:09:49Z",
+        "pre_release": false
+      }
+    ],
+    "latest": {
+      "version": "Smiley Sans v2.0.1",
+      "tag": "v2.0.1"
+    }
+  },
+  "microsoft/WSL": {
+    "config": {
+      "flat": true,
+      "tarball": false,
+      "pre_release": false,
+      "versions": 1
+    },
+    "releases": [
+      {
+        "version": "2.7.10",
+        "tag": "2.7.10",
+        "files": [
+          "Microsoft.WSL_2.7.10.0_x64_ARM64.msixbundle",
+          "wsl.2.7.10.0.arm64.msi",
+          "wsl.2.7.10.0.x64.msi"
+        ],
+        "published_at": "2026-06-26T01:59:58Z",
+        "pre_release": false
+      }
+    ],
+    "latest": {
+      "version": "2.7.10",
+      "tag": "2.7.10"
+    }
+  },
+  "mofeng-git/One-KVM": {
+    "config": {
+      "flat": false,
+      "tarball": false,
+      "pre_release": false,
+      "versions": 3
+    },
+    "releases": [
+      {
+        "version": "One-KVM Rust 0.2.3（260624）",
+        "tag": "v260626",
+        "files": [
+          "one-kvm_0.2.3_amd64.deb",
+          "one-kvm_0.2.3_amd64.exe",
+          "one-kvm_0.2.3_arm32.apk",
+          "one-kvm_0.2.3_arm64.apk",
+          "one-kvm_0.2.3_arm64.deb",
+          "one-kvm_0.2.3_armhf.deb"
+        ],
+        "published_at": "2026-06-26T16:15:50Z",
+        "pre_release": false
+      },
+      {
+        "version": "One-KVM Rust 0.2.2（260524）",
+        "tag": "v260524",
+        "files": [
+          "one-kvm_0.2.2_amd64.deb",
+          "one-kvm_0.2.2_amd64.exe",
+          "one-kvm_0.2.2_arm32.apk",
+          "one-kvm_0.2.2_arm64.apk",
+          "one-kvm_0.2.2_arm64.deb",
+          "one-kvm_0.2.2_armhf.deb"
+        ],
+        "published_at": "2026-05-24T14:54:14Z",
+        "pre_release": false
+      },
+      {
+        "version": "One-KVM Rust 0.2.1（260520）",
+        "tag": "v260520",
+        "files": [
+          "one-kvm_0.2.1_amd64.deb",
+          "one-kvm_0.2.1_amd64.exe",
+          "one-kvm_0.2.1_arm64.deb",
+          "one-kvm_0.2.1_armhf.deb"
+        ],
+        "published_at": "2026-05-19T17:02:47Z",
+        "pre_release": false
+      }
+    ],
+    "latest": {
+      "version": "One-KVM Rust 0.2.3（260624）",
+      "tag": "v260626"
+    }
+  },
+  "viarotel-org/escrcpy": {
+    "config": {
+      "flat": true,
+      "tarball": false,
+      "pre_release": false,
+      "versions": 1
+    },
+    "releases": [
+      {
+        "version": "v2.11.1",
+        "tag": "v2.11.1",
+        "files": [
+          "Escrcpy-2.11.1-linux-amd64.deb",
+          "Escrcpy-2.11.1-linux-arm64.AppImage",
+          "Escrcpy-2.11.1-linux-arm64.deb",
+          "Escrcpy-2.11.1-linux-x86_64.AppImage",
+          "Escrcpy-2.11.1-mac-arm64.dmg",
+          "Escrcpy-2.11.1-mac-x64.dmg",
+          "Escrcpy-2.11.1-win-portable-arm64.exe",
+          "Escrcpy-2.11.1-win-portable-x64.exe",
+          "Escrcpy-2.11.1-win-portable.exe",
+          "Escrcpy-2.11.1-win-setup-arm64.exe",
+          "Escrcpy-2.11.1-win-setup-x64.exe",
+          "Escrcpy-2.11.1-win-setup.exe"
+        ],
+        "published_at": "2026-05-19T07:48:59Z",
+        "pre_release": false
+      }
+    ],
+    "latest": {
+      "version": "v2.11.1",
+      "tag": "v2.11.1"
+    }
+  },
+  "niXman/mingw-builds-binaries": {
+    "config": {
+      "flat": true,
+      "tarball": false,
+      "pre_release": false,
+      "versions": 1
+    },
+    "releases": [
+      {
+        "version": "Release of 16.1.0-rt_v14-rev1",
+        "tag": "16.1.0-rt_v14-rev1",
+        "files": [
+          "i686-16.1.0-release-mcf-dwarf-ucrt-rt_v14-rev1.7z",
+          "i686-16.1.0-release-posix-dwarf-msvcrt-rt_v14-rev1.7z",
+          "i686-16.1.0-release-posix-dwarf-ucrt-rt_v14-rev1.7z",
+          "i686-16.1.0-release-win32-dwarf-msvcrt-rt_v14-rev1.7z",
+          "i686-16.1.0-release-win32-dwarf-ucrt-rt_v14-rev1.7z",
+          "x86_64-16.1.0-release-mcf-seh-ucrt-rt_v14-rev1.7z",
+          "x86_64-16.1.0-release-posix-seh-msvcrt-rt_v14-rev1.7z",
+          "x86_64-16.1.0-release-posix-seh-ucrt-rt_v14-rev1.7z",
+          "x86_64-16.1.0-release-win32-seh-msvcrt-rt_v14-rev1.7z",
+          "x86_64-16.1.0-release-win32-seh-ucrt-rt_v14-rev1.7z"
+        ],
+        "published_at": "2026-05-23T16:33:11Z",
+        "pre_release": false
+      }
+    ],
+    "latest": {
+      "version": "Release of 16.1.0-rt_v14-rev1",
+      "tag": "16.1.0-rt_v14-rev1"
+    }
+  },
+  "msys2/msys2-installer": {
+    "config": {
+      "flat": true,
+      "tarball": false,
+      "pre_release": false,
+      "versions": 1
+    },
+    "releases": [
+      {
+        "version": "2026-06-11",
+        "tag": "2026-06-11",
+        "files": [
+          "msys2-arm64-20260611.exe",
+          "msys2-base-x86_64-20260611.sfx.exe",
+          "msys2-x86_64-20260611.exe"
+        ],
+        "published_at": "2026-06-11T07:23:06Z",
+        "pre_release": false
+      }
+    ],
+    "latest": {
+      "version": "2026-06-11",
+      "tag": "2026-06-11"
+    }
+  },
+  "LanRhyme/MicYou": {
+    "config": {
+      "flat": true,
+      "tarball": false,
+      "pre_release": false,
+      "versions": 1
+    },
+    "releases": [
+      {
+        "version": "v1.3.5",
+        "tag": "v1.3.5",
+        "files": [
+          "MicYou-Android-1.3.5.apk",
+          "MicYou-Linux-1.3.5.deb",
+          "MicYou-Linux-1.3.5.rpm",
+          "MicYou-Linux-NoJRE-1.3.5.tar.gz",
+          "MicYou-macOS-1.3.5-arm64.dmg",
+          "MicYou-macOS-1.3.5-x64.dmg",
+          "MicYou-macOS-NoJRE-1.3.5-arm64.tar.gz",
+          "MicYou-macOS-NoJRE-1.3.5-x64.tar.gz",
+          "MicYou-Win-1.3.5-installer.exe",
+          "MicYou-Win-1.3.5.zip",
+          "MicYou-Win-NoJRE-1.3.5.zip"
+        ],
+        "published_at": "2026-06-07T17:39:57Z",
+        "pre_release": false
+      }
+    ],
+    "latest": {
+      "version": "v1.3.5",
+      "tag": "v1.3.5"
+    }
+  },
+  "Alan-CRL/Inkeys": {
+    "config": {
+      "flat": true,
+      "tarball": false,
+      "pre_release": false,
+      "versions": 1
+    },
+    "releases": [
+      {
+        "version": "20260502a",
+        "tag": "20260502a",
+        "files": [
+          "Inkeys20260502a-arm64.zip",
+          "Inkeys20260502a-x64.zip",
+          "Inkeys20260502a-x86.zip",
+          "LTS-InkeysUpdate20260502a-arm64.zip",
+          "LTS-InkeysUpdate20260502a-x64.zip",
+          "LTS-InkeysUpdate20260502a-x86.zip"
+        ],
+        "published_at": "2026-05-03T05:21:37Z",
+        "pre_release": false
+      }
+    ],
+    "latest": {
+      "version": "20260502a",
+      "tag": "20260502a"
+    }
+  },
+  "ClassIsland/ClassIsland": {
+    "config": {
+      "flat": false,
+      "tarball": false,
+      "pre_release": false,
+      "versions": 1
+    },
+    "releases": [
+      {
+        "version": "2.1.0.1",
+        "tag": "2.1.0.1",
+        "files": [
+          "ClassIsland_app_linux_arm64_selfContained_deb.deb",
+          "ClassIsland_app_linux_arm64_selfContained_folder.zip",
+          "ClassIsland_app_linux_x64_selfContained_deb.deb",
+          "ClassIsland_app_linux_x64_selfContained_folder.zip",
+          "ClassIsland_app_macos_arm64_selfContained_pkg.pkg",
+          "ClassIsland_app_macos_x64_selfContained_pkg.pkg",
+          "ClassIsland_app_windows_arm64_full_folder.zip",
+          "ClassIsland_app_windows_arm64_selfContained_folder.zip",
+          "ClassIsland_app_windows_x64_full_folder.zip",
+          "ClassIsland_app_windows_x64_selfContained_folder.zip",
+          "ClassIsland_app_windows_x86_full_folder.zip",
+          "ClassIsland_app_windows_x86_selfContained_folder.zip"
+        ],
+        "published_at": "2026-06-27T06:56:18Z",
+        "pre_release": false
+      }
+    ],
+    "latest": {
+      "version": "2.1.0.1",
+      "tag": "2.1.0.1"
+    }
+  },
+  "arduino/arduino-ide": {
+    "config": {
+      "flat": false,
+      "tarball": false,
+      "pre_release": false,
+      "versions": 1
+    },
+    "releases": [
+      {
+        "version": "2.3.10",
+        "tag": "2.3.10",
+        "files": [
+          "arduino-ide_2.3.10_Linux_64bit.AppImage",
+          "arduino-ide_2.3.10_Linux_64bit.zip",
+          "arduino-ide_2.3.10_macOS_64bit.dmg",
+          "arduino-ide_2.3.10_macOS_64bit.zip",
+          "arduino-ide_2.3.10_macOS_arm64.dmg",
+          "arduino-ide_2.3.10_macOS_arm64.zip",
+          "arduino-ide_2.3.10_Windows_64bit.exe",
+          "arduino-ide_2.3.10_Windows_64bit.msi",
+          "arduino-ide_2.3.10_Windows_64bit.zip",
+          "stable-linux.yml",
+          "stable-mac.yml",
+          "stable.yml"
+        ],
+        "published_at": "2026-06-09T17:10:18Z",
+        "pre_release": false
+      }
+    ],
+    "latest": {
+      "version": "2.3.10",
+      "tag": "2.3.10"
+    }
+  },
+  "espressif/idf-im-ui": {
+    "config": {
+      "flat": false,
+      "tarball": false,
+      "pre_release": false,
+      "versions": 1
+    },
+    "releases": [
+      {
+        "version": "v0.16.0",
+        "tag": "v0.16.0",
+        "files": [
+          "eim-cli-linux-aarch64-aarch64.pkg.tar.zst",
+          "eim-cli-linux-aarch64.deb",
+          "eim-cli-linux-aarch64.rpm",
+          "eim-cli-linux-aarch64.zip",
+          "eim-cli-linux-armv7-armv7h.pkg.tar.zst",
+          "eim-cli-linux-armv7.deb",
+          "eim-cli-linux-armv7.rpm",
+          "eim-cli-linux-armv7.zip",
+          "eim-cli-linux-x64-x86_64.pkg.tar.zst",
+          "eim-cli-linux-x64.deb",
+          "eim-cli-linux-x64.rpm",
+          "eim-cli-linux-x64.zip",
+          "eim-cli-macos-aarch64.zip",
+          "eim-cli-macos-x64.zip",
+          "eim-cli-windows-x64.exe",
+          "eim-cli.json",
+          "eim-gui-linux-aarch64-aarch64.pkg.tar.zst",
+          "eim-gui-linux-aarch64.deb",
+          "eim-gui-linux-aarch64.rpm",
+          "eim-gui-linux-aarch64.zip",
+          "eim-gui-linux-x64-x86_64.pkg.tar.zst",
+          "eim-gui-linux-x64.deb",
+          "eim-gui-linux-x64.rpm",
+          "eim-gui-linux-x64.zip",
+          "eim-gui-macos-aarch64.dmg",
+          "eim-gui-macos-aarch64.zip",
+          "eim-gui-macos-x64.dmg",
+          "eim-gui-macos-x64.zip",
+          "eim-gui-windows-x64.exe",
+          "eim-gui-windows-x64.msi",
+          "eim.json",
+          "offline_installer_builder-linux-aarch64.zip",
+          "offline_installer_builder-linux-armv7.zip",
+          "offline_installer_builder-linux-x64.zip",
+          "offline_installer_builder-windows-x64.exe",
+          "offline_installer_builder.zip"
+        ],
+        "published_at": "2026-06-30T08:26:33Z",
+        "pre_release": false
+      }
+    ],
+    "latest": {
+      "version": "v0.16.0",
+      "tag": "v0.16.0"
+    }
+  },
+  "deepin-community/deepin-WSL": {
+    "config": {
+      "flat": true,
+      "tarball": false,
+      "pre_release": true,
+      "versions": 1
+    },
+    "releases": [
+      {
+        "version": "v1.6.0",
+        "tag": "v1.6.0",
+        "files": [
+          "deepin25-amd64.wsl",
+          "deepin25-arm64.wsl"
+        ],
+        "published_at": "2026-04-24T02:56:22Z",
+        "pre_release": true
+      }
+    ],
+    "latest": null
+  },
+  "Embarcadero/Dev-Cpp": {
+    "config": {
+      "flat": false,
+      "tarball": false,
+      "pre_release": false,
+      "versions": 1
+    },
+    "releases": [
+      {
+        "version": "v6.3",
+        "tag": "v6.3",
+        "files": [
+          "Embarcadero_Dev-Cpp_6.3_No_Compiler_Portable.7z",
+          "Embarcadero_Dev-Cpp_6.3_No_Compiler_Setup.exe",
+          "Embarcadero_Dev-Cpp_6.3_No_Compiler_Setup.zip",
+          "Embarcadero_Dev-Cpp_6.3_TDM-GCC_9.2_Portable.7z",
+          "Embarcadero_Dev-Cpp_6.3_TDM-GCC_9.2_Setup.exe",
+          "Embarcadero_Dev-Cpp_6.3_TDM-GCC_9.2_Setup.zip"
+        ],
+        "published_at": "2021-01-31T01:24:55Z",
+        "pre_release": false
+      }
+    ],
+    "latest": {
+      "version": "v6.3",
+      "tag": "v6.3"
+    }
+  },
+  "jmeubank/tdm-gcc": {
+    "config": {
+      "flat": false,
+      "tarball": false,
+      "pre_release": false,
+      "versions": 1
+    },
+    "releases": [
+      {
+        "version": "v10.3.0-tdm64-2",
+        "tag": "v10.3.0-tdm64-2",
+        "files": [
+          "tdm64-gcc-10.3.0-2.exe"
+        ],
+        "published_at": "2021-05-26T00:57:35Z",
+        "pre_release": false
+      }
+    ],
+    "latest": {
+      "version": "v10.3.0-tdm64-2",
+      "tag": "v10.3.0-tdm64-2"
+    }
+  },
+  "git-for-windows/git": {
+    "config": {
+      "flat": true,
+      "tarball": false,
+      "pre_release": false,
+      "versions": 1
+    },
+    "releases": [
+      {
+        "version": "Git for Windows v2.55.0.windows.2",
+        "tag": "v2.55.0.windows.2",
+        "files": [
+          "Git-2.55.0.2-64-bit.exe",
+          "Git-2.55.0.2-64-bit.tar.bz2",
+          "Git-2.55.0.2-arm64.exe",
+          "Git-2.55.0.2-arm64.tar.bz2",
+          "MinGit-2.55.0.2-32-bit.zip",
+          "MinGit-2.55.0.2-64-bit.zip",
+          "MinGit-2.55.0.2-arm64.zip",
+          "MinGit-2.55.0.2-busybox-32-bit.zip",
+          "MinGit-2.55.0.2-busybox-64-bit.zip",
+          "pdbs-for-git-64-bit-2.55.0.2-1.zip",
+          "pdbs-for-git-arm64-2.55.0.2-1.zip",
+          "PortableGit-2.55.0.2-64-bit.7z.exe",
+          "PortableGit-2.55.0.2-arm64.7z.exe"
+        ],
+        "published_at": "2026-07-02T13:38:39Z",
+        "pre_release": false
+      }
+    ],
+    "latest": {
+      "version": "Git for Windows v2.55.0.windows.2",
+      "tag": "v2.55.0.windows.2"
+    }
+  },
+  "oven-sh/bun": {
+    "config": {
+      "flat": false,
+      "tarball": false,
+      "pre_release": false,
+      "versions": 5
+    },
+    "releases": [
+      {
+        "version": "Bun v1.3.14",
+        "tag": "bun-v1.3.14",
+        "files": [
+          "bun-darwin-aarch64-profile.zip",
+          "bun-darwin-aarch64.zip",
+          "bun-darwin-x64-baseline-profile.zip",
+          "bun-darwin-x64-baseline.zip",
+          "bun-darwin-x64-profile.zip",
+          "bun-darwin-x64.zip",
+          "bun-freebsd-aarch64-profile.zip",
+          "bun-freebsd-aarch64.zip",
+          "bun-freebsd-x64-baseline-profile.zip",
+          "bun-freebsd-x64-baseline.zip",
+          "bun-freebsd-x64-profile.zip",
+          "bun-freebsd-x64.zip",
+          "bun-linux-aarch64-android-profile.zip",
+          "bun-linux-aarch64-android.zip",
+          "bun-linux-aarch64-musl-profile.zip",
+          "bun-linux-aarch64-musl.zip",
+          "bun-linux-aarch64-profile.zip",
+          "bun-linux-aarch64.zip",
+          "bun-linux-x64-android-baseline-profile.zip",
+          "bun-linux-x64-android-baseline.zip",
+          "bun-linux-x64-android-profile.zip",
+          "bun-linux-x64-android.zip",
+          "bun-linux-x64-baseline-profile.zip",
+          "bun-linux-x64-baseline.zip",
+          "bun-linux-x64-musl-baseline-profile.zip",
+          "bun-linux-x64-musl-baseline.zip",
+          "bun-linux-x64-musl-profile.zip",
+          "bun-linux-x64-musl.zip",
+          "bun-linux-x64-profile.zip",
+          "bun-linux-x64.zip",
+          "bun-windows-aarch64-profile.zip",
+          "bun-windows-aarch64.zip",
+          "bun-windows-x64-baseline-profile.zip",
+          "bun-windows-x64-baseline.zip",
+          "bun-windows-x64-profile.zip",
+          "bun-windows-x64.zip",
+          "SHASUMS256.txt",
+          "SHASUMS256.txt.asc"
+        ],
+        "published_at": "2026-05-13T03:48:28Z",
+        "pre_release": false
+      },
+      {
+        "version": "Bun v1.3.13",
+        "tag": "bun-v1.3.13",
+        "files": [
+          "bun-darwin-aarch64-profile.zip",
+          "bun-darwin-aarch64.zip",
+          "bun-darwin-x64-baseline-profile.zip",
+          "bun-darwin-x64-baseline.zip",
+          "bun-darwin-x64-profile.zip",
+          "bun-darwin-x64.zip",
+          "bun-linux-aarch64-musl-profile.zip",
+          "bun-linux-aarch64-musl.zip",
+          "bun-linux-aarch64-profile.zip",
+          "bun-linux-aarch64.zip",
+          "bun-linux-x64-baseline-profile.zip",
+          "bun-linux-x64-baseline.zip",
+          "bun-linux-x64-musl-baseline-profile.zip",
+          "bun-linux-x64-musl-baseline.zip",
+          "bun-linux-x64-musl-profile.zip",
+          "bun-linux-x64-musl.zip",
+          "bun-linux-x64-profile.zip",
+          "bun-linux-x64.zip",
+          "bun-windows-aarch64-profile.zip",
+          "bun-windows-aarch64.zip",
+          "bun-windows-x64-baseline-profile.zip",
+          "bun-windows-x64-baseline.zip",
+          "bun-windows-x64-profile.zip",
+          "bun-windows-x64.zip",
+          "SHASUMS256.txt",
+          "SHASUMS256.txt.asc"
+        ],
+        "published_at": "2026-04-20T08:07:57Z",
+        "pre_release": false
+      },
+      {
+        "version": "Bun v1.3.12",
+        "tag": "bun-v1.3.12",
+        "files": [
+          "bun-darwin-aarch64-profile.zip",
+          "bun-darwin-aarch64.zip",
+          "bun-darwin-x64-baseline-profile.zip",
+          "bun-darwin-x64-baseline.zip",
+          "bun-darwin-x64-profile.zip",
+          "bun-darwin-x64.zip",
+          "bun-linux-aarch64-musl-profile.zip",
+          "bun-linux-aarch64-musl.zip",
+          "bun-linux-aarch64-profile.zip",
+          "bun-linux-aarch64.zip",
+          "bun-linux-x64-baseline-profile.zip",
+          "bun-linux-x64-baseline.zip",
+          "bun-linux-x64-musl-baseline-profile.zip",
+          "bun-linux-x64-musl-baseline.zip",
+          "bun-linux-x64-musl-profile.zip",
+          "bun-linux-x64-musl.zip",
+          "bun-linux-x64-profile.zip",
+          "bun-linux-x64.zip",
+          "bun-windows-aarch64-profile.zip",
+          "bun-windows-aarch64.zip",
+          "bun-windows-x64-baseline-profile.zip",
+          "bun-windows-x64-baseline.zip",
+          "bun-windows-x64-profile.zip",
+          "bun-windows-x64.zip",
+          "SHASUMS256.txt",
+          "SHASUMS256.txt.asc"
+        ],
+        "published_at": "2026-04-10T03:04:46Z",
+        "pre_release": false
+      },
+      {
+        "version": "Bun v1.3.11",
+        "tag": "bun-v1.3.11",
+        "files": [
+          "bun-darwin-aarch64-profile.zip",
+          "bun-darwin-aarch64.zip",
+          "bun-darwin-x64-baseline-profile.zip",
+          "bun-darwin-x64-baseline.zip",
+          "bun-darwin-x64-profile.zip",
+          "bun-darwin-x64.zip",
+          "bun-linux-aarch64-musl-profile.zip",
+          "bun-linux-aarch64-musl.zip",
+          "bun-linux-aarch64-profile.zip",
+          "bun-linux-aarch64.zip",
+          "bun-linux-x64-baseline-profile.zip",
+          "bun-linux-x64-baseline.zip",
+          "bun-linux-x64-musl-baseline-profile.zip",
+          "bun-linux-x64-musl-baseline.zip",
+          "bun-linux-x64-musl-profile.zip",
+          "bun-linux-x64-musl.zip",
+          "bun-linux-x64-profile.zip",
+          "bun-linux-x64.zip",
+          "bun-windows-aarch64-profile.zip",
+          "bun-windows-aarch64.zip",
+          "bun-windows-x64-baseline-profile.zip",
+          "bun-windows-x64-baseline.zip",
+          "bun-windows-x64-profile.zip",
+          "bun-windows-x64.zip",
+          "SHASUMS256.txt",
+          "SHASUMS256.txt.asc"
+        ],
+        "published_at": "2026-03-18T04:31:40Z",
+        "pre_release": false
+      },
+      {
+        "version": "Bun v1.3.10",
+        "tag": "bun-v1.3.10",
+        "files": [
+          "bun-darwin-aarch64-profile.zip",
+          "bun-darwin-aarch64.zip",
+          "bun-darwin-x64-baseline-profile.zip",
+          "bun-darwin-x64-baseline.zip",
+          "bun-darwin-x64-profile.zip",
+          "bun-darwin-x64.zip",
+          "bun-linux-aarch64-musl-profile.zip",
+          "bun-linux-aarch64-musl.zip",
+          "bun-linux-aarch64-profile.zip",
+          "bun-linux-aarch64.zip",
+          "bun-linux-x64-baseline-profile.zip",
+          "bun-linux-x64-baseline.zip",
+          "bun-linux-x64-musl-baseline-profile.zip",
+          "bun-linux-x64-musl-baseline.zip",
+          "bun-linux-x64-musl-profile.zip",
+          "bun-linux-x64-musl.zip",
+          "bun-linux-x64-profile.zip",
+          "bun-linux-x64.zip",
+          "bun-windows-aarch64-profile.zip",
+          "bun-windows-aarch64.zip",
+          "bun-windows-x64-baseline-profile.zip",
+          "bun-windows-x64-baseline.zip",
+          "bun-windows-x64-profile.zip",
+          "bun-windows-x64.zip",
+          "SHASUMS256.txt",
+          "SHASUMS256.txt.asc"
+        ],
+        "published_at": "2026-02-26T07:08:20Z",
+        "pre_release": false
+      }
+    ],
+    "latest": {
+      "version": "Bun v1.3.14",
+      "tag": "bun-v1.3.14"
+    }
+  },
+  "termux/termux-app": {
+    "config": {
+      "flat": false,
+      "tarball": false,
+      "pre_release": false,
+      "versions": 1
+    },
+    "releases": [
+      {
+        "version": "v0.118.3",
+        "tag": "v0.118.3",
+        "files": [
+          "termux-app_v0.118.3+github-debug_arm64-v8a.apk",
+          "termux-app_v0.118.3+github-debug_armeabi-v7a.apk",
+          "termux-app_v0.118.3+github-debug_sha256sums",
+          "termux-app_v0.118.3+github-debug_universal.apk",
+          "termux-app_v0.118.3+github-debug_x86.apk",
+          "termux-app_v0.118.3+github-debug_x86_64.apk"
+        ],
+        "published_at": "2025-05-22T22:47:26Z",
+        "pre_release": false
+      }
+    ],
+    "latest": {
+      "version": "v0.118.3",
+      "tag": "v0.118.3"
+    }
+  },
+  "ip7z/7zip": {
+    "config": {
+      "flat": false,
+      "tarball": false,
+      "pre_release": false,
+      "versions": 1
+    },
+    "releases": [
+      {
+        "version": "7-Zip 26.02",
+        "tag": "26.02",
+        "files": [
+          "7z2602-arm.exe",
+          "7z2602-arm64.exe",
+          "7z2602-extra.7z",
+          "7z2602-linux-arm.tar.xz",
+          "7z2602-linux-arm64.tar.xz",
+          "7z2602-linux-x64.tar.xz",
+          "7z2602-linux-x86.tar.xz",
+          "7z2602-mac.tar.xz",
+          "7z2602-src.7z",
+          "7z2602-src.tar.xz",
+          "7z2602-x64.exe",
+          "7z2602-x64.msi",
+          "7z2602.exe",
+          "7z2602.msi",
+          "7zr.exe",
+          "lzma2602.7z"
+        ],
+        "published_at": "2026-06-26T06:10:10Z",
+        "pre_release": false
+      }
+    ],
+    "latest": {
+      "version": "7-Zip 26.02",
+      "tag": "26.02"
+    }
+  }
+}

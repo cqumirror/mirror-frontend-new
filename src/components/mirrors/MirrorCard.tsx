@@ -13,17 +13,23 @@ import DistroLogo from './DistroLogo';
 import StatusChip from './StatusChip';
 
 interface MirrorCardProps {
-  mirror: Mirror;
+  name: string;
+  id: string;
+  desc: string;
+  size: string;
+  status: Mirror['status'];
+  lastUpdated: string;
+  type: 'mirror' | 'release';
 }
 
-const MirrorCard: React.FC<MirrorCardProps> = React.memo(({ mirror }) => {
+const MirrorCard: React.FC<MirrorCardProps> = React.memo(({ name, id, desc, size, status, lastUpdated, type }) => {
   const navigate = useNavigate();
-  const lastUpdatedText = formatRelativeTime(mirror.lastUpdated);
+  const lastUpdatedText = formatRelativeTime(lastUpdated);
 
   return (
     <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }} role="article">
       <CardActionArea
-        onClick={() => navigate(`/mirrors/${mirror.id}`)}
+        onClick={() => navigate(`/${type}/${name}`)}
         sx={{ flexGrow: 1, alignItems: 'flex-start', display: 'flex', flexDirection: 'column' }}
       >
         <CardContent sx={{ width: '100%', p: 2.5 }}>
@@ -38,15 +44,15 @@ const MirrorCard: React.FC<MirrorCardProps> = React.memo(({ mirror }) => {
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
-              <DistroLogo id={mirror.id} size={20} />
+              <DistroLogo id={id} size={20} />
               <Typography
                 variant="h6"
                 sx={{ fontSize: '1rem', fontWeight: 700, color: 'text.primary', lineHeight: 1.3 }}
               >
-                {mirror.name}
+                {name}
               </Typography>
             </Box>
-            <StatusChip status={mirror.status} size="small" />
+            <StatusChip status={status} size="small" />
           </Box>
 
           {/* 描述 */}
@@ -63,7 +69,7 @@ const MirrorCard: React.FC<MirrorCardProps> = React.memo(({ mirror }) => {
               minHeight: '3em',
             }}
           >
-            {mirror.desc}
+            {desc}
           </Typography>
 
           {/* 底部：大小 + 更新时间 */}
@@ -88,7 +94,7 @@ const MirrorCard: React.FC<MirrorCardProps> = React.memo(({ mirror }) => {
                     fontWeight: 500,
                   }}
                 >
-                  {mirror.size || '-'}
+                  {size || '-'}
                 </Typography>
               </Box>
             </Tooltip>

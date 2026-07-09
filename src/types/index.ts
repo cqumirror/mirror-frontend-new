@@ -15,12 +15,19 @@ export type MirrorStatus =
 
 /**
  * 镜像存储方式枚举
+ * local 本地存储
+ * campusProxy校内反代校外重定向
+ * cache 校内外均反代
+ * campusOnly 仅校内访问，校外无法访问
+ * campusLocal 校内访问本地存储，校外访问反代
+ * redirect 重定向
  */
 export type MirrorStorageType =
   | 'local'
+  | 'campusProxy'
+  | 'cache'
   | 'campusOnly'
-  | 'proxy'
-  | 'proxyWithCache'
+  | 'campusLocal'
   | 'redirect';
 /**
  * 镜像文件信息
@@ -49,15 +56,49 @@ export interface Mirror {
   files: MirrorFile[];
   popular: boolean;
   storageType: MirrorStorageType;
+  gitRepo : boolean;
+  message : string;
+}
+
+export interface ReleaseManifest {
+  [repoKey: string]: RepoReleaseData;
+}
+
+export interface RepoReleaseData {
+  config: ReleaseConfigInfo;
+  releases: ReleaseVersionInfo[];
+  latest: ReleaseLatestInfo;
+}
+
+export interface ReleaseConfigInfo {
+  name: string;
+  desc: string;
+  flat: boolean;
+  tarball: boolean;
+  pre_release: boolean;
+  versions: number;
+}
+
+export interface ReleaseVersionInfo {
+  version: string;
+  tag: string;
+  files: string[];
+  published_at: string;
+  pre_release: boolean;
+}
+
+export interface ReleaseLatestInfo {
+  version: string;
+  tag: string;
 }
 
 /**
  * 校园网检测响应
- * status: "1" = 校内 (is_cqu=1) | "0" = 校外 | "6" = IPv6 (非校内且 remote_addr 为纯 IPv6)
+ * status: true = 校内 (is_cqu=1) | false = 校外
  * ipv6: true = 纯 IPv6 连接 | false = IPv4（含 IPv4-mapped "::ffff:"）
  */
 export interface CampusNetworkStatus {
-  status: '1' | '0' | '6';
+  status: boolean;
   ipv6: boolean;
 }
 

@@ -155,7 +155,7 @@ npm run test          # Vitest unit tests
 
 ```
 GET /static/tunasync.json  → Sync status
-GET /data/local_data.json  ← Mirror name/description/files (static)
+GET /static/local_data.json  ← Mirror name/description/files (static)
 GET /static/isoinfo.json   → ISO file list (merged at runtime)
        ↓
 transformOldJobs()         → Merge into Mirror[]

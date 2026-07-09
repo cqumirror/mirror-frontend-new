@@ -2,16 +2,18 @@
 
 import {
   CheckCircle as SuccessIcon,
-  Error as ErrorIcon,
+  InfoOutlineRounded as InfoIcon,
   Sync as SyncIcon,
+  Error as ErrorIcon,
   Schedule as ScheduleIcon,
   History as HistoryIcon,
   ContentCopy as CopyIcon,
   Check as CheckIcon,
 } from '@mui/icons-material';
-import { Box, Typography, Paper, Grid, Tooltip, IconButton } from '@mui/material';
+import { Box, Typography, Paper, Grid, Tooltip, IconButton, alpha } from '@mui/material';
 import React, { useState, useRef, useEffect } from 'react';
 
+import { storageTypeMap } from '@/components/mirrors/StatusChip.tsx';
 import type { Mirror } from '@/types';
 import { formatAbsoluteTime } from '@/utils/time.ts';
 
@@ -202,7 +204,7 @@ const SyncTimeline: React.FC<SyncTimelineProps> = ({ mirror }) => {
         <Grid size={{ xs: 6, md: 3 }} sx={{ display: 'flex' }}>
           <TimeCard
             icon={<SyncIcon fontSize="small" />}
-            label={"最后更新"}
+            label={'最后更新'}
             value={formatAbsoluteTime(mirror.lastUpdated)}
             color={statusColor}
           />
@@ -211,7 +213,7 @@ const SyncTimeline: React.FC<SyncTimelineProps> = ({ mirror }) => {
         <Grid size={{ xs: 6, md: 3 }} sx={{ display: 'flex' }}>
           <TimeCard
             icon={<SuccessIcon fontSize="small" />}
-            label={"上次成功"}
+            label={'上次成功'}
             value={formatAbsoluteTime(mirror.lastSuccess)}
             color="success.main"
           />
@@ -220,7 +222,7 @@ const SyncTimeline: React.FC<SyncTimelineProps> = ({ mirror }) => {
         <Grid size={{ xs: 6, md: 3 }} sx={{ display: 'flex' }}>
           <TimeCard
             icon={<ScheduleIcon fontSize="small" />}
-            label={"下次同步"}
+            label={'下次同步'}
             value={formatAbsoluteTime(mirror.nextScheduled)}
             color="info.main"
           />
@@ -228,11 +230,42 @@ const SyncTimeline: React.FC<SyncTimelineProps> = ({ mirror }) => {
 
         {/* 上游地址：同行第四列，单行截断 + hover Tooltip */}
         <Grid size={{ xs: 6, md: 3 }} sx={{ display: 'flex' }}>
-          <UpstreamCard label={"上游源"} value={mirror.upstream || '-'} />
+          <UpstreamCard label={'上游源'} value={mirror.upstream || '-'} />
         </Grid>
 
-        {/* 同步失败警告条 */}
-        {mirror.status === 'failed' && (
+        {/* 存储方式告知条 */}
+        {mirror.storageType !== 'local' && (
+          <Grid size={{ xs: 12 }}>
+            <Paper
+              variant="outlined"
+              sx={{
+                p: 2,
+                borderRadius: 2,
+                borderColor: 'info.main',
+                bgcolor: (theme) =>
+                  theme.palette.mode === 'dark'
+                    ? alpha(theme.palette.info.main, 0.1)
+                    : alpha(theme.palette.info.light, 0.1),
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+              }}
+            >
+              <InfoIcon color="info" sx={{ flexShrink: 0 }} />
+              <Typography
+                variant="body2"
+                sx={{
+                  color: 'info.dark',
+                  fontWeight: 500,
+                }}
+              >
+                {`本仓库存储方式为：${storageTypeMap[mirror.storageType]}`}
+              </Typography>
+            </Paper>
+          </Grid>
+        )}
+        {/* 消息提示条 */}
+        {mirror.message !== '' && (
           <Grid size={{ xs: 12 }}>
             <Paper
               variant="outlined"
@@ -255,7 +288,7 @@ const SyncTimeline: React.FC<SyncTimelineProps> = ({ mirror }) => {
                   fontWeight: 500,
                 }}
               >
-                {`该镜像当前同步失败，请暂时使用官方源。上次成功同步：${formatAbsoluteTime(mirror.lastSuccess) }`}
+                {mirror.message}
               </Typography>
             </Paper>
           </Grid>

@@ -42,8 +42,12 @@ import { formatRelativeTime, formatAbsoluteTime, parseTimestamp } from '../utils
 
 // ── 系统整体健康状态 ──────────────────────────────────────────────────────────
 type HealthLevel = 'operational' | 'degraded' | 'outage';
-
-/**
+const healthTypeLevelMap: Record<HealthLevel, string> = {
+  operational: "同步正常",
+  degraded: "部分镜像同步失败",
+  outage: "大量镜像同步失败，服务可能无法使用"
+}
+  /**
  * 仅 failed 视为不可用；syncing/cached/succeeded/paused 都对外可访问
  * - cached: 历史快照可正常下载
  * - syncing: 服务在跑，旧文件依然可访问
@@ -268,7 +272,7 @@ const StatusPage: React.FC = () => {
             size="small"
             sx={{ color: 'text.secondary' }}
           >
-            {"返回首页"}
+            {'返回首页'}
           </Button>
           <Typography
             sx={{
@@ -284,7 +288,7 @@ const StatusPage: React.FC = () => {
               color: 'text.secondary',
             }}
           >
-            {"系统状态"}
+            {'系统状态'}
           </Typography>
           <Box sx={{ flex: 1 }} />
           <RefreshButton onClick={() => refetch()} />
@@ -314,7 +318,7 @@ const StatusPage: React.FC = () => {
             <Skeleton variant="rectangular" height={88} sx={{ borderRadius: 3, mb: 4 }} />
           ) : error ? (
             <Alert severity="error" sx={{ mb: 4, borderRadius: 2 }}>
-              {"加载失败"}
+              {'加载失败'}
             </Alert>
           ) : (
             <Paper
@@ -342,7 +346,7 @@ const StatusPage: React.FC = () => {
                     fontWeight: 800,
                   }}
                 >
-                  {health}
+                  {healthTypeLevelMap[health]}
                 </Typography>
                 <Typography
                   variant="caption"
@@ -375,7 +379,7 @@ const StatusPage: React.FC = () => {
                 <Grid size={{ xs: 6, sm: 4, md: 2 }}>
                   <StatCard
                     icon={<StorageIcon />}
-                    label={"镜像总数"}
+                    label={'镜像总数'}
                     value={stats.total}
                     color="primary.main"
                   />
@@ -383,7 +387,7 @@ const StatusPage: React.FC = () => {
                 <Grid size={{ xs: 6, sm: 4, md: 2 }}>
                   <StatCard
                     icon={<OkIcon />}
-                    label={"同步成功"}
+                    label={'同步成功'}
                     value={stats.succeeded}
                     sub={`${stats.successRate}%`}
                     color="success.main"
@@ -392,7 +396,7 @@ const StatusPage: React.FC = () => {
                 <Grid size={{ xs: 6, sm: 4, md: 2 }}>
                   <StatCard
                     icon={<ErrorIcon />}
-                    label={"同步失败"}
+                    label={'同步失败'}
                     value={stats.failed}
                     color={stats.failed > 0 ? 'error.main' : 'text.disabled'}
                   />
@@ -400,7 +404,7 @@ const StatusPage: React.FC = () => {
                 <Grid size={{ xs: 6, sm: 4, md: 2 }}>
                   <StatCard
                     icon={<SyncIcon />}
-                    label={"同步中"}
+                    label={'同步中'}
                     value={stats.syncing}
                     color="info.main"
                   />
@@ -408,7 +412,7 @@ const StatusPage: React.FC = () => {
                 <Grid size={{ xs: 6, sm: 4, md: 2 }}>
                   <StatCard
                     icon={<SpeedIcon />}
-                    label={"今日同步"}
+                    label={'今日同步'}
                     value={stats.syncedToday}
                     color="primary.main"
                   />
@@ -416,7 +420,7 @@ const StatusPage: React.FC = () => {
                 <Grid size={{ xs: 6, sm: 4, md: 2 }}>
                   <StatCard
                     icon={<StorageIcon />}
-                    label={"存储总量"}
+                    label={'存储总量'}
                     value={stats.totalBytes > 0 ? formatBytes(stats.totalBytes) : '-'}
                     color="text.secondary"
                   />
@@ -435,7 +439,7 @@ const StatusPage: React.FC = () => {
                     fontWeight: 600,
                   }}
                 >
-                  {"镜像可用率"}
+                  {'镜像可用率'}
                 </Typography>
                 <Typography
                   variant="body2"
@@ -459,18 +463,18 @@ const StatusPage: React.FC = () => {
                 {(
                   [
                     {
-                      label: "成功",
+                      label: '成功',
                       count: stats.succeeded,
                       color: '#22C55E',
                     },
-                    { label: "失败", count: stats.failed, color: '#EF4444' },
-                    { label: "同步中", count: stats.syncing, color: '#3B82F6' },
-                    { label: "已储存", count: stats.cached, color: '#94A3B8' },
-                    { label: "已暂停", count: stats.paused, color: '#F59E0B' },
+                    { label: '失败', count: stats.failed, color: '#EF4444' },
+                    { label: '同步中', count: stats.syncing, color: '#3B82F6' },
+                    { label: '已储存', count: stats.cached, color: '#94A3B8' },
+                    { label: '已暂停', count: stats.paused, color: '#F59E0B' },
                     ...(stats.disabled > 0
                       ? [
                           {
-                            label: "已禁用",
+                            label: '已禁用',
                             count: stats.disabled,
                             color: '#9CA3AF',
                           },
@@ -515,7 +519,7 @@ const StatusPage: React.FC = () => {
                     '@keyframes spin-slow': { to: { transform: 'rotate(360deg)' } },
                   }}
                 />
-                {"正在同步的镜像"}
+                {'正在同步的镜像'}
                 <Chip
                   label={stats.syncingList.length}
                   size="small"
@@ -614,7 +618,7 @@ const StatusPage: React.FC = () => {
                 }}
               >
                 <ErrorIcon color="error" fontSize="small" />
-                {"同步失败的镜像"}
+                {'同步失败的镜像'}
                 <Chip
                   label={stats.failedList.length}
                   size="small"
@@ -626,16 +630,16 @@ const StatusPage: React.FC = () => {
                 <Table size="small">
                   <TableHead>
                     <TableRow sx={{ bgcolor: 'action.hover' }}>
-                      <TableCell sx={{ fontWeight: 700 }}>{"镜像名称"}</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>{'镜像名称'}</TableCell>
                       <TableCell
                         sx={{ fontWeight: 700, display: { xs: 'none', sm: 'table-cell' } }}
                       >
-                        {"上次成功"}
+                        {'上次成功'}
                       </TableCell>
                       <TableCell
                         sx={{ fontWeight: 700, display: { xs: 'none', md: 'table-cell' } }}
                       >
-                        {"上游源"}
+                        {'上游源'}
                       </TableCell>
                     </TableRow>
                   </TableHead>
@@ -698,7 +702,6 @@ const StatusPage: React.FC = () => {
                   </TableBody>
                 </Table>
               </TableContainer>
-
             </Box>
           )}
 
@@ -717,7 +720,7 @@ const StatusPage: React.FC = () => {
                 }}
               >
                 <OkIcon color="success" fontSize="small" />
-                {"最近同步"}
+                {'最近同步'}
               </Typography>
               {isLoading ? (
                 [...Array(5)].map((_, i) => (
@@ -738,7 +741,7 @@ const StatusPage: React.FC = () => {
                           color: 'text.secondary',
                         }}
                       >
-                        {"暂无数据"}
+                        {'暂无数据'}
                       </Typography>
                     </Box>
                   ) : (
@@ -802,7 +805,7 @@ const StatusPage: React.FC = () => {
                 }}
               >
                 <ScheduleIcon color="info" fontSize="small" />
-                {"即将同步"}
+                {'即将同步'}
               </Typography>
               {isLoading ? (
                 [...Array(5)].map((_, i) => (
@@ -823,7 +826,7 @@ const StatusPage: React.FC = () => {
                           color: 'text.secondary',
                         }}
                       >
-                        {"暂无待同步任务"}
+                        {'暂无待同步任务'}
                       </Typography>
                     </Box>
                   ) : (
@@ -874,11 +877,9 @@ const StatusPage: React.FC = () => {
               )}
             </Grid>
           </Grid>
-
         </Box>
         {/* end opacity wrapper */}
       </Container>
-
     </>
   );
 };

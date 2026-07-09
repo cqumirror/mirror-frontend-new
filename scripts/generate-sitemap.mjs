@@ -16,7 +16,7 @@ const DIST_DIR = resolve(__dirname, '..', 'dist');
  */
 function getMirrorIds() {
   try {
-    const localDataPath = resolve(__dirname, '..', 'public', 'data', 'local_data.json');
+    const localDataPath = resolve(__dirname, '..', 'public', 'static', 'local_data.json');
     const data = JSON.parse(readFileSync(localDataPath, 'utf-8'));
     return Object.keys(data);
   } catch {

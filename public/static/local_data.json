@@ -8,357 +8,315 @@
   "CRAN": {
     "name": "CRAN",
     "desc": "R 语言的可执行文件、源代码和说明文件，也收录了各种用户撰写的软件包",
-    "type": "lang",
-    "helpUrl": ""
+    "type": "lang"
   },
   "CTAN": {
     "name": "CTAN",
     "desc": "TeX 的各种发行版、软件包和文档",
-    "type": "lang",
-    "helpUrl": ""
+    "type": "lang"
   },
   "adoptium": {
     "name": "Adoptium",
     "desc": "社区维护的 OpenJDK 二进制包",
-    "type": "tool",
-    "helpUrl": ""
+    "type": "tool"
   },
   "alpine": {
     "name": "Alpine Linux",
     "desc": "Alpine Linux 的安装镜像和官方软件包仓库",
-    "type": "os",
-    "helpUrl": ""
+    "type": "os"
   },
   "archlinux": {
     "name": "Arch Linux",
     "desc": "Arch Linux 的安装镜像和官方软件包仓库",
     "type": "os",
-    "helpUrl": "",
     "popular": true
   },
   "archlinuxcn": {
     "name": "Arch Linux CN",
     "desc": "由 Arch Linux 中文社区驱动的非官方用户仓库，包含中文用户常用软件、工具、字体/美化包等",
-    "type": "none",
-    "helpUrl": ""
+    "type": "none"
   },
   "blender": {
     "name": "Blender",
     "desc": "专业的三维计算机图形软件",
-    "type": "tool",
-    "helpUrl": ""
+    "type": "tool"
   },
   "bmclapi": {
     "name": "BMCLAPI",
     "desc": "BMCLAPI Minecraft 资源镜像",
     "type": "tool",
-    "helpUrl": "",
     "popular": true
   },
   "centos": {
     "name": "CentOS",
     "desc": "CentOS 的安装镜像和官方软件包仓库",
     "type": "os",
-    "helpUrl": ""
+    "storageType": "campusLocal",
+    "message": "CentOS 8 已于 2021 年 12 月 31 日停止维护，建议使用 Rocky Linux 或 AlmaLinux 替代"
   },
   "crates.io": {
     "name": "crates.io",
     "desc": "Rust 包管理仓库",
-    "type": "lang",
-    "helpUrl": ""
+    "type": "lang"
   },
   "crates.io-index": {
     "name": "crates.io Index",
     "desc": "面向 Rust 语言的软件包稀疏索引 crates.io",
-    "type": "lang",
-    "helpUrl": ""
+    "type": "lang"
   },
   "crates.io-index.git": {
     "name": "crates.io Index Git",
     "desc": "面向 Rust 语言的软件包索引 crates.io",
     "type": "lang",
-    "helpUrl": ""
+    "gitRepo": true
   },
   "cygwin": {
     "name": "Cygwin",
     "desc": "Cygwin 官方软件包仓库",
-    "type": "tool",
-    "helpUrl": ""
+    "type": "tool"
   },
   "debian": {
     "name": "Debian",
     "desc": "Debian Linux 的官方软件包仓库",
     "type": "os",
-    "helpUrl": "",
     "popular": true
   },
   "debian-cd": {
     "name": "Debian CD",
     "desc": "Debian Linux 的安装镜像",
-    "type": "os",
-    "helpUrl": ""
+    "type": "os"
   },
   "debian-multimedia": {
     "name": "Debian Multimedia",
     "desc": "Debian Linux 第三方多媒体软件源",
-    "type": "none",
-    "helpUrl": ""
+    "type": "none"
   },
   "debian-security": {
     "name": "Debian Security",
     "desc": "Debian Linux 的安全更新",
-    "type": "none",
-    "helpUrl": ""
+    "type": "none"
   },
   "deepin": {
     "name": "Deepin",
     "desc": "Deepin Linux 的官方软件包仓库",
-    "type": "os",
-    "helpUrl": ""
+    "type": "os"
   },
   "deepin-cd": {
     "name": "Deepin CD",
     "desc": "Deepin Linux 的安装镜像",
-    "type": "os",
-    "helpUrl": ""
+    "type": "os"
   },
   "dotnet": {
     "name": ".NET",
     "desc": ".NET 开发框架镜像",
-    "type": "lang",
-    "helpUrl": ""
+    "type": "lang"
   },
   "elpa": {
     "name": "ELPA",
     "desc": "Emacs 内建包管理器 package.el 的软件源",
-    "type": "lang",
-    "helpUrl": ""
+    "type": "lang"
   },
   "epel": {
     "name": "EPEL",
     "desc": "企业版 Linux 附加软件包",
-    "type": "none",
-    "helpUrl": ""
+    "type": "none"
   },
   "espressif": {
     "name": "Espressif",
     "desc": "乐鑫 ESP-IDF 开发框架镜像",
     "type": "tool",
-    "helpUrl": ""
+    "gitRepo": true
   },
   "fedora": {
     "name": "Fedora",
     "desc": "Fedora Linux 的安装镜像和官方软件包仓库",
-    "type": "os",
-    "helpUrl": ""
+    "type": "os"
   },
   "freebsd-pkg": {
     "name": "FreeBSD Pkg",
     "desc": "FreeBSD 软件包仓库",
-    "type": "os",
-    "helpUrl": ""
+    "type": "os"
   },
   "gentoo-portage": {
     "name": "Gentoo Portage",
     "desc": "Gentoo Linux 的 Portage 包管理器镜像源（HTTP / rsync 访问）",
-    "type": "os",
-    "helpUrl": ""
+    "type": "os"
   },
   "gentoo-portage.git": {
     "name": "Gentoo Portage Git",
     "desc": "Gentoo Linux 的 Portage 包管理器镜像源（Git 访问）",
     "type": "os",
-    "helpUrl": ""
+    "gitRepo": true
   },
   "gentoo-zh": {
     "name": "Gentoo CN",
     "desc": "Gentoo 中文社区软件包仓库",
-    "type": "none",
-    "helpUrl": ""
+    "type": "none"
   },
   "gentoo-zh.git": {
     "name": "Gentoo CN Git",
     "desc": "Gentoo 中文社区 Git 仓库镜像",
     "type": "none",
-    "helpUrl": ""
+    "gitRepo": true
   },
   "github-release": {
     "name": "GitHub Releases",
     "desc": "一些项目的 Github Release 镜像",
-    "type": "tool",
-    "helpUrl": ""
+    "type": "tool"
   },
   "gnu": {
     "name": "GNU",
     "desc": "GNU 项目的软件包（源代码、文档和部分平台的二进制文件）",
-    "type": "none",
-    "helpUrl": ""
+    "type": "none"
   },
   "hackage": {
     "name": "Hackage",
     "desc": "Haskell 社区的中心软件包仓库",
-    "type": "lang",
-    "helpUrl": ""
+    "type": "lang"
   },
   "homebrew": {
     "name": "Homebrew",
     "desc": "Homebrew/Linuxbrew 的 taps（软件包描述文件 Git 仓库）",
     "type": "tool",
-    "helpUrl": ""
+    "gitRepo": true
   },
   "homebrew-bottles": {
     "name": "Homebrew Bottles",
     "desc": "预编译的 Homebrew 软件包",
-    "type": "tool",
-    "helpUrl": ""
+    "type": "tool"
   },
   "kali": {
     "name": "Kali Linux",
     "desc": "Kali Linux 的官方软件包仓库",
-    "type": "os",
-    "helpUrl": ""
+    "type": "os"
   },
   "kali-images": {
     "name": "Kali Images",
     "desc": "Kali Linux 的安装镜像",
-    "type": "os",
-    "helpUrl": ""
+    "type": "os"
   },
   "kicad": {
     "name": "KiCad",
     "desc": "开源的电路原理图与 PCB 设计工具",
-    "type": "tool",
-    "helpUrl": ""
+    "type": "tool"
   },
   "linux-stable.git": {
     "name": "Linux Stable Git",
     "desc": "Linux 内核源代码的 Git 仓库, 稳定版分支",
     "type": "none",
-    "helpUrl": ""
+    "gitRepo": true
   },
   "linux.git": {
     "name": "Linux Kernel Git",
     "desc": "Linux 内核源代码的 Git 仓库",
     "type": "none",
-    "helpUrl": ""
+    "gitRepo": true
   },
   "linuxmint": {
     "name": "Linux Mint",
     "desc": "Linux Mint 的官方软件源",
-    "type": "os",
-    "helpUrl": ""
+    "type": "os"
   },
   "manjaro": {
     "name": "Manjaro",
     "desc": "Manjaro Linux 的官方软件源",
-    "type": "os",
-    "helpUrl": ""
+    "type": "os"
   },
   "msys2": {
     "name": "MSYS2",
     "desc": "Windows 下的软件发行与构建平台，提供 MinGW-w64 工具链和包管理器 pacman",
-    "type": "tool",
-    "helpUrl": ""
+    "type": "tool"
   },
   "openjdk": {
     "name": "OpenJDK",
     "desc": "OpenJDK 软件包镜像",
-    "type": "tool",
-    "helpUrl": ""
+    "type": "tool"
   },
   "opensuse": {
     "name": "openSUSE",
     "desc": "openSUSE 的安装镜像和官方软件包仓库",
     "type": "os",
-    "helpUrl": "",
     "popular": true
   },
   "opensuse-leap": {
     "name": "openSUSE Leap",
     "desc": "openSUSE Leap 稳定发行版软件仓库",
-    "type": "os",
-    "helpUrl": ""
+    "type": "os"
   },
   "opensuse-tumbleweed": {
     "name": "openSUSE Tumbleweed",
     "desc": "openSUSE Tumbleweed 滚动发行版软件仓库",
-    "type": "os",
-    "helpUrl": ""
+    "type": "os"
   },
   "proxmox": {
     "name": "Proxmox",
     "desc": "服务器虚拟化环境 Linux 发行版 Proxmox VE",
-    "type": "os",
-    "helpUrl": ""
+    "type": "os"
   },
   "python": {
     "name": "Python",
     "desc": "Python 官方软件包镜像",
-    "type": "lang",
-    "helpUrl": ""
+    "type": "lang"
   },
   "radxa-deb": {
     "name": "Radxa Deb",
     "desc": "Radxa 开发板 Debian 软件包仓库",
-    "type": "os",
-    "helpUrl": ""
+    "type": "os"
   },
   "raspbian": {
     "name": "Raspbian",
     "desc": "为树莓派编译的 Debian 系统软件源",
-    "type": "os",
-    "helpUrl": ""
+    "type": "os"
   },
   "rockylinux": {
     "name": "Rocky Linux",
     "desc": "Rocky Linux 软件包镜像",
     "type": "os",
-    "helpUrl": "",
     "popular": true
   },
   "ros": {
     "name": "ROS",
     "desc": "ROS 提供一系列程序库和工具以帮助软件开发者创建机器人应用软件",
-    "type": "tool",
-    "helpUrl": ""
+    "type": "tool"
   },
   "ros2": {
     "name": "ROS2",
     "desc": "ROS (Robot Operating System) 2.0 版本",
-    "type": "tool",
-    "helpUrl": ""
+    "type": "tool"
   },
   "ubuntu": {
     "name": "Ubuntu",
     "desc": "流行的 Linux 发行版 Ubuntu 的安装镜像和官方软件包仓库",
     "type": "os",
-    "helpUrl": "",
     "popular": true
   },
   "ubuntu-releases": {
     "name": "Ubuntu Releases",
     "desc": "包含近几年发行的 Ubuntu 的镜像",
-    "type": "os",
-    "helpUrl": ""
+    "type": "os"
   },
   "videolan-ftp": {
     "name": "VideoLAN FTP",
     "desc": "简称VLC，是一款自由、开源的跨平台多媒体播放器及框架，可播放大多数多媒体文件",
-    "type": "tool",
-    "helpUrl": ""
+    "type": "tool"
   },
   "zerotier": {
     "name": "ZeroTier 下载镜像",
     "desc": "ZeroTier 下载镜像",
-    "type": "tool",
-    "helpUrl": ""
+    "type": "tool"
   },
   "maven": {
     "name": "Maven Central 中心仓库",
     "desc": "Java开发依赖管理工具 Maven 的中央仓库",
     "type": "lang",
-    "helpUrl": "",
     "upstream": "https://repo.maven.apache.org/maven2/",
+    "storageType": "cache"
+  },
+  "qt": {
+    "name": "Qt 仓库",
+    "desc": "Qt 软件开发工具包镜像",
+    "type": "tool",
+    "upstream": "https://mirror.nju.edu.cn/qt/",
     "storageType": "cache"
   }
 }
