@@ -22,6 +22,10 @@ export type MirrorStatus =
  * campusLocal 校内访问本地存储，校外访问反代
  * redirect 重定向
  */
+export type ItemType =
+  | 'mirror'
+  | 'release';
+
 export type MirrorStorageType =
   | 'local'
   | 'campusProxy'
@@ -61,22 +65,19 @@ export interface Mirror {
 }
 
 export interface ReleaseManifest {
-  [repoKey: string]: RepoReleaseData;
-}
-
-export interface RepoReleaseData {
-  config: ReleaseConfigInfo;
-  releases: ReleaseVersionInfo[];
-  latest: ReleaseLatestInfo;
-}
-
-export interface ReleaseConfigInfo {
+  org: string;
+  repo: string;
   name: string;
   desc: string;
   flat: boolean;
   tarball: boolean;
   pre_release: boolean;
   versions: number;
+  popular: boolean;
+  size: string;
+  avatar_url: string;
+  releases: ReleaseVersionInfo[];
+  latest: ReleaseLatestInfo;
 }
 
 export interface ReleaseVersionInfo {

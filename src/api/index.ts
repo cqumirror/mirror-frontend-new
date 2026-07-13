@@ -7,8 +7,8 @@
 //   transformOldJobs()              → Mirror[]（前端完成格式转换）
 //   GET /api/getip                  → { is_cqu: 1|0 } 校园网检测
 
-import { LocalMeta, transformJobs } from '@/api/tunasync.ts';
-import {fetchTunasyncData } from '@/api/tunasync.ts';
+import type { LocalMeta} from '@/api/tunasync.ts';
+import { transformJobs, fetchTunasyncData } from '@/api/tunasync.ts';
 import type { Mirror, CampusNetworkStatus } from '@/types';
 
 // ── 本地元数据缓存（只需加载一次）────────────────────────────────────────────

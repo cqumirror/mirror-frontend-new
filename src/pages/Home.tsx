@@ -3,7 +3,6 @@
 
 import {
   Wifi as WifiIcon,
-  WifiTethering as Ipv6Icon,
   Star as StarIcon,
   Code as CodeIcon,
   Download as DownloadIcon,
@@ -23,6 +22,7 @@ import {
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { usePopularRelease, useRelease } from '@/hooks/useRelease.ts';
 import { getNewsList } from '@/news';
 import type { Mirror } from '@/types';
 import { SITE_ORIGIN, SITE_TITLE_ZH, KEYWORDS_ZH, DESC_ZH, canonicalUrl } from '@/utils/seo';
@@ -30,8 +30,8 @@ import { SITE_ORIGIN, SITE_TITLE_ZH, KEYWORDS_ZH, DESC_ZH, canonicalUrl } from '
 import RefreshButton from '../components/common/RefreshButton';
 import AnnouncementBanner from '../components/home/AnnouncementBanner';
 import NewsWidget from '../components/home/NewsWidget';
+import ItemCard from '../components/items/ItemCard.tsx';
 import DownloadModal from '../components/mirrors/DownloadModal';
-import MirrorCard from '../components/mirrors/MirrorCard';
 import MirrorList from '../components/mirrors/MirrorList';
 import {
   useMirrors,
@@ -178,7 +178,8 @@ const Home: React.FC = () => {
   if (triggerError) throw new Error('ErrorBoundary 测试错误');
 
   // 获取数据
-  const { data: mirrors = [], isLoading, isFetching, error, refetch } = useMirrors();
+  const { data: mirrors = [], isLoading: isMirrorLoading, isFetching: isMirrorFetching, error: mirrorError, refetch: mirrorRefetch} = useMirrors();
+  const { data: releases = [], isLoading: isReleaseLoading, isFetching: isReleaseFetching, refetch: refetchReleases } = useRelease();
   const { data: campusStatus } = useCampusNetwork();
 
   // 测量左侧常用镜像列高度，用于动态适配新闻条数
@@ -198,6 +199,10 @@ const Home: React.FC = () => {
   const filteredMirrors = useFilteredMirrors(mirrors);
   const groupedMirrors = useGroupedMirrors(filteredMirrors);
   const popularMirrors = usePopularMirrors(mirrors, 8);
+  const popularReleases = usePopularRelease(releases,8);
+
+  //单独列出"github-release"
+  const releaseMirrorInfo = mirrors.find((m) => m.id === 'github-release');
 
   // 收藏镜像 — 按收藏先后顺序排列（favorites 数组保留了添加时序）
   const { favorites } = useFavoriteStore();
@@ -209,7 +214,7 @@ const Home: React.FC = () => {
   // 新闻列表 —— 同步读取一次（import.meta.glob 静态分析），用 useMemo 防止每次 render 重算
   const newsList = useMemo(() => getNewsList(), []);
   const hasNews = newsList.length > 0;
-  const mirrorCount = hasNews ? 6 : 8;
+  const itemCount = hasNews ? 6 : 8;
 
   return (
     <>
@@ -265,23 +270,23 @@ const Home: React.FC = () => {
                   />
                 );
               }
-              const netConfig =
-                campusStatus.status
-                  ? {
-                      icon: <WifiIcon sx={{ fontSize: 14 }} />,
-                      label: "校园网",
-                      color: 'success' as const,
-                      dot: '#22C55E',
-                    }
-                  : {
-                        icon: <WifiIcon sx={{ fontSize: 14 }} />,
-                        label: "校外网络",
-                        color: 'default' as const,
-                        dot: '#94A3B8',
-                    };
+              const netConfig = campusStatus.status
+                ? {
+                    icon: <WifiIcon sx={{ fontSize: 14 }} />,
+                    label: '校园网',
+                    color: 'success' as const,
+                    dot: '#22C55E',
+                  }
+                : {
+                    icon: <WifiIcon sx={{ fontSize: 14 }} />,
+                    label: '校外网络',
+                    color: 'default' as const,
+                    dot: '#94A3B8',
+                  };
 
-              const tooltip =
-                campusStatus.status ? "您正在使用校园网，可使用内网镜像源获得更快速度" : "当前为校外网络，部分镜像源可能无法提供";
+              const tooltip = campusStatus.status
+                ? '您正在使用校园网，可使用内网镜像源获得更快速度'
+                : '当前为校外网络，部分镜像源可能无法提供';
 
               return (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, mb: 2 }}>
@@ -303,8 +308,9 @@ const Home: React.FC = () => {
                           borderRadius: '50%',
                           bgcolor: netConfig.dot,
                           ml: 0.5,
-                          animation:
-                            campusStatus.status ? 'net-pulse 2.4s ease-in-out infinite' : 'none',
+                          animation: campusStatus.status
+                            ? 'net-pulse 2.4s ease-in-out infinite'
+                            : 'none',
                         },
                         '@keyframes net-pulse': {
                           '0%, 100%': { opacity: 1, transform: 'scale(1)' },
@@ -343,7 +349,7 @@ const Home: React.FC = () => {
                   letterSpacing: '-0.03em',
                 }}
               >
-                {"重庆大学开源软件镜像站"}
+                {'重庆大学开源软件镜像站'}
               </Typography>
               {import.meta.env.DEV && (
                 <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
@@ -360,26 +366,40 @@ const Home: React.FC = () => {
                 </Box>
               )}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                <Tooltip title={"Git & GitHub"} placement="bottom">
+                <Tooltip title={'Git & GitHub'} placement="bottom">
                   <Button
                     variant="outlined"
                     size="small"
                     startIcon={<CodeIcon sx={{ fontSize: 16 }} />}
                     onClick={() => navigate('/mirrors/git')}
-                    sx={{ borderRadius: 6, fontSize: '0.8rem', px: 1.5, py: 0.4, fontWeight: 600, textTransform: 'none' }}
+                    sx={{
+                      borderRadius: 6,
+                      fontSize: '0.8rem',
+                      px: 1.5,
+                      py: 0.4,
+                      fontWeight: 600,
+                      textTransform: 'none',
+                    }}
                   >
-                    {"Git & GitHub"}
+                    {'Git & GitHub'}
                   </Button>
                 </Tooltip>
-                <Tooltip title={"常用下载"} placement="bottom">
+                <Tooltip title={'常用下载'} placement="bottom">
                   <Button
                     variant="outlined"
                     size="small"
                     startIcon={<DownloadIcon sx={{ fontSize: 16 }} />}
                     onClick={() => setDownloadOpen(true)}
-                    sx={{ borderRadius: 6, fontSize: '0.8rem', px: 1.5, py: 0.4, fontWeight: 600, textTransform: 'none' }}
+                    sx={{
+                      borderRadius: 6,
+                      fontSize: '0.8rem',
+                      px: 1.5,
+                      py: 0.4,
+                      fontWeight: 600,
+                      textTransform: 'none',
+                    }}
                   >
-                    {"常用下载"}
+                    {'常用下载'}
                   </Button>
                 </Tooltip>
               </Box>
@@ -394,7 +414,7 @@ const Home: React.FC = () => {
                 fontSize: { xs: '1rem', md: '1.25rem' },
               }}
             >
-              {"CQU Mirror"}
+              {'CQU Mirror'}
             </Typography>
 
             <Typography
@@ -406,9 +426,8 @@ const Home: React.FC = () => {
                 maxWidth: 520,
               }}
             >
-              {"致力于为国内和校内用户提供高质量的开源软件镜像、Linux 镜像源服务"}
+              {'致力于为国内和校内用户提供高质量的开源软件镜像、Linux 镜像源服务'}
             </Typography>
-
           </Box>
         </Container>
       </Box>
@@ -433,14 +452,18 @@ const Home: React.FC = () => {
                       mb: 3,
                     }}
                   >
-                    {"最新动态"}
+                    {'最新动态'}
                   </Typography>
                   <NewsWidget siblingHeight={leftHeight} />
                 </Grid>
               )}
 
               {/* 常用镜像列 —— 有新闻时桌面 9 列，无新闻时全宽 */}
-              <Grid ref={leftRef} size={{ xs: 12, lg: hasNews ? 9 : 12 }} sx={{ order: { xs: 1, lg: 0 } }}>
+              <Grid
+                ref={leftRef}
+                size={{ xs: 12, lg: hasNews ? 9 : 12 }}
+                sx={{ order: { xs: 1, lg: 0 } }}
+              >
                 <Typography
                   variant="h5"
                   sx={{
@@ -448,11 +471,11 @@ const Home: React.FC = () => {
                     mb: 3,
                   }}
                 >
-                  {"常用镜像"}
+                  {'常用镜像'}
                 </Typography>
-                {isLoading ? (
+                {isMirrorLoading ? (
                   <Grid container spacing={2}>
-                    {[...Array(mirrorCount)].map((_, i) => (
+                    {[...Array(itemCount)].map((_, i) => (
                       <Grid key={i} size={{ xs: 12, sm: 6, md: hasNews ? 4 : 3 }}>
                         <Skeleton variant="rectangular" height={160} sx={{ borderRadius: 2 }} />
                       </Grid>
@@ -460,21 +483,45 @@ const Home: React.FC = () => {
                   </Grid>
                 ) : (
                   <Grid container spacing={2}>
-                    {popularMirrors.slice(0, mirrorCount).map((mirror) => (
+                    {popularMirrors.slice(0, itemCount).map((mirror) => (
                       <Grid key={mirror.id} size={{ xs: 12, sm: 6, md: hasNews ? 4 : 3 }}>
-                        <MirrorCard
-                          name={mirror.name}
-                          id={mirror.id}
-                          desc={mirror.desc}
-                          size={mirror.size}
-                          status={mirror.status}
-                          lastUpdated={mirror.lastUpdated}
-                          type={'mirror'}
-                        />
+                        <ItemCard mirror={mirror} />
                       </Grid>
                     ))}
                   </Grid>
                 )}
+                {/* 常用Release —— 有新闻时桌面 9 列，无新闻时全宽 */}
+                <Typography
+                  variant="h5"
+                  sx={{
+                    fontWeight: 700,
+                    mb: 3,
+                    mt: 4,
+                  }}
+                >
+                  {'常用GitHub Release'}
+                </Typography>
+                {releaseMirrorInfo &&
+                  (isReleaseLoading ? (
+                    <Grid container spacing={2}>
+                      {[...Array(itemCount)].map((_, i) => (
+                        <Grid key={i} size={{ xs: 12, sm: 6, md: hasNews ? 4 : 3 }}>
+                          <Skeleton variant="rectangular" height={160} sx={{ borderRadius: 2 }} />
+                        </Grid>
+                      ))}
+                    </Grid>
+                  ) : (
+                    <Grid container spacing={2}>
+                      {popularReleases.slice(0, itemCount).map((release) => (
+                        <Grid
+                          key={release.org + '/' + release.repo}
+                          size={{ xs: 12, sm: 6, md: hasNews ? 4 : 3 }}
+                        >
+                          <ItemCard mirror={releaseMirrorInfo} release={release} />
+                        </Grid>
+                      ))}
+                    </Grid>
+                  ))}
               </Grid>
             </Grid>
           </Box>
@@ -491,7 +538,7 @@ const Home: React.FC = () => {
                   fontWeight: 700,
                 }}
               >
-                {"我的收藏"}
+                {'我的收藏'}
               </Typography>
               <Chip
                 label={favoriteMirrors.length}
@@ -504,15 +551,7 @@ const Home: React.FC = () => {
             <Grid container spacing={2}>
               {favoriteMirrors.map((mirror) => (
                 <Grid key={mirror.id} size={{ xs: 12, sm: 6, md: 3 }}>
-                  <MirrorCard
-                    name={mirror.name}
-                    id={mirror.id}
-                    desc={mirror.desc}
-                    size={mirror.size}
-                    status={mirror.status}
-                    lastUpdated={mirror.lastUpdated}
-                    type={'mirror'}
-                  />
+                  <ItemCard mirror={mirror} />
                 </Grid>
               ))}
             </Grid>
@@ -537,13 +576,11 @@ const Home: React.FC = () => {
                 fontWeight: 700,
               }}
             >
-              {searchQuery
-                ? `找到 ${filteredMirrors.length} 个镜像`
-                : "所有镜像"}
+              {searchQuery ? `找到 ${filteredMirrors.length} 个镜像` : '所有镜像'}
             </Typography>
 
             {/* 刷新按钮 */}
-            <RefreshButton onClick={() => refetch()} />
+            <RefreshButton onClick={() => mirrorRefetch()} />
           </Box>
 
           {/* 刷新进度条——仅在后台 refetch 时（非首次加载）显示 */}
@@ -552,43 +589,40 @@ const Home: React.FC = () => {
               mb: 1.5,
               borderRadius: 1,
               height: 3,
-              opacity: isFetching && !isLoading ? 1 : 0,
+              opacity: isMirrorFetching && !isMirrorLoading ? 1 : 0,
               transition: 'opacity 0.3s',
             }}
           />
 
           {/* 加载失败 */}
-          {error && (
+          {mirrorError && (
             <Paper variant="outlined" sx={{ p: 3, textAlign: 'center', borderRadius: 2, mb: 3 }}>
               <Typography color="error" gutterBottom>
-                {"加载失败"}
+                {'加载失败'}
               </Typography>
-              <Button variant="contained" size="small" onClick={() => refetch()}>
-                {"重试"}
+              <Button variant="contained" size="small" onClick={() => mirrorRefetch()}>
+                {'重试'}
               </Button>
             </Paper>
           )}
 
           {/* 字母分组索引导航 — roving tabindex：整体一个 Tab 停，方向键在字母间移动 */}
-          {!isLoading && Object.keys(groupedMirrors).length > 0 && (
-            <LetterIndexNav
-              letters={sortedGroupKeys(groupedMirrors)}
-              ariaLabel={"按字母跳转"}
-            />
+          {!isMirrorLoading && Object.keys(groupedMirrors).length > 0 && (
+            <LetterIndexNav letters={sortedGroupKeys(groupedMirrors)} ariaLabel={'按字母跳转'} />
           )}
 
           {/* 镜像列表 */}
           <Box
             sx={{
-              opacity: isFetching && !isLoading ? 0.55 : 1,
-              pointerEvents: isFetching && !isLoading ? 'none' : 'auto',
+              opacity: isMirrorFetching && !isMirrorLoading ? 0.55 : 1,
+              pointerEvents: isMirrorFetching && !isMirrorLoading ? 'none' : 'auto',
               transition: 'opacity 0.25s',
             }}
           >
             <MirrorList
               grouped={groupedMirrors}
-              loading={isLoading}
-              error={error ? String(error) : undefined}
+              loading={isMirrorLoading}
+              error={mirrorError ? String(mirrorError) : undefined}
             />
           </Box>
         </Box>

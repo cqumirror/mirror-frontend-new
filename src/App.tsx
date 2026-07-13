@@ -18,7 +18,7 @@ const Home = lazy(() => import('./pages/Home'));
 const MirrorDetail = lazy(() => import('./pages/MirrorDetail'));
 const NewsDetailPage = lazy(() => import('./pages/NewsDetailPage'));
 const NewsListPage = lazy(() => import('./pages/NewsListPage'));
-const GitMirrorsPage = lazy(() => import('./pages/GitMirrorsPage'));
+const ReleaseDetail  = lazy(() => import('./pages/ReleaseDetail'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const SpecialThanks = lazy(() => import('./pages/SpecialThanks'));
 const StatusPage = lazy(() => import('./pages/StatusPage'));
@@ -96,7 +96,7 @@ const ThemedApp: React.FC = () => {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/mirrors" element={<Navigate to="/" replace />} />
-                <Route path="/mirrors/git" element={<GitMirrorsPage />} />
+                <Route path="/release" element={<ReleaseDetail />} />
                 <Route path="/mirrors/:name" element={<MirrorDetail />} />
                 <Route path="/news" element={<NewsListPage />} />
                 <Route path="/news/:slug" element={<NewsDetailPage />} />

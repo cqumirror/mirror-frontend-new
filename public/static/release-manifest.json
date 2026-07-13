@@ -5,8 +5,10 @@
       "tarball": false,
       "pre_release": false,
       "versions": 3,
+      "avatar_url": "https://avatars.githubusercontent.com/u/44803668?v=4",
       "name": "Office Tool Plus",
-      "desc": "用于安装Office的第三方工具。"
+      "desc": "一个强大且实用的 Office 部署与管理工具。",
+      "popular": true
     },
     "releases": [
       {
@@ -62,7 +64,11 @@
       "flat": false,
       "tarball": false,
       "pre_release": false,
-      "versions": 1
+      "versions": 1,
+      "avatar_url": "https://avatars.githubusercontent.com/u/7725691?v=4",
+      "name": "OBS Studio",
+      "desc": "免费开源的跨平台视频直播录制与屏幕捕捉软件。",
+      "popular": true
     },
     "releases": [
       {
@@ -87,7 +93,11 @@
       "flat": false,
       "tarball": false,
       "pre_release": false,
-      "versions": 1
+      "versions": 1,
+      "avatar_url": "https://avatars.githubusercontent.com/u/6157842?v=4",
+      "name": "balenaEtcher",
+      "desc": "安全易用的跨平台 OS 镜像烧录工具，支持将镜像写入 SD 卡或 USB 驱动器。",
+      "popular": true
     },
     "releases": [
       {
@@ -116,7 +126,10 @@
       "flat": true,
       "tarball": false,
       "pre_release": false,
-      "versions": 1
+      "versions": 1,
+      "avatar_url": "https://avatars.githubusercontent.com/u/51902309?v=4",
+      "name": "霞鹜文楷",
+      "desc": "基于 Klee One 的开源中文字体，兼有仿宋和楷体特点，可读性高，免费可商用。"
     },
     "releases": [
       {
@@ -146,7 +159,10 @@
       "flat": true,
       "tarball": false,
       "pre_release": false,
-      "versions": 1
+      "versions": 1,
+      "avatar_url": "https://avatars.githubusercontent.com/u/51902309?v=4",
+      "name": "霞鹜文楷 屏幕阅读版",
+      "desc": "霞鹜文楷的屏幕舒适阅读版本，针对 PC 和 Android 屏幕优化了字重与显示效果。"
     },
     "releases": [
       {
@@ -172,7 +188,10 @@
       "flat": true,
       "tarball": false,
       "pre_release": false,
-      "versions": 1
+      "versions": 1,
+      "avatar_url": "https://avatars.githubusercontent.com/u/51902309?v=4",
+      "name": "霞鹜文楷 Lite",
+      "desc": "霞鹜文楷的轻量版本，在保留核心字符集的基础上减小了字体体积。"
     },
     "releases": [
       {
@@ -202,7 +221,10 @@
       "flat": true,
       "tarball": false,
       "pre_release": false,
-      "versions": 1
+      "versions": 1,
+      "avatar_url": "https://avatars.githubusercontent.com/u/51902309?v=4",
+      "name": "霞鹜文楷 GB",
+      "desc": "霞鹜文楷的 GB 版本，调整字形和笔形，符合 G 源字形规范。"
     },
     "releases": [
       {
@@ -232,7 +254,10 @@
       "flat": true,
       "tarball": false,
       "pre_release": false,
-      "versions": 1
+      "versions": 1,
+      "avatar_url": "https://avatars.githubusercontent.com/u/51902309?v=4",
+      "name": "霞鹜文楷 TC",
+      "desc": "霞鹜文楷的繁体中文版本，补全了繁体字及港台异体字。"
     },
     "releases": [
       {
@@ -262,33 +287,30 @@
       "flat": true,
       "tarball": false,
       "pre_release": false,
-      "versions": 3
+      "versions": 3,
+      "avatar_url": "https://avatars.githubusercontent.com/u/88432959?v=4",
+      "name": "得意黑",
+      "desc": "一款在人文观感和几何特征中寻找平衡的中文黑体，字身窄而斜，开源免费可商用。"
     },
     "releases": [
       {
         "version": "Smiley Sans v2.0.1",
         "tag": "v2.0.1",
-        "files": [
-          "smiley-sans-v2.0.1.zip"
-        ],
+        "files": ["smiley-sans-v2.0.1.zip"],
         "published_at": "2024-02-07T10:27:43Z",
         "pre_release": false
       },
       {
         "version": "Smiley Sans v2.0.0",
         "tag": "v2.0.0",
-        "files": [
-          "smiley-sans-v2.0.0.zip"
-        ],
+        "files": ["smiley-sans-v2.0.0.zip"],
         "published_at": "2024-02-06T17:58:30Z",
         "pre_release": false
       },
       {
         "version": "Smiley Sans v1.1.1",
         "tag": "v1.1.1",
-        "files": [
-          "smiley-sans-v1.1.1.zip"
-        ],
+        "files": ["smiley-sans-v1.1.1.zip"],
         "published_at": "2023-01-07T09:09:49Z",
         "pre_release": false
       }
@@ -303,7 +325,11 @@
       "flat": true,
       "tarball": false,
       "pre_release": false,
-      "versions": 1
+      "versions": 1,
+      "avatar_url": "https://avatars.githubusercontent.com/u/6154722?v=4",
+      "name": "Windows Subsystem for Linux",
+      "desc": "Microsoft 开发的 Windows 功能，允许开发者直接在 Windows 上运行 GNU/Linux 环境。",
+      "popular": true
     },
     "releases": [
       {
@@ -328,9 +354,25 @@
       "flat": false,
       "tarball": false,
       "pre_release": false,
-      "versions": 3
+      "versions": 3,
+      "avatar_url": "https://avatars.githubusercontent.com/u/62919083?v=4",
+      "name": "One-KVM",
+      "desc": "基于廉价硬件和 PiKVM 软件的 BIOS 级远程控制方案，实现 IP-KVM 功能。",
+      "popular": true
     },
     "releases": [
+      {
+        "version": "One-KVM Rust 0.2.4（260709）",
+        "tag": "v260709",
+        "files": [
+          "one-kvm_0.2.4_amd64.deb",
+          "one-kvm_0.2.4_amd64.exe",
+          "one-kvm_0.2.4_arm64.deb",
+          "one-kvm_0.2.4_armhf.deb"
+        ],
+        "published_at": "2026-07-07T17:41:36Z",
+        "pre_release": false
+      },
       {
         "version": "One-KVM Rust 0.2.3（260624）",
         "tag": "v260626",
@@ -358,23 +400,11 @@
         ],
         "published_at": "2026-05-24T14:54:14Z",
         "pre_release": false
-      },
-      {
-        "version": "One-KVM Rust 0.2.1（260520）",
-        "tag": "v260520",
-        "files": [
-          "one-kvm_0.2.1_amd64.deb",
-          "one-kvm_0.2.1_amd64.exe",
-          "one-kvm_0.2.1_arm64.deb",
-          "one-kvm_0.2.1_armhf.deb"
-        ],
-        "published_at": "2026-05-19T17:02:47Z",
-        "pre_release": false
       }
     ],
     "latest": {
-      "version": "One-KVM Rust 0.2.3（260624）",
-      "tag": "v260626"
+      "version": "One-KVM Rust 0.2.4（260709）",
+      "tag": "v260709"
     }
   },
   "viarotel-org/escrcpy": {
@@ -382,7 +412,10 @@
       "flat": true,
       "tarball": false,
       "pre_release": false,
-      "versions": 1
+      "versions": 1,
+      "avatar_url": "https://avatars.githubusercontent.com/u/131328070?v=4",
+      "name": "Escrcpy",
+      "desc": "基于 Electron 的 Scrcpy 图形界面工具，跨平台远程控制安卓手机。"
     },
     "releases": [
       {
@@ -416,7 +449,11 @@
       "flat": true,
       "tarball": false,
       "pre_release": false,
-      "versions": 1
+      "versions": 1,
+      "avatar_url": "https://avatars.githubusercontent.com/u/518474?v=4",
+      "name": "MinGW-Builds",
+      "desc": "为 Windows 平台提供预编译的 GCC 编译器工具链，解压即用。",
+      "popular": true
     },
     "releases": [
       {
@@ -448,7 +485,11 @@
       "flat": true,
       "tarball": false,
       "pre_release": false,
-      "versions": 1
+      "versions": 1,
+      "avatar_url": "https://avatars.githubusercontent.com/u/6759993?v=4",
+      "name": "MSYS2 Installer",
+      "desc": "MSYS2 的官方 GUI 安装程序，提供类 Unix 开发环境与 Pacman 包管理器。",
+      "popular": true
     },
     "releases": [
       {
@@ -473,7 +514,10 @@
       "flat": true,
       "tarball": false,
       "pre_release": false,
-      "versions": 1
+      "versions": 1,
+      "avatar_url": "https://avatars.githubusercontent.com/u/113491998?v=4",
+      "name": "MicYou",
+      "desc": "将 Android 设备转变为 PC 高质量麦克风的跨平台工具，支持 Wi-Fi、USB 和蓝牙连接。"
     },
     "releases": [
       {
@@ -506,7 +550,10 @@
       "flat": true,
       "tarball": false,
       "pre_release": false,
-      "versions": 1
+      "versions": 1,
+      "avatar_url": "https://avatars.githubusercontent.com/u/92425617?v=4",
+      "name": "智绘教 Inkeys",
+      "desc": "免费开源的 Windows 屏幕批注工具，适用于教学授课、远程演示等场景。"
     },
     "releases": [
       {
@@ -534,7 +581,10 @@
       "flat": false,
       "tarball": false,
       "pre_release": false,
-      "versions": 1
+      "versions": 1,
+      "avatar_url": "https://avatars.githubusercontent.com/u/170740237?v=4",
+      "name": "ClassIsland",
+      "desc": "适用于班级多媒体屏幕的课表信息显示工具，灵感源于 iOS 灵动岛。"
     },
     "releases": [
       {
@@ -568,7 +618,11 @@
       "flat": false,
       "tarball": false,
       "pre_release": false,
-      "versions": 1
+      "versions": 1,
+      "avatar_url": "https://avatars.githubusercontent.com/u/379109?v=4",
+      "name": "Arduino IDE",
+      "desc": "Arduino 官方集成开发环境，用于编写程序并上传至 Arduino 开发板。",
+      "popular": true
     },
     "releases": [
       {
@@ -602,12 +656,16 @@
       "flat": false,
       "tarball": false,
       "pre_release": false,
-      "versions": 1
+      "versions": 1,
+      "avatar_url": "https://avatars.githubusercontent.com/u/9460735?v=4",
+      "name": "ESP-IDF Installation Manager",
+      "desc": "乐鑫官方跨平台 GUI 工具，用于安装和管理 ESP-IDF 物联网开发框架。",
+      "popular": true
     },
     "releases": [
       {
-        "version": "v0.16.0",
-        "tag": "v0.16.0",
+        "version": "v0.17.1",
+        "tag": "v0.17.1",
         "files": [
           "eim-cli-linux-aarch64-aarch64.pkg.tar.zst",
           "eim-cli-linux-aarch64.deb",
@@ -646,13 +704,13 @@
           "offline_installer_builder-windows-x64.exe",
           "offline_installer_builder.zip"
         ],
-        "published_at": "2026-06-30T08:26:33Z",
+        "published_at": "2026-07-08T13:22:31Z",
         "pre_release": false
       }
     ],
     "latest": {
-      "version": "v0.16.0",
-      "tag": "v0.16.0"
+      "version": "v0.17.1",
+      "tag": "v0.17.1"
     }
   },
   "deepin-community/deepin-WSL": {
@@ -660,16 +718,16 @@
       "flat": true,
       "tarball": false,
       "pre_release": true,
-      "versions": 1
+      "versions": 1,
+      "avatar_url": "https://avatars.githubusercontent.com/u/102278842?v=4",
+      "name": "deepin WSL",
+      "desc": "deepin 社区推出的 WSL 发行版，可在 Windows 上运行 deepin 命令行环境。"
     },
     "releases": [
       {
         "version": "v1.6.0",
         "tag": "v1.6.0",
-        "files": [
-          "deepin25-amd64.wsl",
-          "deepin25-arm64.wsl"
-        ],
+        "files": ["deepin25-amd64.wsl", "deepin25-arm64.wsl"],
         "published_at": "2026-04-24T02:56:22Z",
         "pre_release": true
       }
@@ -681,7 +739,11 @@
       "flat": false,
       "tarball": false,
       "pre_release": false,
-      "versions": 1
+      "versions": 1,
+      "avatar_url": "https://avatars.githubusercontent.com/u/16405987?v=4",
+      "name": "Embarcadero Dev-C++",
+      "desc": "快速、轻量、免费的 C/C++ 集成开发环境，使用 MinGW GCC 作为编译器。",
+      "popular": true
     },
     "releases": [
       {
@@ -709,15 +771,17 @@
       "flat": false,
       "tarball": false,
       "pre_release": false,
-      "versions": 1
+      "versions": 1,
+      "avatar_url": "https://avatars.githubusercontent.com/u/44390932?v=4",
+      "name": "TDM-GCC",
+      "desc": "Windows 友好的 GCC 编译器套件，编译的程序无需依赖额外 DLL。",
+      "popular": true
     },
     "releases": [
       {
         "version": "v10.3.0-tdm64-2",
         "tag": "v10.3.0-tdm64-2",
-        "files": [
-          "tdm64-gcc-10.3.0-2.exe"
-        ],
+        "files": ["tdm64-gcc-10.3.0-2.exe"],
         "published_at": "2021-05-26T00:57:35Z",
         "pre_release": false
       }
@@ -732,7 +796,11 @@
       "flat": true,
       "tarball": false,
       "pre_release": false,
-      "versions": 1
+      "versions": 1,
+      "avatar_url": "https://avatars.githubusercontent.com/u/4571183?v=4",
+      "name": "Git for Windows",
+      "desc": "将 Git SCM 完整功能带到 Windows 平台的轻量级工具集，提供 Git Bash 和 Git GUI。",
+      "popular": true
     },
     "releases": [
       {
@@ -767,7 +835,10 @@
       "flat": false,
       "tarball": false,
       "pre_release": false,
-      "versions": 5
+      "versions": 5,
+      "avatar_url": "https://avatars.githubusercontent.com/u/108928776?v=4",
+      "name": "Bun",
+      "desc": "极速的 JavaScript 全家桶工具——运行时、打包器、测试运行器和包管理器合而为一。"
     },
     "releases": [
       {
@@ -963,7 +1034,11 @@
       "flat": false,
       "tarball": false,
       "pre_release": false,
-      "versions": 1
+      "versions": 1,
+      "avatar_url": "https://avatars.githubusercontent.com/u/8104776?v=4",
+      "name": "Termux",
+      "desc": "Android 终端模拟器与 Linux 环境，可在手机上运行大量 Linux 命令行工具。",
+      "popular": true
     },
     "releases": [
       {
@@ -991,7 +1066,11 @@
       "flat": false,
       "tarball": false,
       "pre_release": false,
-      "versions": 1
+      "versions": 1,
+      "avatar_url": "https://avatars.githubusercontent.com/u/87184205?v=4",
+      "name": "7-Zip",
+      "desc": "高压缩比的开源文件压缩与解压工具，支持 7z、ZIP、RAR 等多种格式。",
+      "popular": true
     },
     "releases": [
       {
