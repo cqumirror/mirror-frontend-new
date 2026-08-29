@@ -4,7 +4,7 @@
 import { Box, Chip, Tooltip } from '@mui/material';
 import React from 'react';
 
-import { MirrorStatus, MirrorStorageType } from '@/types';
+import type { MirrorStatus, MirrorStorageType } from '@/types';
 
 interface StatusChipProps {
   status: MirrorStatus;

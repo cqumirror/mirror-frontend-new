@@ -4,8 +4,10 @@
 import {
   Wifi as WifiIcon,
   Star as StarIcon,
-  Code as CodeIcon,
+  ArrowForward as ArrowForwardIcon,
   Download as DownloadIcon,
+  GitHub as GitHubIcon,
+  Sync as SyncIcon,
 } from '@mui/icons-material';
 import {
   Box,
@@ -13,6 +15,7 @@ import {
   Typography,
   Grid,
   Button,
+  ButtonBase,
   Chip,
   Skeleton,
   Paper,
@@ -31,7 +34,6 @@ import RefreshButton from '../components/common/RefreshButton';
 import AnnouncementBanner from '../components/home/AnnouncementBanner';
 import NewsWidget from '../components/home/NewsWidget';
 import ItemCard from '../components/items/ItemCard.tsx';
-import DownloadModal from '../components/mirrors/DownloadModal';
 import MirrorList from '../components/mirrors/MirrorList';
 import {
   useMirrors,
@@ -41,9 +43,11 @@ import {
   usePopularMirrors,
   sortedGroupKeys,
 } from '../hooks/useMirrors';
-import { useMirrorSearchStore, useFavoriteStore } from '../stores/mirrorStore';
-
-
+import {
+  useDownloadModalStore,
+  useFavoriteStore,
+  useMirrorSearchStore,
+} from '../stores/mirrorStore';
 
 // ── 字母索引导航子组件（roving tabindex）────────────────────────────────────
 // 独立为组件以满足 Rules of Hooks（不能在 IIFE 或回调中调用 Hook）
@@ -132,54 +136,22 @@ const LetterIndexNav: React.FC<LetterIndexNavProps> = ({ letters, ariaLabel }) =
 };
 
 /**
- * DEV-only: 自定义错误码测试 ErrorPage
- */
-const TestErrorPageButton: React.FC = () => {
-  const navigate = useNavigate();
-  const [code, setCode] = useState('404');
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
-      <input
-        value={code}
-        onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 3))}
-        placeholder="404"
-        style={{
-          width: 36,
-          fontSize: '0.7rem',
-          textAlign: 'center',
-          padding: '3px 2px',
-          border: '1px solid #ccc',
-          borderRadius: 4,
-          fontFamily: '"JetBrains Mono", monospace',
-        }}
-      />
-      <Button
-        size="small"
-        variant="outlined"
-        color="warning"
-        onClick={() => navigate(`/${code || 404}`)}
-        sx={{ fontSize: '0.7rem', minWidth: 0, px: 1 }}
-      >
-        Test Page
-      </Button>
-    </Box>
-  );
-};
-
-/**
  * 首页 - 展示镜像站概览
  */
 const Home: React.FC = () => {
   const navigate = useNavigate();
-  const [downloadOpen, setDownloadOpen] = useState(false);
-  const [triggerError, setTriggerError] = useState(false);
   const { searchQuery } = useMirrorSearchStore();
-
-  if (triggerError) throw new Error('ErrorBoundary 测试错误');
+  const openDownloadModal = useDownloadModalStore((state) => state.openDownloadModal);
 
   // 获取数据
-  const { data: mirrors = [], isLoading: isMirrorLoading, isFetching: isMirrorFetching, error: mirrorError, refetch: mirrorRefetch} = useMirrors();
-  const { data: releases = [], isLoading: isReleaseLoading, isFetching: isReleaseFetching, refetch: refetchReleases } = useRelease();
+  const {
+    data: mirrors = [],
+    isLoading: isMirrorLoading,
+    isFetching: isMirrorFetching,
+    error: mirrorError,
+    refetch: mirrorRefetch,
+  } = useMirrors();
+  const { data: releases = [] } = useRelease();
   const { data: campusStatus } = useCampusNetwork();
 
   // 测量左侧常用镜像列高度，用于动态适配新闻条数
@@ -199,10 +171,7 @@ const Home: React.FC = () => {
   const filteredMirrors = useFilteredMirrors(mirrors);
   const groupedMirrors = useGroupedMirrors(filteredMirrors);
   const popularMirrors = usePopularMirrors(mirrors, 8);
-  const popularReleases = usePopularRelease(releases,8);
-
-  //单独列出"github-release"
-  const releaseMirrorInfo = mirrors.find((m) => m.id === 'github-release');
+  const popularReleases = usePopularRelease(releases, 6);
 
   // 收藏镜像 — 按收藏先后顺序排列（favorites 数组保留了添加时序）
   const { favorites } = useFavoriteStore();
@@ -351,58 +320,36 @@ const Home: React.FC = () => {
               >
                 {'重庆大学开源软件镜像站'}
               </Typography>
-              {import.meta.env.DEV && (
-                <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    color="error"
-                    onClick={() => setTriggerError(true)}
-                    sx={{ fontSize: '0.7rem', minWidth: 0, px: 1 }}
-                  >
-                    Test Boundary
-                  </Button>
-                  <TestErrorPageButton />
-                </Box>
-              )}
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                <Tooltip title={'Git & GitHub'} placement="bottom">
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    startIcon={<CodeIcon sx={{ fontSize: 16 }} />}
-                    onClick={() => navigate('/mirrors/git')}
-                    sx={{
-                      borderRadius: 6,
-                      fontSize: '0.8rem',
-                      px: 1.5,
-                      py: 0.4,
-                      fontWeight: 600,
-                      textTransform: 'none',
-                    }}
-                  >
-                    {'Git & GitHub'}
-                  </Button>
-                </Tooltip>
-                <Tooltip title={'常用下载'} placement="bottom">
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    startIcon={<DownloadIcon sx={{ fontSize: 16 }} />}
-                    onClick={() => setDownloadOpen(true)}
-                    sx={{
-                      borderRadius: 6,
-                      fontSize: '0.8rem',
-                      px: 1.5,
-                      py: 0.4,
-                      fontWeight: 600,
-                      textTransform: 'none',
-                    }}
-                  >
-                    {'常用下载'}
-                  </Button>
-                </Tooltip>
-              </Box>
+            </Box>
+
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, mb: 2, flexWrap: 'wrap' }}>
+              <Button
+                variant="contained"
+                size="large"
+                startIcon={<DownloadIcon />}
+                onClick={openDownloadModal}
+                sx={{ borderRadius: 2.5, minHeight: 46, px: 2.5, fontWeight: 750 }}
+              >
+                常用下载
+              </Button>
+              <Button
+                variant="contained"
+                size="large"
+                startIcon={<GitHubIcon />}
+                onClick={() => navigate('/release')}
+                sx={{ borderRadius: 2.5, minHeight: 46, px: 2.5, fontWeight: 750 }}
+              >
+                GitHub Release
+              </Button>
+              <Button
+                variant="contained"
+                size="large"
+                startIcon={<SyncIcon />}
+                onClick={() => navigate('/status')}
+                sx={{ borderRadius: 2.5, minHeight: 46, px: 2.5, fontWeight: 750 }}
+              >
+                同步状态
+              </Button>
             </Box>
 
             <Typography
@@ -485,43 +432,63 @@ const Home: React.FC = () => {
                   <Grid container spacing={2}>
                     {popularMirrors.slice(0, itemCount).map((mirror) => (
                       <Grid key={mirror.id} size={{ xs: 12, sm: 6, md: hasNews ? 4 : 3 }}>
-                        <ItemCard mirror={mirror} />
+                        <ItemCard kind="mirror" mirror={mirror} />
                       </Grid>
                     ))}
                   </Grid>
                 )}
-                {/* 常用Release —— 有新闻时桌面 9 列，无新闻时全宽 */}
-                <Typography
-                  variant="h5"
-                  sx={{
-                    fontWeight: 700,
-                    mb: 3,
-                    mt: 4,
-                  }}
-                >
-                  {'常用GitHub Release'}
-                </Typography>
-                {releaseMirrorInfo &&
-                  (isReleaseLoading ? (
+                <Paper variant="outlined" sx={{ mt: 4, borderRadius: 3, overflow: 'hidden' }}>
+                  <ButtonBase
+                    onClick={() => navigate('/release')}
+                    sx={{
+                      width: '100%',
+                      p: { xs: 2.5, sm: 3 },
+                      gap: 2,
+                      justifyContent: 'flex-start',
+                      textAlign: 'left',
+                      '&:hover': { bgcolor: 'action.hover' },
+                    }}
+                    aria-label="查看全部 GitHub Releases"
+                  >
+                    <Box
+                      sx={{
+                        display: 'grid',
+                        placeItems: 'center',
+                        width: 52,
+                        height: 52,
+                        borderRadius: 2,
+                        bgcolor: 'primary.main',
+                        color: 'primary.contrastText',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <GitHubIcon sx={{ fontSize: 30 }} />
+                    </Box>
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Typography variant="h5" sx={{ fontWeight: 750 }}>
+                        GitHub Releases
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                        {releases.length > 0
+                          ? `查看全部 ${releases.length} 个软件发行包与字体镜像`
+                          : '查看全部软件发行包与字体镜像'}
+                      </Typography>
+                    </Box>
+                    <ArrowForwardIcon sx={{ color: 'primary.main', fontSize: 28 }} />
+                  </ButtonBase>
+                  <Box sx={{ borderTop: '1px solid', borderColor: 'divider', p: 2 }}>
                     <Grid container spacing={2}>
-                      {[...Array(itemCount)].map((_, i) => (
-                        <Grid key={i} size={{ xs: 12, sm: 6, md: hasNews ? 4 : 3 }}>
-                          <Skeleton variant="rectangular" height={160} sx={{ borderRadius: 2 }} />
-                        </Grid>
-                      ))}
-                    </Grid>
-                  ) : (
-                    <Grid container spacing={2}>
-                      {popularReleases.slice(0, itemCount).map((release) => (
+                      {popularReleases.map((release) => (
                         <Grid
-                          key={release.org + '/' + release.repo}
-                          size={{ xs: 12, sm: 6, md: hasNews ? 4 : 3 }}
+                          key={`${release.org}/${release.repo}`}
+                          size={{ xs: 12, sm: 6, md: 4 }}
                         >
-                          <ItemCard mirror={releaseMirrorInfo} release={release} />
+                          <ItemCard kind="release" release={release} />
                         </Grid>
                       ))}
                     </Grid>
-                  ))}
+                  </Box>
+                </Paper>
               </Grid>
             </Grid>
           </Box>
@@ -551,7 +518,7 @@ const Home: React.FC = () => {
             <Grid container spacing={2}>
               {favoriteMirrors.map((mirror) => (
                 <Grid key={mirror.id} size={{ xs: 12, sm: 6, md: 3 }}>
-                  <ItemCard mirror={mirror} />
+                  <ItemCard kind="mirror" mirror={mirror} />
                 </Grid>
               ))}
             </Grid>
@@ -627,7 +594,6 @@ const Home: React.FC = () => {
           </Box>
         </Box>
       </Container>
-      <DownloadModal open={downloadOpen} onClose={() => setDownloadOpen(false)} />
     </>
   );
 };

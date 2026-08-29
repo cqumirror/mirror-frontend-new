@@ -1,7 +1,6 @@
 // src/pages/MirrorDetail.tsx
 // 镜像详情页
 
-import { MDXProvider } from '@mdx-js/react';
 import {
   ArrowBack as BackIcon,
   ContentCopy as CopyIcon,
@@ -26,27 +25,23 @@ import {
   Chip,
   Skeleton,
   Tooltip,
-  List,
-  ListItem,
-  ListItemText,
   IconButton,
-  CircularProgress,
 } from '@mui/material';
 import React, { useState, useRef, useEffect } from 'react';
 // useSearchParams allows us to read ?tab=help from the URL
 import { useParams, useNavigate, Link as RouterLink, useSearchParams } from 'react-router-dom';
 
+import LicenseViewer from '@/components/docs/LicenseViewer';
 import DistroLogo from '@/components/mirrors/DistroLogo.tsx';
 import { hasMdxDoc } from '@/docs';
-import { hasLicense, loadLicense } from '@/licenses';
+import { hasLicense } from '@/licenses';
 
-import DocViewer, { mdxComponents } from '../components/docs/DocViewer';
+import DocViewer from '../components/docs/DocViewer';
 import DirectoryListing from '../components/mirrors/DirectoryListing';
 import StatusChip from '../components/mirrors/StatusChip';
 import SyncTimeline from '../components/mirrors/SyncTimeline';
 import { useMirrorDetail } from '../hooks/useMirrors';
 import { SITE_ORIGIN, canonicalUrl, mirrorJsonLd, breadcrumbJsonLd } from '../utils/seo';
-
 
 // ─── Tab 面板 ────────────────────────────────────────────────────────────────
 interface TabPanelProps {
@@ -67,33 +62,26 @@ interface IsoFilesCardProps {
   mirrorUrl: string;
 }
 
-// 单个文件行显示约 36px，预留 5 行高度；超出部分滚动
-const LIST_MAX_HEIGHT = 36 * 5 + 8; // px
+// 比 Release 文件行更紧凑，预留约 5 行；超出部分滚动。
+const LIST_MAX_HEIGHT = 48 * 5;
+
+const fileNameFromUrl = (url: string): string => {
+  const segment = url.split(/[?#]/, 1)[0].split('/').pop() ?? '';
+  try {
+    return decodeURIComponent(segment);
+  } catch {
+    return segment;
+  }
+};
+
+const MIRROR_TYPE_LABELS: Record<string, string> = {
+  os: '操作系统',
+  tool: '工具软件',
+};
 
 const IsoFilesCard: React.FC<IsoFilesCardProps> = ({ files, mirrorUrl }) => {
-  const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
-  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(
-    () => () => {
-      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
-    },
-    []
-  );
-
-  const handleCopy = async (url: string, idx: number) => {
-    try {
-      await navigator.clipboard.writeText(toFullUrl(url));
-      setCopiedIdx(idx);
-      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
-      copyTimerRef.current = setTimeout(() => setCopiedIdx(null), 2000);
-    } catch (err) {
-      if (import.meta.env.DEV) console.warn('[copy]', err);
-    }
-  };
-
   return (
-    <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+    <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 2 }}>
       {/* 标题行 */}
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
         <Typography
@@ -106,16 +94,16 @@ const IsoFilesCard: React.FC<IsoFilesCardProps> = ({ files, mirrorUrl }) => {
           }}
         >
           <FolderIcon sx={{ fontSize: 16, color: 'primary.main' }} />
-          {"下载文件"}
+          {'下载文件'}
         </Typography>
-        <Tooltip title={"在浏览器中打开"}>
+        <Tooltip title={'在浏览器中打开'}>
           <IconButton
             size="small"
             component="a"
             href={toFullUrl(mirrorUrl)}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label={"在浏览器中打开"}
+            aria-label={'在浏览器中打开'}
           >
             <OpenIcon sx={{ fontSize: 15 }} />
           </IconButton>
@@ -148,7 +136,7 @@ const IsoFilesCard: React.FC<IsoFilesCardProps> = ({ files, mirrorUrl }) => {
             fontWeight: 600,
           }}
         >
-          {"安装镜像"}
+          {'安装镜像'}
         </Typography>
         {/* 文件数量角标，超过可视行数时提示"可滚动" */}
         <Typography
@@ -158,7 +146,7 @@ const IsoFilesCard: React.FC<IsoFilesCardProps> = ({ files, mirrorUrl }) => {
           }}
         >
           {`${files.length} 个文件`}
-          {files.length > 5 ? " · 可滚动" : ''}
+          {files.length > 5 ? ' · 可滚动' : ''}
         </Typography>
       </Box>
       {/* 固定高度 + 滚动区域 —— 5 行可见，更多文件直接向下滚动 */}
@@ -166,6 +154,9 @@ const IsoFilesCard: React.FC<IsoFilesCardProps> = ({ files, mirrorUrl }) => {
         sx={{
           maxHeight: LIST_MAX_HEIGHT,
           overflowY: 'auto',
+          border: '1px solid',
+          borderColor: 'divider',
+          borderRadius: 1.5,
           // 细滚动条，不影响整体风格
           '&::-webkit-scrollbar': { width: 4 },
           '&::-webkit-scrollbar-track': { bgcolor: 'transparent' },
@@ -176,75 +167,41 @@ const IsoFilesCard: React.FC<IsoFilesCardProps> = ({ files, mirrorUrl }) => {
           },
         }}
       >
-        <List dense disablePadding>
-          {files.map((file, idx) => {
-            const fullUrl = toFullUrl(file.url);
-            return (
-              <ListItem
-                key={file.url}
-                disablePadding
-                sx={{
-                  px: 0.5,
-                  py: 0.3,
-                  borderRadius: 1,
-                  '&:hover': { bgcolor: 'action.hover' },
-                  alignItems: 'flex-start',
-                }}
-              >
-                <ListItemText
-                  primary={
-                    <Link
-                      href={fullUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      underline="hover"
-                      sx={{
-                        fontSize: '0.78rem',
-                        fontFamily: '"JetBrains Mono", monospace',
-                        wordBreak: 'break-all',
-                        lineHeight: 1.4,
-                      }}
-                    >
-                      {file.name}
-                    </Link>
-                  }
-                  sx={{ m: 0 }}
-                />
-                <Box sx={{ display: 'flex', gap: 0.3, ml: 0.5, flexShrink: 0 }}>
-                  <Tooltip title={copiedIdx === idx ? "已复制" : "复制链接"}>
-                    <IconButton
-                      size="small"
-                      sx={{ p: 0.4 }}
-                      onClick={() => handleCopy(file.url, idx)}
-                      color={copiedIdx === idx ? 'success' : 'default'}
-                      aria-label={`复制链接: ${file.name}`}
-                    >
-                      {copiedIdx === idx ? (
-                        <CheckIcon sx={{ fontSize: 13 }} />
-                      ) : (
-                        <CopyIcon sx={{ fontSize: 13 }} />
-                      )}
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title={"下载"}>
-                    <IconButton
-                      size="small"
-                      sx={{ p: 0.4 }}
-                      component="a"
-                      href={fullUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      color="primary"
-                      aria-label={`下载: ${file.name}`}
-                    >
-                      <DownloadIcon sx={{ fontSize: 13 }} />
-                    </IconButton>
-                  </Tooltip>
-                </Box>
-              </ListItem>
-            );
-          })}
-        </List>
+        {files.map((file, index) => (
+          <React.Fragment key={file.url}>
+            {index > 0 && <Divider />}
+            <Box
+              component="a"
+              href={toFullUrl(file.url)}
+              download
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                px: 1,
+                py: 0.7,
+                color: 'inherit',
+                textDecoration: 'none',
+                '&:hover': { bgcolor: 'action.hover' },
+              }}
+            >
+              <DownloadIcon sx={{ color: 'primary.main', fontSize: 17, flexShrink: 0 }} />
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography variant="body2" sx={{ fontSize: '0.8rem', fontWeight: 650 }} noWrap>
+                  {file.name}
+                </Typography>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ display: 'block', fontSize: '0.68rem', fontFamily: 'monospace' }}
+                  noWrap
+                >
+                  {fileNameFromUrl(file.url)}
+                </Typography>
+              </Box>
+            </Box>
+          </React.Fragment>
+        ))}
       </Box>
     </Paper>
   );
@@ -276,40 +233,26 @@ const MirrorDetail: React.FC = () => {
 
   const { data: mirror, isLoading, error } = useMirrorDetail(name || '');
 
-  // Tab 初始值计算 —— 提取为纯函数，依赖完全显式，避免 effect 闭包过期
   const tabParam = searchParams.get('tab');
   const hasDoc = name ? hasMdxDoc(name) : false;
   const hasLicenseFile = name ? hasLicense(name) : false;
-
-  const computeTab = React.useCallback((param: string | null, docAvailable: boolean): number => {
-    if (param === 'help' || param === '0') return 0;
-    if (param === 'files' || param === '1') return 1;
-    if (param === 'downloads' || param === '2') return 2;
-    // 无参数时：有文档默认帮助，否则文件列表
-    return docAvailable ? 0 : 1;
-  }, []);
-
-  const [tabValue, setTabValue] = useState(() => computeTab(tabParam, hasDoc));
-  // license 组件加载
-  const [LicenseComponent, setLicenseComponent] = useState<React.FC | null>(null);
-  const [licenseLoading, setLicenseLoading] = useState(false);
-
-  useEffect(() => {
-    if (name && hasLicenseFile) {
-      setLicenseLoading(true);
-      loadLicense(name)
-        .then((component) => setLicenseComponent(() => component))
-        .catch(() => setLicenseComponent(null))
-        .finally(() => setLicenseLoading(false));
-    } else {
-      setLicenseComponent(null);
-    }
-  }, [name, hasLicenseFile]);
+  const licenseTabIndex = hasLicenseFile ? 1 : -1;
+  const filesTabIndex = hasLicenseFile ? 2 : 1;
+  const downloadsTabIndex = filesTabIndex + 1;
+  const tabValue = (() => {
+    if (tabParam === 'help' || tabParam === '0') return 0;
+    if (tabParam === 'license' && hasLicenseFile) return licenseTabIndex;
+    if (tabParam === 'files') return filesTabIndex;
+    if (tabParam === 'downloads') return downloadsTabIndex;
+    return hasDoc ? 0 : filesTabIndex;
+  })();
 
   // Tab 切换时同步到 URL，不产生历史记录（replace）
   const handleTabChange = (_: React.SyntheticEvent, v: number) => {
-    setTabValue(v);
-    const labels = ['help', 'files', 'downloads'];
+    const labels = ['help'];
+    if (hasLicenseFile) labels.push('license');
+    labels.push('files');
+    if (hasFiles) labels.push('downloads');
     setSearchParams({ tab: labels[v] ?? 'help' }, { replace: true });
   };
 
@@ -473,7 +416,7 @@ const MirrorDetail: React.FC = () => {
                 />
                 {mirror.type && mirror.type !== 'none' && mirror.type !== mirror.id && (
                   <Chip
-                    label={mirror.type}
+                    label={MIRROR_TYPE_LABELS[mirror.type] ?? mirror.type}
                     size="small"
                     variant="outlined"
                     sx={{ fontFamily: '"JetBrains Mono", monospace', fontSize: '0.72rem' }}
@@ -593,30 +536,16 @@ const MirrorDetail: React.FC = () => {
             <DocViewer mirrorId={mirror.id} />
           </TabPanel>
           {hasLicenseFile && (
-            <TabPanel value={tabValue} index={1}>
-              {licenseLoading ? (
-                <Box sx={{ py: 2, display: 'flex', justifyContent: 'center' }}>
-                  <CircularProgress size={24} />
-                </Box>
-              ) : LicenseComponent ? (
-                <Box sx={{ '& > *:first-of-type': { mt: 0 }, '& > *:last-child': { mb: 0 } }}>
-                  <MDXProvider
-                    components={mdxComponents as unknown as Record<string, React.ComponentType>}
-                  >
-                    <LicenseComponent />
-                  </MDXProvider>
-                </Box>
-              ) : (
-                <Alert severity="info">{'暂无使用说明'}</Alert>
-              )}
+            <TabPanel value={tabValue} index={licenseTabIndex}>
+              <LicenseViewer licenseId={name ?? ''} />
             </TabPanel>
           )}
-          <TabPanel value={tabValue} index={2}>
+          <TabPanel value={tabValue} index={filesTabIndex}>
             <DirectoryListing mirrorUrl={mirror.url} mirrorName={mirror.name} />
           </TabPanel>
 
           {hasFiles && (
-            <TabPanel value={tabValue} index={3}>
+            <TabPanel value={tabValue} index={downloadsTabIndex}>
               <IsoFilesCard files={mirror.files} mirrorUrl={mirror.url} />
             </TabPanel>
           )}

@@ -2,11 +2,11 @@
 // 镜像列表组件 - 按字母A-Z分组展示
 
 import {
+  InfoOutlined as HelpInfoIcon,
+  Info as StorageInfoIcon,
   Star as StarIcon,
   StarBorder as StarBorderIcon,
-  Info as InfoIcon,
 } from '@mui/icons-material';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutlined';
 import {
   Box,
   Typography,
@@ -28,7 +28,7 @@ import {
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { storageTypeMap} from '@/components/mirrors/StatusChip';
+import { storageTypeMap } from '@/components/mirrors/StatusChip';
 import { useMirrorSearchStore, useFavoriteStore } from '@/stores/mirrorStore.ts';
 import type { GroupedMirrors } from '@/types';
 import { formatRelativeTime } from '@/utils/time.ts';
@@ -103,7 +103,7 @@ const MirrorList: React.FC<MirrorListProps> = React.memo(({ grouped, loading, er
     );
 
   const letters = Object.keys(grouped).sort();
-  if (letters.length === 0) return <Alert severity="info">{"未找到匹配的镜像"}</Alert>;
+  if (letters.length === 0) return <Alert severity="info">{'未找到匹配的镜像'}</Alert>;
 
   return (
     <Box>
@@ -143,7 +143,7 @@ const MirrorList: React.FC<MirrorListProps> = React.memo(({ grouped, loading, er
                     scope="col"
                     sx={{ fontWeight: 700, width: { xs: '38%', sm: '20%', md: '18%' } }}
                   >
-                    {"镜像名称"}
+                    {'镜像名称'}
                   </TableCell>
                   <TableCell
                     scope="col"
@@ -153,14 +153,14 @@ const MirrorList: React.FC<MirrorListProps> = React.memo(({ grouped, loading, er
                       display: { xs: 'none', sm: 'table-cell' },
                     }}
                   >
-                    {"描述"}
+                    {'描述'}
                   </TableCell>
                   <TableCell
                     scope="col"
                     align="center"
                     sx={{ fontWeight: 700, width: { xs: '18%', sm: '12%', md: '10%' } }}
                   >
-                    {"存储大小"}
+                    {'存储大小'}
                   </TableCell>
                   <TableCell
                     scope="col"
@@ -171,7 +171,7 @@ const MirrorList: React.FC<MirrorListProps> = React.memo(({ grouped, loading, er
                       whiteSpace: 'nowrap',
                     }}
                   >
-                    {"状态"}
+                    {'状态'}
                   </TableCell>
                   <TableCell
                     scope="col"
@@ -182,7 +182,7 @@ const MirrorList: React.FC<MirrorListProps> = React.memo(({ grouped, loading, er
                       display: { xs: 'none', md: 'table-cell' },
                     }}
                   >
-                    {"最后更新"}
+                    {'最后更新'}
                   </TableCell>
                   {/* 收藏 + 帮助列合并为操作列 */}
                   <TableCell
@@ -190,7 +190,7 @@ const MirrorList: React.FC<MirrorListProps> = React.memo(({ grouped, loading, er
                     align="center"
                     sx={{ fontWeight: 700, width: { xs: '18%', sm: '16%', md: '12%' } }}
                   >
-                    {"操作"}
+                    {'操作'}
                   </TableCell>
                 </TableRow>
               </TableHead>
@@ -263,13 +263,21 @@ const MirrorList: React.FC<MirrorListProps> = React.memo(({ grouped, loading, er
                         </Typography>
                       </TableCell>
                       {/* 收藏 + 帮助 */}
-                      <TableCell align="center" onClick={(e) => e.stopPropagation()}>
+                      <TableCell
+                        align="center"
+                        onClick={(e) => e.stopPropagation()}
+                        sx={{ px: { xs: 0.25, sm: 1 }, py: 0.5, verticalAlign: 'middle' }}
+                      >
                         <Box
                           sx={{
-                            display: 'flex',
+                            display: { xs: 'grid', sm: 'flex' },
+                            gridTemplateColumns: { xs: 'repeat(2, 28px)', sm: 'none' },
                             alignItems: 'center',
                             justifyContent: 'center',
-                            gap: 0.2,
+                            gap: { xs: 0.25, sm: 0.2 },
+                            flexWrap: 'nowrap',
+                            minHeight: 32,
+                            lineHeight: 0,
                           }}
                         >
                           {/* 收藏按钮 */}
@@ -277,7 +285,9 @@ const MirrorList: React.FC<MirrorListProps> = React.memo(({ grouped, loading, er
                             <IconButton
                               size="small"
                               sx={{
-                                p: '3px',
+                                p: 0,
+                                width: 28,
+                                height: 28,
                                 color: starred ? 'warning.main' : 'text.disabled',
                                 '&:hover': { color: 'warning.main' },
                                 transition: 'color 0.15s',
@@ -289,9 +299,9 @@ const MirrorList: React.FC<MirrorListProps> = React.memo(({ grouped, loading, er
                               aria-label={starred ? '取消收藏' : '收藏'}
                             >
                               {starred ? (
-                                <StarIcon sx={{ fontSize: '1rem' }} />
+                                <StarIcon sx={{ display: 'block', fontSize: 18 }} />
                               ) : (
-                                <StarBorderIcon sx={{ fontSize: '1rem' }} />
+                                <StarBorderIcon sx={{ display: 'block', fontSize: 18 }} />
                               )}
                             </IconButton>
                           </Tooltip>
@@ -318,14 +328,19 @@ const MirrorList: React.FC<MirrorListProps> = React.memo(({ grouped, loading, er
                             <IconButton
                               size="small"
                               color="primary"
-                              sx={{ display: { xs: 'inline-flex', sm: 'none' }, p: '4px' }}
+                              sx={{
+                                display: { xs: 'inline-flex', sm: 'none' },
+                                p: 0,
+                                width: 28,
+                                height: 28,
+                              }}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 navigate(`/mirrors/${mirror.id}?tab=help`);
                               }}
                               aria-label={'使用帮助'}
                             >
-                              <HelpOutlineIcon sx={{ fontSize: '1.1rem' }} />
+                              <HelpInfoIcon sx={{ display: 'block', fontSize: 18 }} />
                             </IconButton>
                           </Tooltip>
                           {/*显示存储信息*/}
@@ -342,8 +357,11 @@ const MirrorList: React.FC<MirrorListProps> = React.memo(({ grouped, loading, er
                               size="small"
                               disableRipple={mirror.storageType === 'local'}
                               sx={{
-                                p: '3px',
-                                color: starred ? 'warning.main' : 'text.disabled',
+                                p: 0,
+                                width: 28,
+                                height: 28,
+                                color:
+                                  mirror.storageType === 'local' ? 'text.disabled' : 'warning.main',
                                 transition: 'color 0.15s',
                                 display: { xs: 'none', sm: 'inline-flex' },
                                 ...(mirror.storageType === 'local'
@@ -361,7 +379,7 @@ const MirrorList: React.FC<MirrorListProps> = React.memo(({ grouped, loading, er
                               }}
                             >
                               {mirror.storageType !== 'local' ? (
-                                <InfoIcon sx={{ fontSize: '1rem' }} />
+                                <StorageInfoIcon sx={{ display: 'block', fontSize: 18 }} />
                               ) : (
                                 <div style={{ width: '1rem', height: '1rem', flexShrink: 0 }} />
                               )}
@@ -373,7 +391,7 @@ const MirrorList: React.FC<MirrorListProps> = React.memo(({ grouped, loading, er
                   );
                 })}
               </TableBody>
-             </Table>
+            </Table>
           </TableContainer>
         </Box>
       ))}

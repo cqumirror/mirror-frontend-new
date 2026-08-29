@@ -2,8 +2,7 @@
 // 镜像数据获取 Hook（TanStack Query）
 
 import { useQuery } from '@tanstack/react-query';
-import { useMemo, useEffect, useState } from 'react';
-
+import { useMemo } from 'react';
 
 import { fetchMirrors, fetchCampusNetworkStatus } from '@/api';
 import type { Mirror, GroupedMirrors, CampusNetworkStatus } from '@/types';
@@ -68,14 +67,28 @@ export const useFilteredMirrors = (mirrors: Mirror[]): Mirror[] => {
         let bestScore = 0;
 
         // id 精确匹配 > id 包含 > name 包含 > desc 包含
-        if (id === kw) { matched = true; bestScore = Math.max(bestScore, 4); }
-        else if (id.includes(kw)) { matched = true; bestScore = Math.max(bestScore, 3); }
+        if (id === kw) {
+          matched = true;
+          bestScore = Math.max(bestScore, 4);
+        } else if (id.includes(kw)) {
+          matched = true;
+          bestScore = Math.max(bestScore, 3);
+        }
 
-        if (name.includes(kw)) { matched = true; bestScore = Math.max(bestScore, 2); }
+        if (name.includes(kw)) {
+          matched = true;
+          bestScore = Math.max(bestScore, 2);
+        }
 
-        if (desc.includes(kw)) { matched = true; bestScore = Math.max(bestScore, 1); }
+        if (desc.includes(kw)) {
+          matched = true;
+          bestScore = Math.max(bestScore, 1);
+        }
 
-        if (!matched) { allMatch = false; break; }
+        if (!matched) {
+          allMatch = false;
+          break;
+        }
         totalScore += bestScore;
       }
 

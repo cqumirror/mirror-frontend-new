@@ -1,19 +1,23 @@
-import React from 'react';
-import Avatar from '@mui/material/Avatar';
 import AlbumIcon from '@mui/icons-material/Album';
-import { useTheme } from '@mui/material/styles';
+import Avatar from '@mui/material/Avatar';
+import React from 'react';
 
 interface ReleaseLogoProps {
   avatarUrl: string | null;
   size?: number;
+  name?: string;
 }
 
-const ReleaseLogo: React.FC<ReleaseLogoProps> = ({ avatarUrl, size = 40 }) => {
+const ReleaseLogo: React.FC<ReleaseLogoProps> = ({
+  avatarUrl,
+  size = 40,
+  name = 'GitHub Release',
+}) => {
   if (avatarUrl) {
     return (
       <Avatar
         src={avatarUrl}
-        alt="GitHub repo avatar"
+        alt={`${name} Logo`}
         sx={{ width: size, height: size, flexShrink: 0 }}
       />
     );

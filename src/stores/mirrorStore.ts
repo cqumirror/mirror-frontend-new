@@ -119,7 +119,9 @@ export const useThemeStore = create<ThemeState>()(
           applyThemeAttr(effective);
           state.effectiveMode = effective;
           if (state.mode === 'system') {
-            setupSystemListener((partial) => state.setMode((partial as { mode?: ThemeMode }).mode ?? state.mode));
+            setupSystemListener((partial) =>
+              state.setMode((partial as { mode?: ThemeMode }).mode ?? state.mode)
+            );
           }
         }
       },
@@ -132,7 +134,6 @@ try {
   const initial = useThemeStore.getState();
   if (initial.mode === 'system') {
     setupSystemListener((partial) => {
-      const state = useThemeStore.getState();
       if (partial.effectiveMode !== undefined) {
         // 只更新 effectiveMode，不触发 setMode
         useThemeStore.setState({ effectiveMode: partial.effectiveMode as 'light' | 'dark' });
@@ -152,6 +153,19 @@ interface MirrorSearchState {
 export const useMirrorSearchStore = create<MirrorSearchState>((set) => ({
   searchQuery: '',
   setSearchQuery: (query) => set({ searchQuery: query }),
+}));
+
+// ---- 常用下载弹窗 Store（全站入口共享）----
+interface DownloadModalState {
+  open: boolean;
+  openDownloadModal: () => void;
+  closeDownloadModal: () => void;
+}
+
+export const useDownloadModalStore = create<DownloadModalState>((set) => ({
+  open: false,
+  openDownloadModal: () => set({ open: true }),
+  closeDownloadModal: () => set({ open: false }),
 }));
 
 // ---- 镜像缓存 Store（运行时缓存，不持久化）----

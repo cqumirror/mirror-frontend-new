@@ -1,44 +1,87 @@
 import type { ReleaseManifest } from '@/types';
 
-const API_BASE = import.meta.env.VITE_API_BASE ?? '';
+type JsonObject = Record<string, unknown>;
+
+const isObject = (value: unknown): value is JsonObject =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+const stringValue = (value: unknown, fallback = ''): string =>
+  typeof value === 'string' ? value : fallback;
+
+const booleanValue = (value: unknown, fallback = false): boolean =>
+  typeof value === 'boolean' ? value : fallback;
+
+const numberValue = (value: unknown, fallback: number): number =>
+  typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+
+function parseRelease(key: string, value: unknown): ReleaseManifest | null {
+  const separator = key.indexOf('/');
+  if (separator <= 0 || separator === key.length - 1 || !isObject(value)) return null;
+
+  const org = key.slice(0, separator);
+  const repo = key.slice(separator + 1);
+  const config = isObject(value.config) ? value.config : {};
+  const releases = Array.isArray(value.releases)
+    ? value.releases.flatMap((item) => {
+        if (!isObject(item)) return [];
+        const version = stringValue(item.version);
+        const tag = stringValue(item.tag);
+        if (!version && !tag) return [];
+        return [
+          {
+            version: version || tag,
+            tag: tag || version,
+            files: Array.isArray(item.files)
+              ? item.files.filter((file): file is string => typeof file === 'string')
+              : [],
+            published_at: stringValue(item.published_at),
+            pre_release: booleanValue(item.pre_release),
+          },
+        ];
+      })
+    : [];
+  const latestSource = isObject(value.latest) ? value.latest : null;
+  const latest = latestSource
+    ? {
+        version: stringValue(latestSource.version),
+        tag: stringValue(latestSource.tag),
+      }
+    : null;
+
+  return {
+    org,
+    repo,
+    name: stringValue(config.name, key),
+    desc: stringValue(config.desc),
+    flat: booleanValue(config.flat),
+    tarball: booleanValue(config.tarball),
+    pre_release: booleanValue(config.pre_release),
+    versions: numberValue(config.versions, -1),
+    popular: booleanValue(config.popular),
+    size: stringValue(config.size),
+    avatar_url: stringValue(config.avatar_url),
+    releases,
+    latest: latest && (latest.version || latest.tag) ? latest : null,
+  };
+}
+
+export function parseReleaseManifest(json: unknown): ReleaseManifest[] {
+  if (!isObject(json)) throw new Error('release-manifest.json: expected object');
+
+  return Object.entries(json).flatMap(([key, value]) => {
+    const release = parseRelease(key, value);
+    return release ? [release] : [];
+  });
+}
 
 export async function fetchReleaseManifestData(): Promise<ReleaseManifest[]> {
   try {
-    const res = await fetch(`${API_BASE}/static/release-manifest.json`, { cache: 'no-cache' });
+    const res = await fetch('/static/release-manifest.json', { cache: 'no-cache' });
     if (!res.ok) throw new Error(`release-manifest.json HTTP ${res.status}`);
-    const json = await res.json();
-
-    if (Array.isArray(json)) {
-      return json as ReleaseManifest[];
-    }
-
-    const result: ReleaseManifest[] = [];
-    for (const [key, value] of Object.entries(json)) {
-      const [org, repo] = key.split('/');
-      if (!org || !repo) continue; // 跳过格式错误的键
-      const config = (value as any).config || {};
-      const releases = (value as any).releases || [];
-      const latest = (value as any).latest || { version: '', tag: '' };
-      result.push({
-        org,
-        repo,
-        name: config.name || org + "/" + repo,
-        desc: config.desc || '',
-        flat: config.flat ?? false,
-        tarball: config.tarball ?? false,
-        pre_release: config.pre_release ?? false,
-        versions: config.versions ?? -1,
-        popular: config.popular ?? false,
-        size: config.size ?? 'unknown',
-        releases: releases ?? [],
-        latest: latest ?? [],
-        avatar_url: config.avatar_url || '',
-      });
-    }
-    return result;
-
+    const json: unknown = await res.json();
+    return parseReleaseManifest(json);
   } catch (e) {
     console.error('[BackendAdapter] release-manifest.json 加载失败:', e);
-    return [] as ReleaseManifest[];
+    return [];
   }
 }

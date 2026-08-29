@@ -22,9 +22,7 @@ export type MirrorStatus =
  * campusLocal 校内访问本地存储，校外访问反代
  * redirect 重定向
  */
-export type ItemType =
-  | 'mirror'
-  | 'release';
+export type ItemType = 'mirror' | 'release';
 
 export type MirrorStorageType =
   | 'local'
@@ -60,8 +58,8 @@ export interface Mirror {
   files: MirrorFile[];
   popular: boolean;
   storageType: MirrorStorageType;
-  gitRepo : boolean;
-  message : string;
+  gitRepo: boolean;
+  message: string;
 }
 
 export interface ReleaseManifest {
@@ -77,7 +75,7 @@ export interface ReleaseManifest {
   size: string;
   avatar_url: string;
   releases: ReleaseVersionInfo[];
-  latest: ReleaseLatestInfo;
+  latest: ReleaseLatestInfo | null;
 }
 
 export interface ReleaseVersionInfo {

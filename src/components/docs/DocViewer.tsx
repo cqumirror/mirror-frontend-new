@@ -14,6 +14,7 @@ import {
   TableRow,
   Paper,
   Alert,
+  Button,
   CircularProgress,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
@@ -26,6 +27,38 @@ import CodeBlock from './CodeBlock';
 
 // MDX 组件的 MUI 映射，与 ReactMarkdown 保持一致
 export const mdxComponents = {
+  LicenseGrid: ({ licenses }: { licenses: string[] }) => (
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+        gap: 1.5,
+      }}
+    >
+      {licenses.map((license) => (
+        <Paper
+          key={license}
+          variant="outlined"
+          sx={{ p: 2, borderRadius: 2, textAlign: 'center', bgcolor: 'action.hover' }}
+        >
+          <Typography variant="h6" sx={{ fontWeight: 750 }}>
+            {license}
+          </Typography>
+        </Paper>
+      ))}
+    </Box>
+  ),
+  NavButton: ({ href, children }: { href: string; children: React.ReactNode }) => (
+    <Button
+      component="a"
+      href={href}
+      variant="contained"
+      size="large"
+      sx={{ my: 1.5, px: 2.5, fontWeight: 700 }}
+    >
+      {children}
+    </Button>
+  ),
   h1: ({ children }: { children: React.ReactNode }) => (
     <Typography variant="h4" sx={{ mt: 3, mb: 1.5, fontWeight: 700 }}>
       {children}
@@ -187,7 +220,7 @@ const DocViewer: React.FC<DocViewerProps> = ({ mirrorId, content, loading }) => 
             color: 'text.secondary',
           }}
         >
-          {"加载文档中..."}
+          {'加载文档中...'}
         </Typography>
       </Box>
     );
@@ -231,7 +264,7 @@ const DocViewer: React.FC<DocViewerProps> = ({ mirrorId, content, loading }) => 
   }
 
   if (!content) {
-    return <Alert severity="info">{"暂无使用说明"}</Alert>;
+    return <Alert severity="info">{'暂无使用说明'}</Alert>;
   }
 
   return (

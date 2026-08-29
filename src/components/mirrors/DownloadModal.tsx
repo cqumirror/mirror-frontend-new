@@ -1,11 +1,11 @@
-// src/components/mirrors/DownloadModal.tsx
-// 镜像下载弹窗
-
-import AlbumIcon from '@mui/icons-material/Album';
-import CloseIcon from '@mui/icons-material/Close';
-import DownloadIcon from '@mui/icons-material/Download';
-import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
-import SearchIcon from '@mui/icons-material/Search';
+import {
+  Album as AlbumIcon,
+  ArrowBack as BackIcon,
+  Close as CloseIcon,
+  Download as DownloadIcon,
+  InsertDriveFile as FileIcon,
+  Search as SearchIcon,
+} from '@mui/icons-material';
 import {
   Box,
   Dialog,
@@ -25,55 +25,67 @@ import {
   useTheme,
 } from '@mui/material';
 import React, { useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 
-import { useMirrors } from '@/hooks/useMirrors.ts';
+import ReleaseLogo from '@/components/releases/ReleaseLogo';
+import { useIsoInfo, useRelease } from '@/hooks/useRelease';
+import type { MirrorFile, ReleaseManifest } from '@/types';
+import { sanitizeUrl } from '@/utils/url';
 
 import DistroLogo from './DistroLogo';
 
-// 仅允许 http / https / 相对路径，防止 javascript: 等危险协议
-const SAFE_URL_RE = /^(https?:\/\/[^/]|\/[^/]|\/\s*$)/i;
-function sanitizeUrl(url: string): string {
-  if (!url) return '#';
-  return SAFE_URL_RE.test(url) ? url : '#';
+type DownloadCategory = 'os' | 'app' | 'font';
+
+interface DownloadItem {
+  id: string;
+  name: string;
+  description: string;
+  category: DownloadCategory;
+  mirrorId: string;
+  release: ReleaseManifest | null;
+  files: MirrorFile[];
 }
 
-// 根据文件 URL 后缀返回合适的图标
-function getFileIcon(url: string): React.ReactNode {
-  const ext = url.split('.').pop()?.toLowerCase() ?? '';
-  if (ext === 'iso' || ext === 'img') return <AlbumIcon sx={{ fontSize: 18 }} />;
-  return <InsertDriveFileIcon sx={{ fontSize: 18 }} />;
-}
+const CATEGORIES: Array<{
+  id: DownloadCategory;
+  label: string;
+}> = [
+  { id: 'os', label: '系统' },
+  { id: 'app', label: '应用' },
+  { id: 'font', label: '字体' },
+];
 
-// 从文件名中提取版本号数组，用于降序排序（最新版本在最前）
-// 例："24.04.4 desktop amd64" → [24, 4, 4]
-//     "8-latest x86_64 Rocky Dvd" → [8]
-//     "latest" → []
-function extractVersion(name: string): number[] {
-  const m = name.match(/^[\d]+(?:[.-][\d]+)*/);
-  if (!m) return [];
-  return m[0]
-    .split(/[.-]/)
-    .map(Number)
-    .filter((n) => !isNaN(n));
-}
+const pathParts = (url: string): string[] =>
+  url
+    .split(/[?#]/, 1)[0]
+    .split('/')
+    .filter(Boolean)
+    .map((part) => {
+      try {
+        return decodeURIComponent(part);
+      } catch {
+        return part;
+      }
+    });
 
-function compareVersionDesc(a: string, b: string): number {
-  const va = extractVersion(a);
-  const vb = extractVersion(b);
-  // 无版本号的排到最后
-  if (va.length === 0 && vb.length === 0) return 0;
-  if (va.length === 0) return 1;
-  if (vb.length === 0) return -1;
-  for (let i = 0; i < Math.max(va.length, vb.length); i++) {
-    const diff = (vb[i] ?? 0) - (va[i] ?? 0);
-    if (diff !== 0) return diff;
+function compareVersionDesc(left: MirrorFile, right: MirrorFile): number {
+  const version = (name: string): number[] =>
+    (name.match(/\d+(?:[.-]\d+)*/)?.[0] ?? '').split(/[.-]/).map(Number).filter(Number.isFinite);
+  const a = version(left.name);
+  const b = version(right.name);
+  for (let index = 0; index < Math.max(a.length, b.length); index += 1) {
+    const difference = (b[index] ?? 0) - (a[index] ?? 0);
+    if (difference !== 0) return difference;
   }
-  return 0;
+  return left.name.localeCompare(right.name);
 }
 
-function sortFiles<T extends { name: string }>(files: T[]): T[] {
-  return [...files].sort((a, b) => compareVersionDesc(a.name, b.name));
+function fileIcon(url: string): React.ReactNode {
+  const extension = url.split('.').pop()?.toLowerCase();
+  return extension === 'iso' || extension === 'img' ? (
+    <AlbumIcon sx={{ fontSize: 18 }} />
+  ) : (
+    <FileIcon sx={{ fontSize: 18 }} />
+  );
 }
 
 interface DownloadModalProps {
@@ -82,55 +94,86 @@ interface DownloadModalProps {
 }
 
 const DownloadModal: React.FC<DownloadModalProps> = ({ open, onClose }) => {
-  const { data: mirrors = [] } = useMirrors();
   const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
-
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const { data: isoEntries = [] } = useIsoInfo();
+  const { data: releases = [] } = useRelease();
+  const [category, setCategory] = useState<DownloadCategory>('os');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [mobileStep, setMobileStep] = useState<'items' | 'files'>('items');
 
-  const distros = useMemo(() => mirrors.filter((m) => m.files && m.files.length > 0), [mirrors]);
+  const items = useMemo<DownloadItem[]>(() => {
+    const releaseMap = new Map(
+      releases.map((release) => [`${release.org}/${release.repo}`.toLowerCase(), release])
+    );
+
+    return isoEntries.flatMap((entry, index) => {
+      if (!CATEGORIES.some((item) => item.id === entry.category)) return [];
+      const parts = pathParts(entry.urls[0]?.url ?? '');
+      const isGithubRelease = parts[0]?.toLowerCase() === 'github-release';
+      const releaseKey = isGithubRelease && parts[1] && parts[2] ? `${parts[1]}/${parts[2]}` : '';
+      const release = releaseKey ? (releaseMap.get(releaseKey.toLowerCase()) ?? null) : null;
+      const mirrorId = parts[0] ?? entry.distro;
+      return [
+        {
+          id: `${entry.category}:${releaseKey || mirrorId}:${entry.distro}:${index}`,
+          name: release?.name || entry.distro,
+          description: release?.desc || `${entry.urls.length} 个可下载文件`,
+          category: entry.category as DownloadCategory,
+          mirrorId,
+          release,
+          files: [...entry.urls].sort(compareVersionDesc),
+        },
+      ];
+    });
+  }, [isoEntries, releases]);
 
   const filtered = useMemo(() => {
-    if (!search.trim()) return distros;
-    const q = search.toLowerCase();
-    return distros.filter(
-      (m) =>
-        m.id.toLowerCase().includes(q) ||
-        m.name.toLowerCase().includes(q)
+    const query = search.trim().toLowerCase();
+    return items.filter(
+      (item) =>
+        item.category === category &&
+        (!query ||
+          item.name.toLowerCase().includes(query) ||
+          item.release?.repo.toLowerCase().includes(query))
     );
-  }, [distros, search]);
+  }, [category, items, search]);
 
-  const activeId = selectedId ?? filtered[0]?.id ?? null;
-  const activeMirror = useMemo(
-    () => distros.find((m) => m.id === activeId) ?? null,
-    [distros, activeId]
-  );
+  const activeId = filtered.some((item) => item.id === selectedId) ? selectedId : filtered[0]?.id;
+  const activeItem = items.find((item) => item.id === activeId) ?? null;
 
   const handleClose = () => {
     setSearch('');
     setSelectedId(null);
+    setMobileStep('items');
     onClose();
   };
+
+  const itemLogo = (item: DownloadItem, size: number) =>
+    item.release ? (
+      <ReleaseLogo avatarUrl={item.release.avatar_url} name={item.release.name} size={size} />
+    ) : (
+      <DistroLogo id={item.mirrorId} size={size} />
+    );
 
   return (
     <Dialog
       open={open}
       onClose={handleClose}
-      fullScreen={fullScreen}
-      maxWidth="md"
+      fullScreen={isMobile}
+      maxWidth="lg"
       fullWidth
       slotProps={{
         paper: {
           sx: {
-            borderRadius: fullScreen ? 0 : 3,
+            borderRadius: isMobile ? 0 : 3,
             overflow: 'hidden',
-            height: fullScreen ? '100%' : 600,
+            height: isMobile ? '100%' : 640,
           },
         },
       }}
     >
-      {/* 标题栏 */}
       <DialogTitle
         sx={{
           display: 'flex',
@@ -140,253 +183,254 @@ const DownloadModal: React.FC<DownloadModalProps> = ({ open, onClose }) => {
           px: 2.5,
           borderBottom: '1px solid',
           borderColor: 'divider',
-          flexShrink: 0,
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <DownloadIcon color="primary" />
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 700,
-            }}
-          >
-            {'常用下载'}
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+            常用下载
           </Typography>
           <Typography
             variant="caption"
-            sx={{
-              color: 'text.secondary',
-              ml: 0.5,
-            }}
+            color="text.secondary"
+            sx={{ display: { xs: 'none', sm: 'block' } }}
           >
-            {`共 ${distros.length } 个发行版`}
+            共 {items.length} 个发行版
           </Typography>
         </Box>
         <IconButton size="small" onClick={handleClose} aria-label="关闭">
           <CloseIcon fontSize="small" />
         </IconButton>
       </DialogTitle>
-      <DialogContent sx={{ p: 0, display: 'flex', overflow: 'hidden', flex: 1 }}>
-        {/* 左栏：发行版列表 */}
+
+      <DialogContent
+        sx={{
+          p: 0,
+          display: 'flex',
+          flexDirection: { xs: 'column', sm: 'row' },
+          overflow: 'hidden',
+          flex: 1,
+          minHeight: 0,
+        }}
+      >
         <Box
           sx={{
-            width: { xs: '44%', sm: 210 },
+            width: { xs: '100%', sm: 48 },
+            height: { xs: 50, sm: 'auto' },
             flexShrink: 0,
-            borderRight: '1px solid',
+            borderRight: { sm: '1px solid' },
+            borderBottom: { xs: '1px solid', sm: 0 },
             borderColor: 'divider',
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
+            bgcolor: 'action.hover',
           }}
         >
-          <Box sx={{ p: 1.5, flexShrink: 0 }}>
+          <List
+            disablePadding
+            sx={{ display: 'flex', flexDirection: { xs: 'row', sm: 'column' }, height: '100%' }}
+            aria-label="下载分类"
+          >
+            {CATEGORIES.map((item) => (
+              <ListItemButton
+                key={item.id}
+                selected={category === item.id}
+                onClick={() => {
+                  setCategory(item.id);
+                  setSelectedId(null);
+                  setSearch('');
+                  setMobileStep('items');
+                }}
+                sx={{
+                  flex: 1,
+                  minWidth: 0,
+                  minHeight: 0,
+                  justifyContent: 'center',
+                  px: 0,
+                  py: 0,
+                  borderRight: { sm: '3px solid' },
+                  borderBottom: { xs: '3px solid', sm: 0 },
+                  borderColor: category === item.id ? 'primary.main' : 'transparent',
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontWeight: category === item.id ? 750 : 500,
+                    writingMode: { xs: 'horizontal-tb', sm: 'vertical-rl' },
+                    letterSpacing: { sm: '0.18em' },
+                  }}
+                >
+                  {item.label}
+                </Typography>
+              </ListItemButton>
+            ))}
+          </List>
+        </Box>
+
+        <Box
+          sx={{
+            width: { xs: '100%', sm: 240 },
+            flex: { xs: 1, sm: '0 0 240px' },
+            borderRight: { sm: '1px solid' },
+            borderColor: 'divider',
+            display: { xs: mobileStep === 'items' ? 'flex' : 'none', sm: 'flex' },
+            flexDirection: 'column',
+            overflow: 'hidden',
+            minHeight: 0,
+          }}
+        >
+          <Box sx={{ p: { xs: 1, sm: 1.5 } }}>
             <TextField
               size="small"
               fullWidth
-              placeholder={"搜索发行版…"}
+              placeholder="搜索…"
               value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
+              onChange={(event) => {
+                setSearch(event.target.value);
                 setSelectedId(null);
               }}
               slotProps={{
                 input: {
                   startAdornment: (
                     <InputAdornment position="start">
-                      <SearchIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                      <SearchIcon sx={{ fontSize: 16 }} />
                     </InputAdornment>
                   ),
-                  sx: { fontSize: '0.85rem', borderRadius: 2 },
+                  sx: { fontSize: '0.82rem' },
                 },
               }}
             />
           </Box>
           <Divider />
-
-          <List dense disablePadding sx={{ overflowY: 'auto', flex: 1 }}>
-            {filtered.length === 0 ? (
-              <Box sx={{ p: 2, textAlign: 'center' }}>
-                <Typography
-                  variant="caption"
-                  sx={{
-                    color: 'text.secondary',
+          <List
+            dense
+            disablePadding
+            sx={{
+              overflowY: 'auto',
+              flex: 1,
+              minHeight: 0,
+              overscrollBehavior: 'contain',
+              WebkitOverflowScrolling: 'touch',
+            }}
+          >
+            {filtered.map((item) => (
+              <ListItemButton
+                key={item.id}
+                selected={item.id === activeId}
+                onClick={() => {
+                  setSelectedId(item.id);
+                  setMobileStep('files');
+                }}
+                sx={{ py: 1, px: 1.25 }}
+              >
+                <ListItemIcon sx={{ minWidth: 32 }}>{itemLogo(item, 20)}</ListItemIcon>
+                <ListItemText
+                  primary={item.name}
+                  secondary={`${item.files.length} 个文件`}
+                  slotProps={{
+                    primary: { noWrap: true, sx: { fontSize: '0.84rem', fontWeight: 650 } },
+                    secondary: { sx: { fontSize: '0.7rem' } },
                   }}
-                >
-                  {"未找到匹配的镜像"}
-                </Typography>
-              </Box>
-            ) : (
-              filtered.map((m) => {
-                const isActive = m.id === activeId;
-                return (
-                  <ListItemButton
-                    key={m.id}
-                    selected={isActive}
-                    onClick={() => setSelectedId(m.id)}
-                    sx={{
-                      py: 1,
-                      px: 1.5,
-                      borderLeft: '3px solid',
-                      borderColor: isActive ? 'primary.main' : 'transparent',
-                      '&.Mui-selected': {
-                        bgcolor: 'action.selected',
-                        '&:hover': { bgcolor: 'action.selected' },
-                      },
-                    }}
-                  >
-                    <ListItemIcon sx={{ minWidth: 34 }}>
-                      <DistroLogo id={m.id} size={20} />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={m.name}
-                      secondary={`${m.files.length} 个文件`}
-                      slotProps={{
-                        primary: {
-                          variant: 'body2',
-                          noWrap: true,
-                          sx: {
-                            fontWeight: isActive ? 700 : 500,
-                            fontSize: '0.85rem',
-                          },
-                        },
-
-                        secondary: { sx: { fontSize: '0.72rem' } },
-                      }}
-                    />
-                  </ListItemButton>
-                );
-              })
-            )}
+                />
+              </ListItemButton>
+            ))}
           </List>
         </Box>
 
-        {/* 右栏：文件列表 */}
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          {activeMirror ? (
+        <Box
+          sx={{
+            flex: 1,
+            minWidth: 0,
+            display: { xs: mobileStep === 'files' ? 'flex' : 'none', sm: 'flex' },
+            flexDirection: 'column',
+            overflow: 'hidden',
+            minHeight: 0,
+          }}
+        >
+          {activeItem ? (
             <>
-              {/* 右栏标题 */}
               <Box
                 sx={{
-                  px: 2.5,
-                  py: 1.5,
-                  flexShrink: 0,
+                  p: 1.5,
                   borderBottom: '1px solid',
                   borderColor: 'divider',
                   bgcolor: 'action.hover',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 1.5,
+                  gap: 1.25,
                 }}
               >
-                <DistroLogo id={activeMirror.id} size={30} />
-                <Box>
-                  <Typography
-                    variant="subtitle1"
-                    sx={{
-                      fontWeight: 700,
-                      lineHeight: 1.2,
-                    }}
-                  >
-                    {activeMirror.name}
-                  </Typography>
+                <IconButton
+                  size="small"
+                  onClick={() => setMobileStep('items')}
+                  aria-label="返回发行版列表"
+                  sx={{ display: { xs: 'inline-flex', sm: 'none' }, flexShrink: 0 }}
+                >
+                  <BackIcon fontSize="small" />
+                </IconButton>
+                {itemLogo(activeItem, 30)}
+                <Box sx={{ minWidth: 0 }}>
+                  <Typography sx={{ fontWeight: 700 }}>{activeItem.name}</Typography>
                   <Typography
                     variant="caption"
-                    sx={{
-                      color: 'text.secondary',
-                    }}
+                    color="text.secondary"
+                    noWrap
+                    sx={{ display: 'block' }}
                   >
-                    {activeMirror.desc}
+                    {activeItem.description}
                   </Typography>
                 </Box>
               </Box>
-
-              {/* 文件列表 */}
-              <List dense disablePadding sx={{ overflowY: 'auto', flex: 1, px: 1 }}>
-                {sortFiles(activeMirror.files).map((file, idx, arr) => (
-                  <React.Fragment key={file.url || idx}>
+              <List
+                dense
+                disablePadding
+                sx={{
+                  overflowY: 'auto',
+                  flex: 1,
+                  minHeight: 0,
+                  px: 1,
+                  overscrollBehavior: 'contain',
+                  WebkitOverflowScrolling: 'touch',
+                }}
+              >
+                {activeItem.files.map((file, index) => (
+                  <React.Fragment key={file.url}>
                     <ListItemButton
                       component="a"
                       href={sanitizeUrl(file.url)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      sx={{
-                        borderRadius: 1.5,
-                        px: 1.5,
-                        py: 0.8,
-                        my: 0.3,
-                        alignItems: 'center',
-                        '&:hover .dl-icon': { opacity: 1 },
-                      }}
+                      download
+                      sx={{ borderRadius: 1.5, px: 1.25, py: 0.8, my: 0.3 }}
                     >
-                      <ListItemIcon
-                        sx={{ minWidth: 32, color: 'primary.main', alignSelf: 'center' }}
-                      >
-                        {getFileIcon(file.url)}
+                      <ListItemIcon sx={{ minWidth: 30, color: 'primary.main' }}>
+                        {fileIcon(file.url)}
                       </ListItemIcon>
                       <Tooltip title={file.name} placement="top" enterDelay={600}>
                         <ListItemText
                           primary={file.name}
                           secondary={
-                            // 移动端隐藏 URL——屏幕窄且 URL 无法操作，保留空间给文件名
                             <Typography
                               component="span"
                               variant="caption"
-                              sx={{
-                                color: 'text.secondary',
-                                display: { xs: 'none', sm: 'block' },
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap',
-                              }}
+                              color="text.secondary"
+                              sx={{ display: { xs: 'none', sm: 'block' } }}
+                              noWrap
                             >
                               {file.url}
                             </Typography>
                           }
-                          slotProps={{
-                            primary: {
-                              variant: 'body2',
-                              noWrap: true,
-                              sx: { fontWeight: 500 },
-                            },
-                          }}
+                          slotProps={{ primary: { noWrap: true, sx: { fontSize: '0.84rem' } } }}
                         />
                       </Tooltip>
-                      <Tooltip title={"下载"} placement="left">
-                        <DownloadIcon
-                          className="dl-icon"
-                          sx={{
-                            fontSize: 18,
-                            color: 'primary.main',
-                            opacity: 0.4,
-                            transition: 'opacity 0.15s',
-                            flexShrink: 0,
-                            ml: 1,
-                          }}
-                        />
-                      </Tooltip>
+                      <DownloadIcon sx={{ fontSize: 18, color: 'primary.main', ml: 0.5 }} />
                     </ListItemButton>
-                    {idx < arr.length - 1 && <Divider sx={{ mx: 1.5 }} />}
+                    {index < activeItem.files.length - 1 && <Divider sx={{ mx: 1.5 }} />}
                   </React.Fragment>
                 ))}
               </List>
             </>
           ) : (
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '100%',
-              }}
-            >
-              <Typography
-                variant="body2"
-                sx={{
-                  color: 'text.secondary',
-                }}
-              >
-                {"← 请先选择发行版"}
+            <Box sx={{ m: 'auto', p: 2, textAlign: 'center' }}>
+              <Typography variant="body2" color="text.secondary">
+                当前分类暂无匹配内容
               </Typography>
             </Box>
           )}

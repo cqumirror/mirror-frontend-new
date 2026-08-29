@@ -7,7 +7,9 @@
 //   transformOldJobs()              → Mirror[]（前端完成格式转换）
 //   GET /api/getip                  → { is_cqu: 1|0 } 校园网检测
 
-import type { LocalMeta} from '@/api/tunasync.ts';
+import { fetchIsoInfoData } from '@/api/isoInfo';
+import type { IsoInfoEntry } from '@/api/isoInfo';
+import type { LocalMeta } from '@/api/tunasync.ts';
 import { transformJobs, fetchTunasyncData } from '@/api/tunasync.ts';
 import type { Mirror, CampusNetworkStatus } from '@/types';
 
@@ -30,7 +32,7 @@ function inferMirrorIdFromUrl(url: string): string | null {
  */
 function mergeIsoInfo(
   base: Record<string, LocalMeta>,
-  isoData: Array<{ category: string; distro: string; urls: Array<{ name: string; url: string }> }>
+  isoData: IsoInfoEntry[]
 ): Record<string, LocalMeta> {
   const result = { ...base };
 
@@ -44,9 +46,10 @@ function mergeIsoInfo(
     if (result[mirrorId]) {
       // 已有元数据：github-release 追加 files（多个项目合并），其他替换
       const prev = result[mirrorId];
-      const merged = mirrorId === 'github-release'
-        ? { ...prev, files: [...(prev.files ?? []), ...files] }
-        : { ...prev, files };
+      const merged =
+        mirrorId === 'github-release'
+          ? { ...prev, files: [...(prev.files ?? []), ...files] }
+          : { ...prev, files };
       result[mirrorId] = merged;
     } else {
       // 没有元数据，创建基本条目
@@ -80,20 +83,14 @@ function getLocalData(): Promise<Record<string, LocalMeta>> {
         return json as Record<string, LocalMeta>;
       })
       .catch((e) => {
-        if (import.meta.env.DEV) console.warn('[API] local_data.json 加载失败，镜像名称/描述将退回到默认值。', e);
+        if (import.meta.env.DEV)
+          console.warn('[API] local_data.json 加载失败，镜像名称/描述将退回到默认值。', e);
         return {} as Record<string, LocalMeta>;
       }),
-    fetch(`${import.meta.env.VITE_API_BASE ?? ''}/static/isoinfo.json`, { cache: 'no-cache' })
-      .then(async (res) => {
-        if (!res.ok) throw new Error(`isoinfo.json HTTP ${res.status}`);
-        const json = (await res.json()) as unknown;
-        if (!Array.isArray(json)) throw new Error('isoinfo.json: expected array');
-        return json as Array<{ category: string; distro: string; urls: Array<{ name: string; url: string }> }>;
-      })
-      .catch((e) => {
-        if (import.meta.env.DEV) console.warn('[API] isoinfo.json 加载失败，文件列表将不可用。', e);
-        return [];
-      }),
+    fetchIsoInfoData().catch((e) => {
+      if (import.meta.env.DEV) console.warn('[API] isoinfo.json 加载失败，文件列表将不可用。', e);
+      return [];
+    }),
   ]).then(([base, isoData]) => mergeIsoInfo(base, isoData));
 
   return _localDataPromise;
@@ -106,10 +103,7 @@ function getLocalData(): Promise<Record<string, LocalMeta>> {
  * 从后端 /static/tunasync.json 获取同步状态，与本地 local_data.json 合并
  */
 export const fetchMirrors = async (): Promise<Mirror[]> => {
-  const [jobs, localData] = await Promise.all([
-    fetchTunasyncData(),
-    getLocalData(),
-  ]);
+  const [jobs, localData] = await Promise.all([fetchTunasyncData(), getLocalData()]);
   return transformJobs(jobs, localData);
 };
 

@@ -1,4 +1,3 @@
-
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -14,8 +13,9 @@ const MIRROR_ORIGIN = 'https://mirrors.cqu.edu.cn';
 type BypassReq = { url?: string; headers: Record<string, string | string[] | undefined> };
 
 const proxyConfig = {
+  '/static/release-manifest.json': { target: MIRROR_ORIGIN, changeOrigin: true },
+  '/static/isoinfo.json': { target: MIRROR_ORIGIN, changeOrigin: true },
   // '/static/tunasync.json': { target: MIRROR_ORIGIN, changeOrigin: true },
-  // '/static/isoinfo.json': { target: MIRROR_ORIGIN, changeOrigin: true },
   // '/api/getip': { target: MIRROR_ORIGIN, changeOrigin: true },
   '^/(?!@|__vite|node_modules|src|assets|static)[a-zA-Z0-9_-]+/': {
     target: MIRROR_ORIGIN,

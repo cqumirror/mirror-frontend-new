@@ -1,8 +1,8 @@
 // src/components/mirrors/MirrorCard.tsx
 // 镜像卡片组件 - 首页展示用
 
-import { Storage as StorageIcon } from '@mui/icons-material';
-import { Card, CardContent, CardActionArea, Typography, Box, Tooltip } from '@mui/material';
+import { Storage as StorageIcon, Tag as TagIcon } from '@mui/icons-material';
+import { Card, CardContent, CardActionArea, Typography, Box, Tooltip, Chip } from '@mui/material';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -13,24 +13,45 @@ import { formatRelativeTime } from '@/utils/time.ts';
 import DistroLogo from '../mirrors/DistroLogo.tsx';
 import StatusChip from '../mirrors/StatusChip.tsx';
 
-interface ItemCardProps {
-  mirror: Mirror;
-  release?: ReleaseManifest;
-}
+type ItemCardProps =
+  | { kind: 'mirror'; mirror: Mirror }
+  | { kind: 'release'; release: ReleaseManifest };
 
-const ItemCard: React.FC<ItemCardProps> = React.memo(({ mirror, release }) => {
+const ItemCard: React.FC<ItemCardProps> = React.memo((props) => {
   const navigate = useNavigate();
-  const isRelease = mirror && mirror.id === 'github-release' && release;
-  const lastUpdatedText = formatRelativeTime( mirror?.lastUpdated ?? release?.releases.find(r => r.tag === release?.latest.tag)?.published_at);
+  const card =
+    props.kind === 'release'
+      ? {
+          path: `/release/${props.release.org}/${props.release.repo}`,
+          logo: (
+            <ReleaseLogo avatarUrl={props.release.avatar_url} name={props.release.name} size={20} />
+          ),
+          title: props.release.name,
+          status: <Chip label="Release" size="small" variant="outlined" />,
+          desc: props.release.desc || '暂无介绍',
+          metric: props.release.latest?.version || '-',
+          metricLabel: '最新版本',
+          metricIcon: <TagIcon sx={{ fontSize: 14 }} />,
+          updated: props.release.releases.find((item) => item.tag === props.release.latest?.tag)
+            ?.published_at,
+        }
+      : {
+          path: `/mirrors/${props.mirror.id}`,
+          logo: <DistroLogo id={props.mirror.id} size={20} />,
+          title: props.mirror.name,
+          status: <StatusChip status={props.mirror.status} size="small" />,
+          desc: props.mirror.desc,
+          metric: props.mirror.size || '-',
+          metricLabel: '存储大小',
+          metricIcon: <StorageIcon sx={{ fontSize: 14 }} />,
+          updated: props.mirror.lastUpdated,
+        };
+  const lastUpdatedText = formatRelativeTime(card.updated);
 
   return (
     <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }} role="article">
       <CardActionArea
-        onClick={() =>
-          navigate(
-            `/${mirror?.id ? 'mirror' : 'release'}/${mirror?.name ?? release?.org + '/' + release?.repo}`
-          )
-        }
+        onClick={() => navigate(card.path)}
         sx={{ flexGrow: 1, alignItems: 'flex-start', display: 'flex', flexDirection: 'column' }}
       >
         <CardContent sx={{ width: '100%', p: 2.5 }}>
@@ -45,20 +66,16 @@ const ItemCard: React.FC<ItemCardProps> = React.memo(({ mirror, release }) => {
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
-              {isRelease ? (
-                <ReleaseLogo avatarUrl={release?.avatar_url ?? ''} size={20} />
-              ) : (
-                <DistroLogo id={mirror.id} size={20} />
-              )}
+              {card.logo}
 
               <Typography
                 variant="h6"
                 sx={{ fontSize: '1rem', fontWeight: 700, color: 'text.primary', lineHeight: 1.3 }}
               >
-                {isRelease ? release.name : mirror.name}
+                {card.title}
               </Typography>
             </Box>
-            <StatusChip status={mirror.status} size="small" />
+            {card.status}
           </Box>
 
           {/* 描述 */}
@@ -75,7 +92,7 @@ const ItemCard: React.FC<ItemCardProps> = React.memo(({ mirror, release }) => {
               minHeight: '3em',
             }}
           >
-            {isRelease ? release.desc : mirror.desc}
+            {card.desc}
           </Typography>
 
           {/* 底部：大小 + 更新时间 */}
@@ -89,18 +106,18 @@ const ItemCard: React.FC<ItemCardProps> = React.memo(({ mirror, release }) => {
               borderColor: 'divider',
             }}
           >
-            <Tooltip title={'存储大小'} placement="bottom">
+            <Tooltip title={card.metricLabel} placement="bottom">
               <Box
                 sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'text.secondary' }}
               >
-                <StorageIcon sx={{ fontSize: 14 }} />
+                {card.metricIcon}
                 <Typography
                   variant="caption"
                   sx={{
                     fontWeight: 500,
                   }}
                 >
-                  {isRelease ? release.size : mirror.size || '-'}
+                  {card.metric}
                 </Typography>
               </Box>
             </Tooltip>

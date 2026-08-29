@@ -1,6 +1,4 @@
-// src/api/tunasync.ts
-// 适配tunasync的静态 JSON 数据格式
-//   GET /static/tunasync.json  → tunasyncJob[]
+// 适配 tunasync 静态 JSON 与站点本地元数据。
 
 import type { Mirror, MirrorFile, MirrorStatus, MirrorStorageType } from '@/types';
 import { SAFE_URL_RE } from '@/utils/url';
@@ -21,10 +19,8 @@ export interface LocalMeta {
 // 数据源地址：本地开发走 Vite proxy（相对路径），Cloudflare 等外部部署需指向 CQU 服务器
 const API_BASE = import.meta.env.VITE_API_BASE ?? '';
 
-// ── tunasync原始类型 ─────────────────────────────────────────────────────────
-
 /** tunasync.json 条目 */
-export interface tunasyncJob {
+export interface TunasyncJob {
   name: string;
   last_update: string; // "YYYY-MM-DD HH:MM:SS +0800"
   last_update_ts: number; // Unix 秒
@@ -39,15 +35,12 @@ export interface tunasyncJob {
   size: string;
 }
 
-
-const _STATUS_MAP: Record<string, MirrorStatus> = {
+const STATUS_MAP: Record<string, MirrorStatus> = {
   success: 'succeeded',
   syncing: 'syncing',
   paused: 'paused',
   failed: 'failed',
 };
-
-// ── 时间戳转换 ─────────────────────────────────────────────────────────────
 
 /**
  * 将tunasync "YYYY-MM-DD HH:MM:SS"（UTC+8）转换为 Unix 秒字符串
@@ -73,7 +66,8 @@ export function parseTimestamp(timeStr: string): string {
   let utcDate: Date;
   if (tz) {
     // 有时区信息，直接用 Date 解析（ISO 格式兼容）
-    const iso = `${year}-${month}-${day}T${hour}:${min}:${sec}${tz}`;
+    const normalizedTimezone = tz.includes(':') ? tz : `${tz.slice(0, 3)}:${tz.slice(3)}`;
+    const iso = `${year}-${month}-${day}T${hour}:${min}:${sec}${normalizedTimezone}`;
     utcDate = new Date(iso);
   } else {
     // 无时区：假定 UTC+8，减去 8 小时得到 UTC
@@ -91,6 +85,36 @@ export function parseTimestamp(timeStr: string): string {
 
   if (isNaN(utcDate.getTime())) return '';
   return Math.floor(utcDate.getTime() / 1000).toString();
+}
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function parseJob(value: unknown): TunasyncJob | null {
+  if (!isObject(value) || typeof value.name !== 'string' || !value.name.trim()) return null;
+
+  const string = (key: string): string =>
+    typeof value[key] === 'string' ? (value[key] as string) : '';
+  const optionalNumber = (key: string): number | undefined =>
+    typeof value[key] === 'number' && Number.isFinite(value[key])
+      ? (value[key] as number)
+      : undefined;
+
+  return {
+    name: value.name,
+    last_update: string('last_update'),
+    last_update_ts: optionalNumber('last_update_ts') ?? 0,
+    last_started: string('last_started') || undefined,
+    last_started_ts: optionalNumber('last_started_ts'),
+    last_ended: string('last_ended') || undefined,
+    last_ended_ts: optionalNumber('last_ended_ts'),
+    next_schedule: string('next_schedule') || undefined,
+    next_schedule_ts: optionalNumber('next_schedule_ts'),
+    status: string('status') || 'unknown',
+    upstream: string('upstream'),
+    size: string('size'),
+  };
 }
 
 function sanitizeFileUrl(url: unknown): string | null {
@@ -118,7 +142,7 @@ function sanitizeFiles(files: unknown): MirrorFile[] {
  * 获取tunasync tunasync.json
  * 失败时返回空数组（降级处理，避免整页崩溃）
  */
-export async function fetchTunasyncData(): Promise<tunasyncJob[]> {
+export async function fetchTunasyncData(): Promise<TunasyncJob[]> {
   try {
     const res = await fetch(`${API_BASE}/static/tunasync.json`, { cache: 'no-cache' });
     if (!res.ok) throw new Error(`tunasync.json HTTP ${res.status}`);
@@ -126,7 +150,10 @@ export async function fetchTunasyncData(): Promise<tunasyncJob[]> {
     if (!Array.isArray(data)) {
       throw new Error('tunasync.json: expected array');
     }
-    return data as tunasyncJob[];
+    return data.flatMap((item) => {
+      const job = parseJob(item);
+      return job ? [job] : [];
+    });
   } catch (e) {
     console.error('[BackendAdapter] tunasync.json 加载失败:', e);
     return [];
@@ -138,7 +165,7 @@ export async function fetchTunasyncData(): Promise<tunasyncJob[]> {
 /**
  * 将单条tunasync数据 + 本地元数据转换为前端 Mirror 对象
  */
-function convertItem(raw: tunasyncJob, local: LocalMeta = {}): Mirror {
+function convertItem(raw: TunasyncJob, local: LocalMeta = {}): Mirror {
   const id = raw.name;
   const defaultLabel = id.charAt(0).toUpperCase() + id.slice(1);
 
@@ -149,8 +176,8 @@ function convertItem(raw: tunasyncJob, local: LocalMeta = {}): Mirror {
     desc: local.desc ?? `${defaultLabel} 镜像`,
     helpUrl: local.helpUrl ?? `/mirrors/${id}`,
     upstream: raw.upstream ?? '',
-    size: raw.size ?? '1G',
-    status: local.status ?? _STATUS_MAP[raw.status] ?? 'unknown',
+    size: raw.size,
+    status: local.status ?? STATUS_MAP[raw.status] ?? 'unknown',
     lastUpdated: raw.last_update_ts ? String(raw.last_update_ts) : parseTimestamp(raw.last_update),
     nextScheduled: raw.next_schedule_ts ? String(raw.next_schedule_ts) : '',
     lastSuccess: raw.last_ended_ts ? String(raw.last_ended_ts) : '',
@@ -164,21 +191,17 @@ function convertItem(raw: tunasyncJob, local: LocalMeta = {}): Mirror {
 }
 
 /**
- * 批量转换：将tunasync tunasyncJob[] + LocalData 合并为 Mirror[]
+ * 批量转换：将 tunasync 数据与 LocalData 合并为 Mirror[]
  * 跳过非法条目而不是抛错，避免单个坏数据让整页崩溃
  */
 export function transformJobs(
-  jobs: tunasyncJob[],
+  jobs: TunasyncJob[],
   localData: Record<string, LocalMeta> = {}
 ): Mirror[] {
   const out: Mirror[] = [];
   const seen = new Set<string>();
 
   for (const job of jobs) {
-    if (!job || typeof job.name !== 'string' || !job.name) {
-      if (import.meta.env.DEV) console.warn('[BackendAdapter] skipping job with missing name:', job);
-      continue;
-    }
     seen.add(job.name);
     out.push(convertItem(job, localData[job.name]));
   }
@@ -186,7 +209,7 @@ export function transformJobs(
   // local_data.json 中有但后端没有的条目
   for (const [id, local] of Object.entries(localData)) {
     if (seen.has(id)) continue;
-    //应该是后端有同步的镜像，没有，说明同步下架了，不显示
+    // 本地存储镜像没有同步任务时视为已下架；代理或缓存条目仍可展示。
     if (!local.storageType || local.storageType === 'local') continue;
     const defaultLabel = id.charAt(0).toUpperCase() + id.slice(1);
     out.push({
