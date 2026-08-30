@@ -5,10 +5,13 @@ import remarkGfm from 'remark-gfm';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { contentMetadataPlugin } from './scripts/content-metadata-plugin';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [
+    contentMetadataPlugin(__dirname),
     react(),
     // MDX 插件必须放进来：src/docs/index.ts 和 src/news/index.ts 用 import.meta.glob
     // 加载 .mdx 文件，没有这个插件会导致 vitest transform 阶段 hang 死

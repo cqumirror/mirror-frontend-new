@@ -63,11 +63,11 @@ function getNewsSlugs() {
 }
 
 /**
- * 从 content/docs/mdx/zh/ 目录提取有文档的镜像列表（用于帮助页面）
+ * 从 content/docs/ 目录提取有文档的镜像列表（用于帮助页面）
  */
 function getDocIds() {
   try {
-    const docsDir = resolve(__dirname, '..', 'content', 'docs', 'mdx');
+    const docsDir = resolve(__dirname, '..', 'content', 'docs');
     if (!existsSync(docsDir)) return [];
     return readdirSync(docsDir)
       .filter((f) => f.endsWith('.mdx'))

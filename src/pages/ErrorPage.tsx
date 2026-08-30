@@ -1,262 +1,288 @@
-// src/pages/ErrorPage.tsx
-// 通用错误页面 —— 支持 403 / 404 / 500 / 502 / 503 等状态码
-// 同时作为路由通配的 404 页面使用，合并了原 NotFound.tsx
-
 import {
+  Check as CheckIcon,
+  ContentCopy as CopyIcon,
   Home as HomeIcon,
   Refresh as RefreshIcon,
-  ContentCopy as CopyIcon,
-  Check as CheckIcon,
-  Email as EmailIcon,
-  GitHub as GitHubIcon,
 } from '@mui/icons-material';
-import { Box, Container, Typography, Button, Stack, Tooltip, Link } from '@mui/material';
+import {
+  Box,
+  Button,
+  Container,
+  Divider,
+  Link,
+  List,
+  ListItem,
+  ListItemText,
+  Paper,
+  Stack,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useSearchParams } from 'react-router-dom';
 
 interface ErrorPageProps {
   code?: number;
 }
 
-/** 哪些错误码允许用户刷新重试 */
-const REFRESHABLE_CODES = new Set([500, 502, 503]);
-
-// ── 客户端指纹信息（从响应头读取，Nginx 需配置 add_header 才会有值）──
-interface ClientInfo {
-  realIp?: string;
-  ja4Fingerprint?: string;
-  ja3Fingerprint?: string;
+interface ErrorConfig {
+  code: number;
+  short: string;
+  long: string;
+  items: string[];
+  contactMessage: string;
+  links: Array<{ text: string; url: string }>;
 }
 
-// ── 主组件 ────────────────────────────────────────────────────────────────────
+const CONTACT_MESSAGE =
+  '建议您稍后更换网络和下载工具重新尝试。\n若问题仍未解决，请通过“关于我们”页面中的联系方式反馈。';
+
+const ERROR_CONFIG: Record<number, ErrorConfig> = {
+  403: {
+    code: 403,
+    short: 'Forbidden',
+    long: '哎呀，访问被挡了！',
+    items: [
+      '所使用的出口 IP 因滥用而被封禁；',
+      '使用了不受支持的下载器或自动化脚本；',
+      '访问的内容开启了访客限制。',
+    ],
+    contactMessage: CONTACT_MESSAGE,
+    links: [
+      { text: '查看公告', url: '/news/2023-03-27-ban-p2p-tools' },
+      { text: '关于我们', url: '/about' },
+      { text: '返回首页', url: '/' },
+    ],
+  },
+  404: {
+    code: 404,
+    short: 'Not Found',
+    long: '呜呜，页面不见了！',
+    items: ['该仓库或页面已经被删除；', '输入了错误的 URL。'],
+    contactMessage: '如果您已排除自身原因，或希望申请添加新的镜像源，请通过“关于我们”页面反馈。',
+    links: [
+      { text: '返回首页', url: '/' },
+      { text: '关于我们', url: '/about' },
+    ],
+  },
+  405: {
+    code: 405,
+    short: 'Method Not Allowed',
+    long: '哦豁，这个请求方法不行哦！',
+    items: ['当前地址不支持所使用的请求方法；', '下载工具发送了不受支持的请求。'],
+    contactMessage: CONTACT_MESSAGE,
+    links: [
+      { text: '返回首页', url: '/' },
+      { text: '关于我们', url: '/about' },
+    ],
+  },
+  500: {
+    code: 500,
+    short: 'Internal Server Error',
+    long: '哎呀，服务器出了点问题！',
+    items: ['服务器发生了未知错误；', '服务正在更新或网络出现波动。'],
+    contactMessage: CONTACT_MESSAGE,
+    links: [
+      { text: '同步状态', url: '/status' },
+      { text: '关于我们', url: '/about' },
+      { text: '返回首页', url: '/' },
+    ],
+  },
+  502: {
+    code: 502,
+    short: 'Bad Gateway',
+    long: '糟糕，上游服务暂时没有响应！',
+    items: ['上游服务中断；', '网关或网络出现波动。'],
+    contactMessage: CONTACT_MESSAGE,
+    links: [
+      { text: '同步状态', url: '/status' },
+      { text: '关于我们', url: '/about' },
+      { text: '返回首页', url: '/' },
+    ],
+  },
+  503: {
+    code: 503,
+    short: 'Service Unavailable',
+    long: '呜喵，服务暂不可用！',
+    items: ['所使用的出口 IP 因滥用而被限制；', '访问速度过快触发了访问限制；', '服务正在维护。'],
+    contactMessage: CONTACT_MESSAGE,
+    links: [
+      { text: '查看公告', url: '/news/2023-03-27-ban-p2p-tools' },
+      { text: '同步状态', url: '/status' },
+      { text: '返回首页', url: '/' },
+    ],
+  },
+  504: {
+    code: 504,
+    short: 'Gateway Timeout',
+    long: '连接超时，上游服务响应得太慢了！',
+    items: ['上游服务响应超时；', '当前网络连接不稳定。'],
+    contactMessage: CONTACT_MESSAGE,
+    links: [
+      { text: '同步状态', url: '/status' },
+      { text: '关于我们', url: '/about' },
+      { text: '返回首页', url: '/' },
+    ],
+  },
+};
+
+const FALLBACK_ERROR: ErrorConfig = {
+  code: 404,
+  short: 'Error',
+  long: '哎呀，出了点小问题！',
+  items: ['服务器发生了未知错误；', '网络出现波动。'],
+  contactMessage: CONTACT_MESSAGE,
+  links: [
+    { text: '关于我们', url: '/about' },
+    { text: '返回首页', url: '/' },
+  ],
+};
+
+const REFRESHABLE_CODES = new Set([500, 502, 503, 504]);
+
 const ErrorPage: React.FC<ErrorPageProps> = ({ code = 404 }) => {
-  const navigate = useNavigate();
-  const title = "发生错误";
-  const desc = "访问出现了异常，请稍后再试或返回首页。";
-  const canRefresh = REFRESHABLE_CODES.has(code);
-
-  // 客户端信息
-  const [clientInfo, setClientInfo] = useState<ClientInfo>({});
-  useEffect(() => {
-    fetch('/api/getip', { cache: 'no-cache' })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data) {
-          setClientInfo({
-            realIp: data.remote_addr ?? undefined,
-            ja4Fingerprint: data.ja4 ?? undefined,
-            ja3Fingerprint: data.ja3 ?? undefined,
-          });
-        }
-      })
-      .catch(() => {});
-  }, []);
-
-  // 拼接原始信息并 base64 编码
-  const rawInfo = [
-    `HTTP ${code} — ${title}`,
-    desc,
-    `URL: ${window.location.href}`,
-    clientInfo.realIp ? `addr: ${clientInfo.realIp}` : '',
-    `ua: ${navigator.userAgent}`,
-    clientInfo.ja4Fingerprint ? `JA4: ${clientInfo.ja4Fingerprint}` : '',
-    clientInfo.ja3Fingerprint ? `JA3: ${clientInfo.ja3Fingerprint}` : '',
-  ].filter(Boolean).join('\n');
-  const encodedInfo = btoa(unescape(encodeURIComponent(rawInfo)));
-
-  // 复制错误信息
+  const [searchParams] = useSearchParams();
+  const error = ERROR_CONFIG[code] ?? FALLBACK_ERROR;
+  const dataParam = searchParams.get('data')?.slice(0, 20_000) ?? '';
   const [copied, setCopied] = useState(false);
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleCopy = useCallback(async () => {
+    if (!dataParam) return;
     try {
-      await navigator.clipboard.writeText(encodedInfo);
+      await navigator.clipboard.writeText(dataParam);
       setCopied(true);
       if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
       copyTimerRef.current = setTimeout(() => setCopied(false), 2000);
     } catch {
-      /* 静默忽略 */
+      // 浏览器拒绝剪贴板权限时保留可手动选择的文本。
     }
-  }, [encodedInfo]);
+  }, [dataParam]);
 
-  useEffect(() => () => { if (copyTimerRef.current) clearTimeout(copyTimerRef.current); }, []);
-
-  const pageTitle = `${code} - CQU Mirror`;
+  useEffect(
+    () => () => {
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+    },
+    []
+  );
 
   return (
     <>
-      <title>{pageTitle}</title>
-      {/* 错误页不应被索引 */}
+      <title>{`${error.code} ${error.short} - CQU Mirror`}</title>
       <meta name="robots" content="noindex, nofollow" />
-      <Container maxWidth="sm">
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: 'calc(100vh - 64px - 200px)',
-            textAlign: 'center',
-            py: 8,
-            position: 'relative',
-          }}
-        >
-          {/* 大号错误码水印 */}
+
+      <Container maxWidth="sm" sx={{ py: { xs: 5, md: 8 } }}>
+        <Box sx={{ textAlign: 'center' }}>
           <Typography
-            variant="h1"
             sx={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -60%)',
-              fontSize: { xs: '10rem', md: '16rem' },
-              fontWeight: 900,
               fontFamily: '"JetBrains Mono", monospace',
-              color: 'primary.main',
+              fontSize: { xs: '5rem', sm: '7rem' },
               lineHeight: 1,
-              opacity: 0.06,
-              userSelect: 'none',
-              pointerEvents: 'none',
+              fontWeight: 900,
+              color: 'primary.main',
             }}
           >
-            {code}
+            {error.code}
           </Typography>
 
-          {/* Logo */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center', mb: 3 }}>
-            <img src="/favicon.svg" alt="CQU Mirror" style={{ width: 32, height: 32 }} />
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: 800,
-                fontSize: '1.2rem',
-                fontFamily: '"JetBrains Mono", monospace',
-                letterSpacing: '-0.02em',
-              }}
-            >
-              CQU
-              <Box component="span" sx={{ color: 'primary.main', fontWeight: 800 }}>
-                Mirror
-              </Box>
-            </Typography>
-          </Box>
+          <Typography variant="h4" sx={{ mt: 2, fontWeight: 800 }}>
+            {error.short}
+          </Typography>
+          <Typography variant="h6" color="text.secondary" sx={{ mt: 0.75 }}>
+            {error.long}
+          </Typography>
+
+          <Paper variant="outlined" sx={{ mt: 4, p: { xs: 2, sm: 3 }, textAlign: 'left' }}>
+            <Typography sx={{ fontWeight: 750 }}>您可能遇到了这些问题：</Typography>
+            <List disablePadding sx={{ mt: 1 }}>
+              {error.items.map((item, index) => (
+                <ListItem key={item} disableGutters sx={{ alignItems: 'flex-start', py: 0.5 }}>
+                  <Typography color="primary.main" sx={{ mr: 1, fontWeight: 750 }}>
+                    {index + 1}.
+                  </Typography>
+                  <ListItemText primary={item} sx={{ m: 0 }} />
+                </ListItem>
+              ))}
+            </List>
+          </Paper>
 
           <Typography
-            variant="h4"
-            sx={{ fontWeight: 700, mb: 1.5 }}
+            color="text.secondary"
+            sx={{ mt: 2.5, lineHeight: 1.8, whiteSpace: 'pre-line' }}
           >
-            {title}
+            {error.contactMessage}
           </Typography>
 
-          <Typography
-            variant="body1"
-            sx={{
-              color: 'text.secondary',
-              mb: 3,
-              maxWidth: 420,
-              lineHeight: 1.7,
-            }}
-          >
-            {desc}
-          </Typography>
-
-          {/* 错误信息块 —— 与 ErrorBoundary 风格一致 */}
-          <Box sx={{ position: 'relative', width: '100%', maxWidth: 480, mb: 3 }}>
-            <Box
-              component="pre"
-              sx={{
-                p: 2,
-                pr: 5,
-                bgcolor: 'action.hover',
-                borderRadius: 1,
-                textAlign: 'left',
-                overflow: 'auto',
-                fontFamily: '"JetBrains Mono", monospace',
-                fontSize: '0.75rem',
-                color: 'text.primary',
-                border: '1px solid',
-                borderColor: 'divider',
-                whiteSpace: 'pre-wrap',
-                wordBreak: 'break-all',
-                userSelect: 'text',
-              }}
-            >
-              {encodedInfo}
-            </Box>
-            <Tooltip title={copied ? '✓ Copied' : 'Copy'} placement="top" arrow>
-              <Button
-                size="small"
-                onClick={handleCopy}
+          {dataParam && (
+            <Paper variant="outlined" sx={{ position: 'relative', mt: 3, p: 2, textAlign: 'left' }}>
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 750 }}>
+                反馈时请提供下方错误信息：
+              </Typography>
+              <Box
+                component="pre"
                 sx={{
-                  position: 'absolute',
-                  top: 6,
-                  right: 6,
-                  minWidth: 0,
-                  p: 0.5,
-                  color: 'text.secondary',
-                  '&:hover': { bgcolor: 'action.selected' },
+                  m: 0,
+                  p: 1.5,
+                  pr: 5,
+                  maxHeight: 200,
+                  overflow: 'auto',
+                  bgcolor: 'action.hover',
+                  fontFamily: '"JetBrains Mono", monospace',
+                  fontSize: '0.75rem',
+                  whiteSpace: 'pre-wrap',
+                  overflowWrap: 'anywhere',
+                  userSelect: 'text',
                 }}
               >
-                {copied ? <CheckIcon sx={{ fontSize: 16 }} /> : <CopyIcon sx={{ fontSize: 16 }} />}
-              </Button>
-            </Tooltip>
-          </Box>
+                {dataParam}
+              </Box>
+              <Tooltip title={copied ? '已复制' : '复制错误信息'}>
+                <Button
+                  aria-label="复制错误信息"
+                  onClick={handleCopy}
+                  sx={{ position: 'absolute', right: 20, bottom: 20, minWidth: 0, p: 0.75 }}
+                >
+                  {copied ? <CheckIcon fontSize="small" /> : <CopyIcon fontSize="small" />}
+                </Button>
+              </Tooltip>
+            </Paper>
+          )}
+
+          <Divider sx={{ my: 3 }} />
 
           <Stack
             direction="row"
-            spacing={2}
-            sx={{
-              justifyContent: 'center',
-              flexWrap: 'wrap',
-            }}
+            spacing={1}
+            useFlexGap
+            sx={{ justifyContent: 'center', flexWrap: 'wrap' }}
           >
-            <Button
-              variant="contained"
-              startIcon={<HomeIcon />}
-              onClick={() => navigate('/')}
-              size="large"
-              sx={{ borderRadius: 6 }}
-            >
-              {"返回首页"}
+            {error.links.map((link) => (
+              <Link
+                key={link.url}
+                component={RouterLink}
+                to={link.url}
+                underline="hover"
+                sx={{ px: 1, fontWeight: 650 }}
+              >
+                {link.text}
+              </Link>
+            ))}
+          </Stack>
+
+          <Stack direction="row" spacing={1.5} sx={{ mt: 3, justifyContent: 'center' }}>
+            <Button component={RouterLink} to="/" variant="contained" startIcon={<HomeIcon />}>
+              返回首页
             </Button>
-            {canRefresh && (
+            {REFRESHABLE_CODES.has(error.code) && (
               <Button
                 variant="outlined"
                 startIcon={<RefreshIcon />}
                 onClick={() => window.location.reload()}
-                size="large"
-                sx={{ borderRadius: 6 }}
               >
-                {"刷新页面"}
+                重新尝试
               </Button>
             )}
           </Stack>
-
-          {/* 联系方式 */}
-          <Typography variant="body2" sx={{ color: 'text.secondary', mt: 4 }}>
-            {"如问题持续，请携带以上错误信息联系我们："}
-          </Typography>
-          <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 0.5, alignItems: 'center' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <EmailIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
-              <Link href="mailto:cqumirror@gmail.com" variant="body2" color="primary" underline="hover">
-                cqumirror@gmail.com
-              </Link>
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <GitHubIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
-              <Link
-                href="https://github.com/cqumirror/feedback"
-                target="_blank"
-                rel="noopener noreferrer"
-                variant="body2"
-                color="primary"
-                underline="hover"
-              >
-                github.com/cqumirror/feedback
-              </Link>
-            </Box>
-          </Box>
         </Box>
       </Container>
     </>

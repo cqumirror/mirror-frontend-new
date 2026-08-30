@@ -24,30 +24,11 @@ import remarkGfm from 'remark-gfm';
 import { loadHelpDoc, hasMdxDoc } from '@/docs';
 
 import CodeBlock from './CodeBlock';
+import LicenseGrid from './LicenseGrid';
 
 // MDX 组件的 MUI 映射，与 ReactMarkdown 保持一致
 export const mdxComponents = {
-  LicenseGrid: ({ licenses }: { licenses: string[] }) => (
-    <Box
-      sx={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-        gap: 1.5,
-      }}
-    >
-      {licenses.map((license) => (
-        <Paper
-          key={license}
-          variant="outlined"
-          sx={{ p: 2, borderRadius: 2, textAlign: 'center', bgcolor: 'action.hover' }}
-        >
-          <Typography variant="h6" sx={{ fontWeight: 750 }}>
-            {license}
-          </Typography>
-        </Paper>
-      ))}
-    </Box>
-  ),
+  LicenseGrid,
   NavButton: ({ href, children }: { href: string; children: React.ReactNode }) => (
     <Button
       component="a"
@@ -230,7 +211,14 @@ const DocViewer: React.FC<DocViewerProps> = ({ mirrorId, content, loading }) => 
   if (MdxComponent) {
     return (
       <Box sx={{ '& > *:first-of-type': { mt: 0 }, '& > *:last-child': { mb: 0 } }}>
-        <MDXProvider components={mdxComponents as unknown as Record<string, React.ComponentType>}>
+        <MDXProvider
+          components={
+            { ...mdxComponents, LicenseGrid: () => null } as unknown as Record<
+              string,
+              React.ComponentType
+            >
+          }
+        >
           <MdxComponent />
         </MDXProvider>
       </Box>

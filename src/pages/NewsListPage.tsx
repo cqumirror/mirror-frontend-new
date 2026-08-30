@@ -2,14 +2,22 @@
 // 新闻列表页 /news
 
 import { ArrowForward as ArrowIcon } from '@mui/icons-material';
-import { Box, Container, Typography, Chip, Divider, Breadcrumbs, Link, Pagination } from '@mui/material';
+import {
+  Box,
+  Container,
+  Typography,
+  Chip,
+  Divider,
+  Breadcrumbs,
+  Link,
+  Pagination,
+} from '@mui/material';
 import React, { useMemo, useState, useCallback } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 
 import { getNewsList } from '@/news';
 
 import { canonicalUrl } from '../utils/seo';
-
 
 const NewsListPage: React.FC = () => {
   const navigate = useNavigate();
@@ -26,7 +34,7 @@ const NewsListPage: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
-  const title = "新闻动态" + ' - 重庆大学开源软件镜像站 CQU Mirror';
+  const title = '新闻动态' + ' - 重庆大学开源软件镜像站 CQU Mirror';
 
   return (
     <>
@@ -43,7 +51,7 @@ const NewsListPage: React.FC = () => {
               color: 'text.secondary',
             }}
           >
-            {"首页"}
+            {'首页'}
           </Link>
           <Typography
             sx={{
@@ -51,7 +59,7 @@ const NewsListPage: React.FC = () => {
               fontWeight: 500,
             }}
           >
-            {"新闻动态"}
+            {'新闻动态'}
           </Typography>
         </Breadcrumbs>
 
@@ -62,19 +70,9 @@ const NewsListPage: React.FC = () => {
             mb: 0.5,
           }}
         >
-          {"最新动态"}
+          {'最新动态'}
         </Typography>
-        <Typography
-          variant="body2"
-          sx={{
-            color: 'text.secondary',
-            mb: 4,
-          }}
-        >
-          {"镜像站最新动态、维护通知与服务升级公告"}
-        </Typography>
-
-        <Box>
+        <Box sx={{ mt: 3 }}>
           {paged.map((item, idx) => (
             <React.Fragment key={item.slug}>
               <Box
@@ -149,16 +147,19 @@ const NewsListPage: React.FC = () => {
                     {item.title}
                   </Typography>
 
-                  {/* 摘要 */}
                   <Typography
                     variant="body2"
                     sx={{
                       color: 'text.secondary',
                       lineHeight: 1.6,
-                      maxWidth: 600,
+                      maxWidth: 640,
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
                     }}
                   >
-                    {item.summary}
+                    {item.excerpt}
                   </Typography>
                 </Box>
 
@@ -186,7 +187,7 @@ const NewsListPage: React.FC = () => {
                 textAlign: 'center',
               }}
             >
-              {"暂无新闻"}
+              {'暂无新闻'}
             </Typography>
           )}
         </Box>

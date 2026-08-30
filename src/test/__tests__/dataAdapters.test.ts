@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { getReleaseFiles, parseIsoInfo, resolveReleaseFiles } from '@/api/isoInfo';
 import { parseReleaseManifest } from '@/api/releaseManifest';
 import { parseTimestamp, transformJobs } from '@/api/tunasync';
+import localData from '../../../public/static/local_data.json';
 
 describe('tunasync adapter', () => {
   it('parses explicit and implicit UTC+8 timestamps consistently', () => {
@@ -33,6 +34,46 @@ describe('tunasync adapter', () => {
     expect(mirrors.map((mirror) => mirror.id)).toEqual(['debian', 'proxy']);
     expect(mirrors[0]).toMatchObject({ name: 'Debian', status: 'succeeded', size: '2T' });
     expect(mirrors[1]).toMatchObject({ status: 'cached', storageType: 'cache' });
+  });
+
+  it('classifies nginx proxy repositories without duplicating compatibility paths', () => {
+    const idsByStorageType = (storageType: string) =>
+      Object.entries(localData)
+        .filter(([, meta]) => 'storageType' in meta && meta.storageType === storageType)
+        .map(([id]) => id);
+
+    expect(idsByStorageType('campusProxy')).toEqual(
+      expect.arrayContaining([
+        'anaconda',
+        'centos-vault',
+        'centos-stream',
+        'ceph',
+        'dart-pub',
+        'eclipse',
+        'flutter',
+        'gradle',
+        'julia',
+        'mxlinux',
+        'openkylin-cdimage',
+        'openkylin',
+        'pypi',
+        'qt',
+      ])
+    );
+    expect(idsByStorageType('cache')).toEqual(
+      expect.arrayContaining([
+        'freebsd-pkg',
+        'mariadb',
+        'maven',
+        'npm',
+        'openwrt',
+        'packman',
+        'remi',
+      ])
+    );
+    expect(idsByStorageType('campusOnly')).toContain('pks');
+    expect(localData).not.toHaveProperty('MX_Linux');
+    expect(localData).not.toHaveProperty('CentOS');
   });
 });
 

@@ -12,6 +12,7 @@ import {
   Typography,
 } from '@mui/material';
 import React, { useMemo, useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 
 import ItemCard from '@/components/items/ItemCard';
 import DistroLogo from '@/components/mirrors/DistroLogo';
@@ -54,7 +55,21 @@ const ReleaseList: React.FC = () => {
           {mirrorLoading ? (
             <Skeleton variant="rounded" height={86} sx={{ mb: 2.5 }} />
           ) : releaseMirror ? (
-            <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, mb: 2.5 }}>
+            <Paper
+              component={RouterLink}
+              to="/mirrors/github-release"
+              variant="outlined"
+              sx={{
+                display: 'block',
+                p: 2,
+                borderRadius: 2,
+                mb: 2.5,
+                color: 'inherit',
+                textDecoration: 'none',
+                transition: 'border-color 0.15s, background-color 0.15s',
+                '&:hover': { borderColor: 'primary.main', bgcolor: 'action.hover' },
+              }}
+            >
               <Stack
                 direction={{ xs: 'column', sm: 'row' }}
                 spacing={2}

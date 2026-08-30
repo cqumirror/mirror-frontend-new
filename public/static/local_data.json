@@ -135,7 +135,9 @@
   "freebsd-pkg": {
     "name": "FreeBSD Pkg",
     "desc": "FreeBSD 软件包仓库",
-    "type": "os"
+    "type": "os",
+    "upstream": "https://pkg.freebsd.org/",
+    "storageType": "cache"
   },
   "gentoo-portage": {
     "name": "Gentoo Portage",
@@ -305,6 +307,76 @@
     "desc": "ZeroTier 下载镜像",
     "type": "tool"
   },
+  "anaconda": {
+    "name": "Anaconda",
+    "desc": "Anaconda 与 Conda 软件包仓库",
+    "type": "lang",
+    "upstream": "https://mirrors.tuna.tsinghua.edu.cn/anaconda/",
+    "storageType": "campusProxy"
+  },
+  "centos-vault": {
+    "name": "CentOS Vault",
+    "desc": "CentOS 历史版本软件包仓库",
+    "type": "os",
+    "upstream": "https://mirrors.cqupt.edu.cn/centos-vault/",
+    "storageType": "campusProxy"
+  },
+  "centos-stream": {
+    "name": "CentOS Stream",
+    "desc": "CentOS Stream 软件包仓库",
+    "type": "os",
+    "upstream": "https://mirrors.cqupt.edu.cn/centos-stream/",
+    "storageType": "campusProxy"
+  },
+  "ceph": {
+    "name": "Ceph",
+    "desc": "Ceph 分布式存储软件包仓库",
+    "type": "tool",
+    "upstream": "https://mirrors.ustc.edu.cn/ceph/",
+    "storageType": "campusProxy"
+  },
+  "dart-pub": {
+    "name": "Dart Pub",
+    "desc": "Dart 与 Flutter 软件包仓库",
+    "type": "lang",
+    "upstream": "https://mirror.nju.edu.cn/dart-pub/",
+    "storageType": "campusProxy"
+  },
+  "eclipse": {
+    "name": "Eclipse",
+    "desc": "Eclipse 软件与更新站点仓库",
+    "type": "tool",
+    "upstream": "https://mirror.nju.edu.cn/eclipse/",
+    "storageType": "campusProxy"
+  },
+  "flutter": {
+    "name": "Flutter",
+    "desc": "Flutter SDK 与相关资源仓库",
+    "type": "tool",
+    "upstream": "https://mirror.nju.edu.cn/flutter/",
+    "storageType": "campusProxy"
+  },
+  "gradle": {
+    "name": "Gradle",
+    "desc": "Gradle 构建工具发行包仓库",
+    "type": "tool",
+    "upstream": "https://mirror.nju.edu.cn/gradle/",
+    "storageType": "campusProxy"
+  },
+  "julia": {
+    "name": "Julia",
+    "desc": "Julia 编程语言发行包与软件包仓库",
+    "type": "lang",
+    "upstream": "https://mirror.nju.edu.cn/julia/",
+    "storageType": "campusProxy"
+  },
+  "mariadb": {
+    "name": "MariaDB",
+    "desc": "MariaDB 数据库软件包仓库",
+    "type": "tool",
+    "upstream": "https://mariadb.org/",
+    "storageType": "cache"
+  },
   "maven": {
     "name": "Maven Central 中心仓库",
     "desc": "Java开发依赖管理工具 Maven 的中央仓库",
@@ -312,11 +384,74 @@
     "upstream": "https://repo.maven.apache.org/maven2/",
     "storageType": "cache"
   },
+  "mxlinux": {
+    "name": "MX Linux",
+    "desc": "MX Linux 软件包仓库",
+    "type": "os",
+    "upstream": "https://mirror.sjtu.edu.cn/mx-packages/",
+    "storageType": "campusProxy"
+  },
+  "npm": {
+    "name": "npm",
+    "desc": "npm JavaScript 软件包仓库",
+    "type": "lang",
+    "upstream": "https://registry.npmjs.org/",
+    "storageType": "cache"
+  },
+  "openkylin-cdimage": {
+    "name": "openKylin CD Image",
+    "desc": "openKylin 系统安装镜像仓库",
+    "type": "os",
+    "upstream": "https://mirror.nju.edu.cn/openkylin-cdimage/",
+    "storageType": "campusProxy"
+  },
+  "openkylin": {
+    "name": "openKylin",
+    "desc": "openKylin 软件包仓库",
+    "type": "os",
+    "upstream": "https://mirror.nju.edu.cn/openkylin/",
+    "storageType": "campusProxy"
+  },
+  "openwrt": {
+    "name": "OpenWrt",
+    "desc": "OpenWrt 系统镜像与软件包仓库",
+    "type": "os",
+    "upstream": "https://downloads.openwrt.org/",
+    "storageType": "cache"
+  },
+  "packman": {
+    "name": "Packman",
+    "desc": "面向 openSUSE 的 Packman 第三方软件包仓库",
+    "type": "os",
+    "upstream": "https://ftp.fau.de/packman/",
+    "storageType": "cache"
+  },
+  "pks": {
+    "name": "OpenPGP Keyserver",
+    "desc": "Ubuntu OpenPGP 公钥服务器代理",
+    "type": "tool",
+    "upstream": "https://keyserver.ubuntu.com/pks/",
+    "storageType": "campusOnly"
+  },
+  "pypi": {
+    "name": "PyPI",
+    "desc": "Python 软件包索引仓库",
+    "type": "lang",
+    "upstream": "https://mirrors.tuna.tsinghua.edu.cn/pypi/",
+    "storageType": "campusProxy"
+  },
   "qt": {
     "name": "Qt 仓库",
     "desc": "Qt 软件开发工具包镜像",
     "type": "tool",
     "upstream": "https://mirror.nju.edu.cn/qt/",
+    "storageType": "campusProxy"
+  },
+  "remi": {
+    "name": "Remi Repository",
+    "desc": "适用于 Enterprise Linux 的 Remi RPM 软件包仓库",
+    "type": "os",
+    "upstream": "https://rpms.remirepo.net/enterprise/",
     "storageType": "cache"
   }
 }

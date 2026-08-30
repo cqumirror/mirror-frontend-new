@@ -22,6 +22,7 @@ import {
   Tooltip,
   LinearProgress,
 } from '@mui/material';
+import type { SxProps, Theme } from '@mui/material';
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -184,6 +185,33 @@ const Home: React.FC = () => {
   const newsList = useMemo(() => getNewsList(), []);
   const hasNews = newsList.length > 0;
   const itemCount = hasNews ? 6 : 8;
+  const heroActionSx: SxProps<Theme> = {
+    borderRadius: 0,
+    minHeight: 50,
+    px: 2.75,
+    fontWeight: 800,
+    color: 'text.primary',
+    bgcolor: (theme) =>
+      theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.62)',
+    backgroundImage: (theme) =>
+      `linear-gradient(135deg, ${
+        theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.09)' : 'rgba(255,255,255,0.72)'
+      }, transparent)`,
+    backdropFilter: 'blur(16px) saturate(145%)',
+    boxShadow: (theme) =>
+      theme.palette.mode === 'dark'
+        ? '0 8px 24px rgba(0,0,0,0.24), inset 0 1px rgba(255,255,255,0.12)'
+        : '0 8px 24px rgba(30,64,175,0.10), inset 0 1px rgba(255,255,255,0.9)',
+    '&:hover': {
+      bgcolor: (theme) =>
+        theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.84)',
+      transform: 'translateY(-2px)',
+      boxShadow: (theme) =>
+        theme.palette.mode === 'dark'
+          ? '0 12px 30px rgba(0,0,0,0.32), inset 0 1px rgba(255,255,255,0.16)'
+          : '0 12px 30px rgba(30,64,175,0.16), inset 0 1px rgba(255,255,255,1)',
+    },
+  };
 
   return (
     <>
@@ -324,29 +352,29 @@ const Home: React.FC = () => {
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, mb: 2, flexWrap: 'wrap' }}>
               <Button
-                variant="contained"
+                variant="text"
                 size="large"
                 startIcon={<DownloadIcon />}
                 onClick={openDownloadModal}
-                sx={{ borderRadius: 2.5, minHeight: 46, px: 2.5, fontWeight: 750 }}
+                sx={heroActionSx}
               >
                 常用下载
               </Button>
               <Button
-                variant="contained"
+                variant="text"
                 size="large"
                 startIcon={<GitHubIcon />}
                 onClick={() => navigate('/release')}
-                sx={{ borderRadius: 2.5, minHeight: 46, px: 2.5, fontWeight: 750 }}
+                sx={heroActionSx}
               >
                 GitHub Release
               </Button>
               <Button
-                variant="contained"
+                variant="text"
                 size="large"
                 startIcon={<SyncIcon />}
                 onClick={() => navigate('/status')}
-                sx={{ borderRadius: 2.5, minHeight: 46, px: 2.5, fontWeight: 750 }}
+                sx={heroActionSx}
               >
                 同步状态
               </Button>

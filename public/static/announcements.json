@@ -1,61 +1,12 @@
 [
   {
-    "id": "ban-p2p-tools-test",
-    "type": "error",
-    "pinned": true,
-    "dismissible": false,
-    "date": "2023-03-27",
-    "title": "这个是测试页面",
-    "content": "此页面为镜像站测试页面，请注意分辨，若要使用镜像站请访问镜像站官网",
-    "link": {
-      "url": "https://mirrors.cqu.edu.cn",
-      "label": "重庆大学开源软件镜像站"
-    }
-  },
-  {
-    "id": "test-pinned-warning",
+    "id": "1",
     "type": "warning",
     "pinned": true,
     "dismissible": false,
-    "date": "2026-06-19",
+    "date": "2023-03-27",
     "title": "禁止多线程下载",
-    "content": "IDM、aria2 等多线程下载器不允许使用，带宽有限请自觉。",
-    "link": null
-  },
-  {
-    "id": "test-dismissible-info",
-    "type": "info",
-    "pinned": false,
-    "dismissible": true,
-    "date": "2026-06-18",
-    "title": "暑假维护通知",
-    "content": "暑假期间部分镜像可能同步变慢，开学后恢复。",
-    "link": null
-  },
-  {
-    "id": "test-dismissible-success",
-    "type": "success",
-    "pinned": false,
-    "dismissible": true,
-    "date": "2026-06-17",
-    "title": "Fedora 44 已上线",
-    "content": "Fedora 44 镜像已经同步完成，可以正常下载使用了。",
-    "link": {
-      "url": "/mirrors/fedora",
-      "label": "去下载"
-    }
-  },
-  {
-    "id": "test-long-content",
-    "type": "info",
-    "pinned": false,
-    "dismissible": true,
-    "date": "2026-06-16",
-    "title": "新增镜像：LXGW WenKai 字体",
-    "content": "我们新增了 LXGW WenKai（霞鹜文楷）系列字体的 GitHub Release 镜像，包含 Regular、Light、Medium 等多个字重，以及 GB、TC、Screen 等变体。",
-    "link": {
-      "url": "/mirrors/github-release",
-      "label": "查看镜像"
-    }
+    "content": "由于镜像站出口带宽有限，超线程的下载将导致永久性的或半永久的从重庆大学镜像站的使用脱离，请规范下载行为。",
+    "link": { "url": "/news/2023-03-27-ban-p2p-tools", "label": "通知" }
   }
 ]

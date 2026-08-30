@@ -156,12 +156,12 @@ const UpstreamCard: React.FC<{ label: string; value: string }> = ({ label, value
             </Typography>
           </Tooltip>
           {hasValue && (
-            <Tooltip title={copied ? "已复制" : "点击复制"} placement="top">
+            <Tooltip title={copied ? '已复制' : '点击复制'} placement="top">
               <IconButton
                 size="small"
                 onClick={handleCopy}
                 sx={{ p: 0.3, flexShrink: 0 }}
-                aria-label={"点击复制"}
+                aria-label={'点击复制'}
               >
                 {copied ? (
                   <CheckIcon sx={{ fontSize: 13, color: 'success.main' }} />
@@ -179,6 +179,7 @@ const UpstreamCard: React.FC<{ label: string; value: string }> = ({ label, value
 
 // ── 主组件 ────────────────────────────────────────────────────────────────────
 const SyncTimeline: React.FC<SyncTimelineProps> = ({ mirror }) => {
+  const hasSyncSchedule = mirror.storageType === 'local' || mirror.storageType === 'campusLocal';
 
   const statusColor = {
     succeeded: 'success.main',
@@ -188,7 +189,7 @@ const SyncTimeline: React.FC<SyncTimelineProps> = ({ mirror }) => {
     paused: 'warning.main',
     disabled: 'text.disabled',
     unknown: 'text.secondary',
-    proxy: 'text.secondary'
+    proxy: 'text.secondary',
   }[mirror.status];
 
   return (
@@ -201,35 +202,39 @@ const SyncTimeline: React.FC<SyncTimelineProps> = ({ mirror }) => {
           alignItems: 'stretch',
         }}
       >
-        <Grid size={{ xs: 6, md: 3 }} sx={{ display: 'flex' }}>
-          <TimeCard
-            icon={<SyncIcon fontSize="small" />}
-            label={'最后更新'}
-            value={formatAbsoluteTime(mirror.lastUpdated)}
-            color={statusColor}
-          />
-        </Grid>
+        {hasSyncSchedule && (
+          <>
+            <Grid size={{ xs: 6, md: 3 }} sx={{ display: 'flex' }}>
+              <TimeCard
+                icon={<SyncIcon fontSize="small" />}
+                label={'最后更新'}
+                value={formatAbsoluteTime(mirror.lastUpdated)}
+                color={statusColor}
+              />
+            </Grid>
 
-        <Grid size={{ xs: 6, md: 3 }} sx={{ display: 'flex' }}>
-          <TimeCard
-            icon={<SuccessIcon fontSize="small" />}
-            label={'上次成功'}
-            value={formatAbsoluteTime(mirror.lastSuccess)}
-            color="success.main"
-          />
-        </Grid>
+            <Grid size={{ xs: 6, md: 3 }} sx={{ display: 'flex' }}>
+              <TimeCard
+                icon={<SuccessIcon fontSize="small" />}
+                label={'上次成功'}
+                value={formatAbsoluteTime(mirror.lastSuccess)}
+                color="success.main"
+              />
+            </Grid>
 
-        <Grid size={{ xs: 6, md: 3 }} sx={{ display: 'flex' }}>
-          <TimeCard
-            icon={<ScheduleIcon fontSize="small" />}
-            label={'下次同步'}
-            value={formatAbsoluteTime(mirror.nextScheduled)}
-            color="info.main"
-          />
-        </Grid>
+            <Grid size={{ xs: 6, md: 3 }} sx={{ display: 'flex' }}>
+              <TimeCard
+                icon={<ScheduleIcon fontSize="small" />}
+                label={'下次同步'}
+                value={formatAbsoluteTime(mirror.nextScheduled)}
+                color="info.main"
+              />
+            </Grid>
+          </>
+        )}
 
         {/* 上游地址：同行第四列，单行截断 + hover Tooltip */}
-        <Grid size={{ xs: 6, md: 3 }} sx={{ display: 'flex' }}>
+        <Grid size={hasSyncSchedule ? { xs: 6, md: 3 } : { xs: 12 }} sx={{ display: 'flex' }}>
           <UpstreamCard label={'上游源'} value={mirror.upstream || '-'} />
         </Grid>
 

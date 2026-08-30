@@ -6,6 +6,8 @@ import react from '@vitejs/plugin-react';
 import remarkGfm from 'remark-gfm';
 import { defineConfig } from 'vite';
 
+import { contentMetadataPlugin } from './scripts/content-metadata-plugin';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const MIRROR_ORIGIN = 'https://mirrors.cqu.edu.cn';
@@ -33,7 +35,11 @@ const proxyConfig = {
 
 export default defineConfig({
   base: '/',
-  plugins: [react(), mdx({ providerImportSource: '@mdx-js/react', remarkPlugins: [remarkGfm] })],
+  plugins: [
+    contentMetadataPlugin(__dirname),
+    react(),
+    mdx({ providerImportSource: '@mdx-js/react', remarkPlugins: [remarkGfm] }),
+  ],
 
   resolve: {
     alias: { '@': resolve(__dirname, 'src') },

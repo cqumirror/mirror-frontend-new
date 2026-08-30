@@ -12,7 +12,7 @@ type Phase = 'in' | 'out' | null;
 const DURATION = 300;
 
 const PageTransition: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { pathname, search } = useLocation();
+  const { pathname } = useLocation();
   const theme = useTheme();
   const [phase, setPhase] = useState<Phase>(null);
 
@@ -24,7 +24,7 @@ const PageTransition: React.FC<{ children: React.ReactNode }> = ({ children }) =
       clearTimeout(t1);
       clearTimeout(t2);
     };
-  }, [pathname, search]);
+  }, [pathname]);
 
   return (
     <>
@@ -44,9 +44,24 @@ const PageTransition: React.FC<{ children: React.ReactNode }> = ({ children }) =
             justifyContent: 'center',
           }}
         >
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, color: theme.palette.primary.main }}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 2,
+              color: theme.palette.primary.main,
+            }}
+          >
             <LoadingGrid />
-            <Typography variant="body2" sx={{ color: 'text.secondary', fontFamily: '"JetBrains Mono", monospace', fontSize: '0.85rem' }}>
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+                fontFamily: '"JetBrains Mono", monospace',
+                fontSize: '0.85rem',
+              }}
+            >
               Loading...
             </Typography>
           </Box>

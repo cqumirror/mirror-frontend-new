@@ -176,7 +176,7 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
   );
 
   useEffect(() => {
-    loadDirectory(mirrorUrl);
+    void loadDirectory(mirrorUrl).catch(() => undefined);
   }, [mirrorUrl, loadDirectory]);
 
   // 进入子目录
@@ -185,9 +185,9 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
     // entry.href 已是绝对 URL，需转回路径
     try {
       const u = new URL(entry.href);
-      loadDirectory(u.pathname);
+      void loadDirectory(u.pathname).catch(() => undefined);
     } catch {
-      loadDirectory(entry.href);
+      void loadDirectory(entry.href).catch(() => undefined);
     }
   };
 

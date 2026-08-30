@@ -33,7 +33,7 @@ import { useParams, useNavigate, Link as RouterLink, useSearchParams } from 'rea
 
 import LicenseViewer from '@/components/docs/LicenseViewer';
 import DistroLogo from '@/components/mirrors/DistroLogo.tsx';
-import { hasMdxDoc } from '@/docs';
+import { hasHelpDoc } from '@/docs';
 import { hasLicense } from '@/licenses';
 
 import DocViewer from '../components/docs/DocViewer';
@@ -234,26 +234,22 @@ const MirrorDetail: React.FC = () => {
   const { data: mirror, isLoading, error } = useMirrorDetail(name || '');
 
   const tabParam = searchParams.get('tab');
-  const hasDoc = name ? hasMdxDoc(name) : false;
+  const hasDoc = name ? hasHelpDoc(name) : false;
   const hasLicenseFile = name ? hasLicense(name) : false;
-  const licenseTabIndex = hasLicenseFile ? 1 : -1;
-  const filesTabIndex = hasLicenseFile ? 2 : 1;
-  const downloadsTabIndex = filesTabIndex + 1;
-  const tabValue = (() => {
-    if (tabParam === 'help' || tabParam === '0') return 0;
-    if (tabParam === 'license' && hasLicenseFile) return licenseTabIndex;
-    if (tabParam === 'files') return filesTabIndex;
-    if (tabParam === 'downloads') return downloadsTabIndex;
-    return hasDoc ? 0 : filesTabIndex;
-  })();
+  const hasFiles = Array.isArray(mirror?.files) && (mirror?.files.length ?? 0) > 0;
+  const tabKeys = [
+    ...(hasDoc ? ['help' as const] : []),
+    ...(hasLicenseFile ? ['license' as const] : []),
+    'files' as const,
+    ...(hasFiles ? ['downloads' as const] : []),
+  ];
+  const requestedTab = tabParam === '0' ? 'help' : tabParam;
+  const requestedIndex = tabKeys.findIndex((key) => key === requestedTab);
+  const tabValue = requestedIndex >= 0 ? requestedIndex : 0;
 
   // Tab 切换时同步到 URL，不产生历史记录（replace）
   const handleTabChange = (_: React.SyntheticEvent, v: number) => {
-    const labels = ['help'];
-    if (hasLicenseFile) labels.push('license');
-    labels.push('files');
-    if (hasFiles) labels.push('downloads');
-    setSearchParams({ tab: labels[v] ?? 'help' }, { replace: true });
+    setSearchParams({ tab: tabKeys[v] ?? tabKeys[0] }, { replace: true });
   };
 
   const [copiedUrl, setCopiedUrl] = useState(false);
@@ -278,9 +274,6 @@ const MirrorDetail: React.FC = () => {
       if (import.meta.env.DEV) console.warn('[copy]', err);
     }
   };
-
-  // 右侧侧栏是否显示：只有 API 返回了 files 且不为空时才渲染
-  const hasFiles = Array.isArray(mirror?.files) && (mirror?.files.length ?? 0) > 0;
 
   if (isLoading) {
     return (
@@ -526,26 +519,28 @@ const MirrorDetail: React.FC = () => {
               '& .MuiTab-root': { fontWeight: 600, minWidth: { xs: 80, sm: 120 } },
             }}
           >
-            <Tab label={'使用说明'} />
+            {hasDoc && <Tab label={'使用说明'} />}
             {hasLicenseFile && <Tab label={'许可证'} />}
             <Tab label={'文件列表'} />
             {hasFiles && <Tab label={'安装镜像'} />}
           </Tabs>
 
-          <TabPanel value={tabValue} index={0}>
-            <DocViewer mirrorId={mirror.id} />
-          </TabPanel>
+          {hasDoc && (
+            <TabPanel value={tabValue} index={tabKeys.indexOf('help')}>
+              <DocViewer mirrorId={mirror.id} />
+            </TabPanel>
+          )}
           {hasLicenseFile && (
-            <TabPanel value={tabValue} index={licenseTabIndex}>
+            <TabPanel value={tabValue} index={tabKeys.indexOf('license')}>
               <LicenseViewer licenseId={name ?? ''} />
             </TabPanel>
           )}
-          <TabPanel value={tabValue} index={filesTabIndex}>
+          <TabPanel value={tabValue} index={tabKeys.indexOf('files')}>
             <DirectoryListing mirrorUrl={mirror.url} mirrorName={mirror.name} />
           </TabPanel>
 
           {hasFiles && (
-            <TabPanel value={tabValue} index={downloadsTabIndex}>
+            <TabPanel value={tabValue} index={tabKeys.indexOf('downloads')}>
               <IsoFilesCard files={mirror.files} mirrorUrl={mirror.url} />
             </TabPanel>
           )}

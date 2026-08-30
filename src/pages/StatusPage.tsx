@@ -43,13 +43,13 @@ import { formatRelativeTime, formatAbsoluteTime, parseTimestamp } from '../utils
 // ── 系统整体健康状态 ──────────────────────────────────────────────────────────
 type HealthLevel = 'operational' | 'degraded' | 'outage';
 const healthTypeLevelMap: Record<HealthLevel, string> = {
-  operational: "同步正常",
-  degraded: "部分镜像同步失败",
-  outage: "大量镜像同步失败，服务可能无法使用"
-}
-  /**
+  operational: '同步正常',
+  degraded: '部分镜像同步失败',
+  outage: '大量镜像同步失败，服务可能无法使用',
+};
+/**
  * 仅 failed 视为不可用；syncing/cached/succeeded/paused 都对外可访问
- * - cached: 历史快照可正常下载
+ * - cached: 缓存或反向代理仓库可正常访问
  * - syncing: 服务在跑，旧文件依然可访问
  * - paused: 维护中但内容仍在
  */
@@ -161,7 +161,6 @@ const StatCard: React.FC<StatCardProps> = ({ icon, label, value, sub, color }) =
 const StatusPage: React.FC = () => {
   const navigate = useNavigate();
   const { data: mirrors = [], isLoading, isFetching, error, refetch, dataUpdatedAt } = useMirrors();
-
 
   // ── 聚合统计 ──────────────────────────────────────────────────────────────
   const stats = useMemo(() => {
@@ -469,7 +468,7 @@ const StatusPage: React.FC = () => {
                     },
                     { label: '失败', count: stats.failed, color: '#EF4444' },
                     { label: '同步中', count: stats.syncing, color: '#3B82F6' },
-                    { label: '已储存', count: stats.cached, color: '#94A3B8' },
+                    { label: '缓存/代理', count: stats.cached, color: '#94A3B8' },
                     { label: '已暂停', count: stats.paused, color: '#F59E0B' },
                     ...(stats.disabled > 0
                       ? [

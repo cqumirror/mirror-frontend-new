@@ -106,9 +106,11 @@ const ThemedApp: React.FC = () => {
                   <Route path="/special-thanks" element={<SpecialThanks />} />
                   <Route path="/status" element={<StatusPage />} />
                   <Route path="/403" element={<ErrorPage code={403} />} />
+                  <Route path="/405" element={<ErrorPage code={405} />} />
                   <Route path="/500" element={<ErrorPage code={500} />} />
                   <Route path="/502" element={<ErrorPage code={502} />} />
                   <Route path="/503" element={<ErrorPage code={503} />} />
+                  <Route path="/504" element={<ErrorPage code={504} />} />
                   <Route path="*" element={<ErrorPage code={404} />} />
                 </Routes>
               </PageTransition>

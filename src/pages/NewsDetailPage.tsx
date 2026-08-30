@@ -27,7 +27,6 @@ import { getNewsArticle, getNewsItem } from '@/news';
 import CodeBlock from '../components/docs/CodeBlock';
 import { canonicalUrl } from '../utils/seo';
 
-
 // MUI 组件映射
 // 表格使用 MUI Table 组件，保证主题色正确、暗色模式正常
 const mdxComponents = {
@@ -130,9 +129,7 @@ const NewsDetailPage: React.FC = () => {
   const ArticleComponent = slug ? getNewsArticle(slug) : null;
   const notFound = !ArticleComponent && !meta;
 
-  const displayTitle = meta
-    ? meta.title
-    : '新闻详情';
+  const displayTitle = meta ? meta.title : '新闻详情';
 
   const pageTitle = `${displayTitle} - 重庆大学开源软件镜像站 CQU Mirror`;
 
@@ -143,11 +140,11 @@ const NewsDetailPage: React.FC = () => {
           severity="error"
           action={
             <Button color="inherit" size="small" onClick={() => navigate('/news')}>
-              {"返回列表"}
+              {'返回列表'}
             </Button>
           }
         >
-          {"新闻不存在"}
+          {'新闻不存在'}
         </Alert>
       </Container>
     );
@@ -168,7 +165,7 @@ const NewsDetailPage: React.FC = () => {
               color: 'text.secondary',
             }}
           >
-            {"首页"}
+            {'首页'}
           </Link>
           <Link
             component={RouterLink}
@@ -178,7 +175,7 @@ const NewsDetailPage: React.FC = () => {
               color: 'text.secondary',
             }}
           >
-            {"新闻动态"}
+            {'新闻动态'}
           </Link>
           <Typography
             noWrap
@@ -198,7 +195,7 @@ const NewsDetailPage: React.FC = () => {
           size="small"
           sx={{ mb: 3, color: 'text.secondary' }}
         >
-          {"返回列表"}
+          {'返回列表'}
         </Button>
 
         {/* 文章头部元信息 */}
@@ -247,16 +244,6 @@ const NewsDetailPage: React.FC = () => {
               }}
             >
               {displayTitle}
-            </Typography>
-
-            <Typography
-              variant="body1"
-              sx={{
-                color: 'text.secondary',
-                lineHeight: 1.7,
-              }}
-            >
-              {meta.summary}
             </Typography>
 
             <Divider sx={{ mt: 3 }} />

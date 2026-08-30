@@ -4,29 +4,37 @@
 // 文件名即 slug，建议格式：YYYY-MM-DD-short-title.mdx
 
 import type React from 'react';
+import { newsExcerpts } from 'virtual:content-metadata';
+
+export { extractFirstSentence } from '@/docs/source';
 
 export interface NewsMeta {
   slug: string;
   title: string;
   date: string; // YYYY-MM-DD
   summary: string;
+  excerpt: string;
   tags?: string[];
   author?: string;
 }
 
 // 一次 eager glob，同时拿到 meta（列表/首页）和 default（详情页正文）
 const modules = import.meta.glob<{
-  meta: Omit<NewsMeta, 'slug'>;
+  meta: Omit<NewsMeta, 'slug' | 'excerpt'>;
   default: React.FC;
 }>('../../content/news/mdx/*.mdx', { eager: true });
 
 // ── 元数据列表（同步，供列表页 / 首页 widget 使用）────────────────────────────
 export const getNewsList = (): NewsMeta[] => {
   return Object.entries(modules)
-    .map(([path, mod]) => ({
-      slug: path.replace(/.*\//, '').replace('.mdx', ''),
-      ...(mod.meta ?? { title: '(未命名)', date: '1970-01-01', summary: '' }),
-    }))
+    .map(([path, mod]) => {
+      const meta = mod.meta ?? { title: '(未命名)', date: '1970-01-01', summary: '' };
+      return {
+        slug: path.replace(/.*\//, '').replace('.mdx', ''),
+        ...meta,
+        excerpt: newsExcerpts[path.replace(/.*\//, '').replace('.mdx', '')] || meta.summary,
+      };
+    })
     .sort((a, b) => b.date.localeCompare(a.date));
 };
 

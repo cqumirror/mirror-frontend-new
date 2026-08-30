@@ -121,9 +121,11 @@ This directory contains JSON data files loaded at runtime via `fetch()`. **No re
 | `name` | {zh, en} | 否 | 镜像名称（覆盖后端默认值） |
 | `desc` | {zh, en} | 否 | 镜像描述 |
 | `type` | string | 否 | 分类标签，见下表 |
-| `helpUrl` | string | 否 | 对应帮助文档文件名（如 `"ubuntu"` → `docs/mdx/zh/ubuntu.mdx`） |
+| `helpUrl` | string | 否 | 对应帮助文档文件名（如 `"ubuntu"` → `docs/ubuntu.mdx`） |
 | `files` | array | 否 | 下载文件列表，通常由 `isoinfo.json` 动态填充，此处可留空 |
-| `status` | string | 否 | 覆盖后端同步状态（如 `cached`、`paused`），用于快照类镜像 |
+| `status` | string | 否 | 覆盖后端同步状态（如 `cached`、`paused`） |
+| `storageType` | string | 否 | 存储与访问方式；没有 tunasync 任务的非本地仓库必须填写 |
+| `upstream` | string | 否 | 上游仓库地址，主要用于代理类仓库 |
 
 ### `type` 取值 / Type Values
 
@@ -150,9 +152,20 @@ This directory contains JSON data files loaded at runtime via `fetch()`. **No re
 | `succeeded` | 同步成功 |
 | `syncing` | 同步中 |
 | `failed` | 同步失败 |
-| `cached` | 快照（不再同步，文件仍可下载） |
+| `cached` | 缓存或反向代理仓库可用 |
 | `paused` | 已暂停 |
 | `disabled` | 已禁用 |
+
+### `storageType` 取值 / Storage Type Values
+
+| 值 | 含义 |
+|----|------|
+| `local` | 本地同步并存储；默认值 |
+| `cache` | 对所有访客提供缓存反向代理 |
+| `campusProxy` | 校内提供缓存反向代理，校外返回 302 到其他镜像站 |
+| `campusOnly` | 仅校内可用，校外拒绝访问 |
+| `campusLocal` | 校内访问本站存储，校外返回 302 到其他镜像站 |
+| `redirect` | 对所有访客返回重定向 |
 
 ---
 
