@@ -4,8 +4,7 @@
 import { ThemeProvider, CssBaseline, Box, GlobalStyles } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import './i18n';
+import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 
 import Footer from './components/common/Footer';
 import GlobalAlertModal from './components/common/GlobalAlertModal';
@@ -13,17 +12,26 @@ import Header from './components/common/Header';
 import PageTransition from './components/common/PageTransition';
 import ScrollToTop from './components/common/ScrollToTop';
 import { useTheme } from './hooks/useTheme';
+import { SUPPORTED_ERROR_CODES } from './utils/httpError';
 
 // ── 路由级代码分割：除首页外按需加载，减小首屏 JS ────────────────────────────
 const Home = lazy(() => import('./pages/Home'));
 const MirrorDetail = lazy(() => import('./pages/MirrorDetail'));
 const NewsDetailPage = lazy(() => import('./pages/NewsDetailPage'));
 const NewsListPage = lazy(() => import('./pages/NewsListPage'));
-const GitMirrorsPage = lazy(() => import('./pages/GitMirrorsPage'));
+const ReleaseDetail = lazy(() => import('./pages/ReleaseDetail'));
+const ReleaseList = lazy(() => import('./pages/ReleaseList'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const SpecialThanks = lazy(() => import('./pages/SpecialThanks'));
 const StatusPage = lazy(() => import('./pages/StatusPage'));
 const ErrorPage = lazy(() => import('./pages/ErrorPage'));
+
+/** 接收 Nginx error_page 使用的 /error/:code，并过滤任意非法错误码。 */
+const HttpErrorRoute: React.FC = () => {
+  const { code } = useParams<{ code: string }>();
+  const parsedCode = Number(code);
+  return <ErrorPage code={SUPPORTED_ERROR_CODES.has(parsedCode) ? parsedCode : 404} />;
+};
 
 // 创建 React Query 客户端
 const queryClient = new QueryClient({
@@ -94,22 +102,26 @@ const ThemedApp: React.FC = () => {
           <Box component="main" sx={{ flex: 1 }}>
             <Suspense fallback={null}>
               <PageTransition>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/mirrors" element={<Navigate to="/" replace />} />
-                <Route path="/mirrors/git" element={<GitMirrorsPage />} />
-                <Route path="/mirrors/:name" element={<MirrorDetail />} />
-                <Route path="/news" element={<NewsListPage />} />
-                <Route path="/news/:slug" element={<NewsDetailPage />} />
-                <Route path="/about" element={<AboutPage />} />
-                <Route path="/special-thanks" element={<SpecialThanks />} />
-                <Route path="/status" element={<StatusPage />} />
-                <Route path="/403" element={<ErrorPage code={403} />} />
-                <Route path="/500" element={<ErrorPage code={500} />} />
-                <Route path="/502" element={<ErrorPage code={502} />} />
-                <Route path="/503" element={<ErrorPage code={503} />} />
-                <Route path="*" element={<ErrorPage code={404} />} />
-              </Routes>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/mirrors" element={<Navigate to="/" replace />} />
+                  <Route path="/release" element={<ReleaseList />} />
+                  <Route path="/release/:org/:repo" element={<ReleaseDetail />} />
+                  <Route path="/mirrors/:name" element={<MirrorDetail />} />
+                  <Route path="/news" element={<NewsListPage />} />
+                  <Route path="/news/:slug" element={<NewsDetailPage />} />
+                  <Route path="/about" element={<AboutPage />} />
+                  <Route path="/special-thanks" element={<SpecialThanks />} />
+                  <Route path="/status" element={<StatusPage />} />
+                  <Route path="/403" element={<ErrorPage code={403} />} />
+                  <Route path="/405" element={<ErrorPage code={405} />} />
+                  <Route path="/500" element={<ErrorPage code={500} />} />
+                  <Route path="/502" element={<ErrorPage code={502} />} />
+                  <Route path="/503" element={<ErrorPage code={503} />} />
+                  <Route path="/504" element={<ErrorPage code={504} />} />
+                  <Route path="/error/:code" element={<HttpErrorRoute />} />
+                  <Route path="*" element={<ErrorPage code={404} />} />
+                </Routes>
               </PageTransition>
             </Suspense>
           </Box>

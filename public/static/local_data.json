@@ -1,0 +1,457 @@
+{
+  "CPAN": {
+    "name": "CPAN",
+    "desc": "Perl 语言软件库",
+    "type": "lang",
+    "helpUrl": ""
+  },
+  "CRAN": {
+    "name": "CRAN",
+    "desc": "R 语言的可执行文件、源代码和说明文件，也收录了各种用户撰写的软件包",
+    "type": "lang"
+  },
+  "CTAN": {
+    "name": "CTAN",
+    "desc": "TeX 的各种发行版、软件包和文档",
+    "type": "lang"
+  },
+  "adoptium": {
+    "name": "Adoptium",
+    "desc": "社区维护的 OpenJDK 二进制包",
+    "type": "tool"
+  },
+  "alpine": {
+    "name": "Alpine Linux",
+    "desc": "Alpine Linux 的安装镜像和官方软件包仓库",
+    "type": "os"
+  },
+  "archlinux": {
+    "name": "Arch Linux",
+    "desc": "Arch Linux 的安装镜像和官方软件包仓库",
+    "type": "os",
+    "popular": true
+  },
+  "archlinuxcn": {
+    "name": "Arch Linux CN",
+    "desc": "由 Arch Linux 中文社区驱动的非官方用户仓库，包含中文用户常用软件、工具、字体/美化包等",
+    "type": "none"
+  },
+  "blender": {
+    "name": "Blender",
+    "desc": "专业的三维计算机图形软件",
+    "type": "tool"
+  },
+  "bmclapi": {
+    "name": "BMCLAPI",
+    "desc": "BMCLAPI Minecraft 资源镜像",
+    "type": "tool",
+    "popular": true
+  },
+  "centos": {
+    "name": "CentOS",
+    "desc": "CentOS 的安装镜像和官方软件包仓库",
+    "type": "os",
+    "storageType": "campusLocal",
+    "message": "CentOS 8 已于 2021 年 12 月 31 日停止维护，建议使用 Rocky Linux 或 AlmaLinux 替代"
+  },
+  "crates.io": {
+    "name": "crates.io",
+    "desc": "Rust 包管理仓库",
+    "type": "lang"
+  },
+  "crates.io-index": {
+    "name": "crates.io Index",
+    "desc": "面向 Rust 语言的软件包稀疏索引 crates.io",
+    "type": "lang"
+  },
+  "crates.io-index.git": {
+    "name": "crates.io Index Git",
+    "desc": "面向 Rust 语言的软件包索引 crates.io",
+    "type": "lang",
+    "gitRepo": true
+  },
+  "cygwin": {
+    "name": "Cygwin",
+    "desc": "Cygwin 官方软件包仓库",
+    "type": "tool"
+  },
+  "debian": {
+    "name": "Debian",
+    "desc": "Debian Linux 的官方软件包仓库",
+    "type": "os",
+    "popular": true
+  },
+  "debian-cd": {
+    "name": "Debian CD",
+    "desc": "Debian Linux 的安装镜像",
+    "type": "os"
+  },
+  "debian-multimedia": {
+    "name": "Debian Multimedia",
+    "desc": "Debian Linux 第三方多媒体软件源",
+    "type": "none"
+  },
+  "debian-security": {
+    "name": "Debian Security",
+    "desc": "Debian Linux 的安全更新",
+    "type": "none"
+  },
+  "deepin": {
+    "name": "Deepin",
+    "desc": "Deepin Linux 的官方软件包仓库",
+    "type": "os"
+  },
+  "deepin-cd": {
+    "name": "Deepin CD",
+    "desc": "Deepin Linux 的安装镜像",
+    "type": "os"
+  },
+  "dotnet": {
+    "name": ".NET",
+    "desc": ".NET 开发框架镜像",
+    "type": "lang"
+  },
+  "elpa": {
+    "name": "ELPA",
+    "desc": "Emacs 内建包管理器 package.el 的软件源",
+    "type": "lang"
+  },
+  "epel": {
+    "name": "EPEL",
+    "desc": "企业版 Linux 附加软件包",
+    "type": "none"
+  },
+  "espressif": {
+    "name": "Espressif",
+    "desc": "乐鑫 ESP-IDF 开发框架镜像",
+    "type": "tool",
+    "gitRepo": true
+  },
+  "fedora": {
+    "name": "Fedora",
+    "desc": "Fedora Linux 的安装镜像和官方软件包仓库",
+    "type": "os"
+  },
+  "freebsd-pkg": {
+    "name": "FreeBSD Pkg",
+    "desc": "FreeBSD 软件包仓库",
+    "type": "os",
+    "upstream": "https://pkg.freebsd.org/",
+    "storageType": "cache"
+  },
+  "gentoo-portage": {
+    "name": "Gentoo Portage",
+    "desc": "Gentoo Linux 的 Portage 包管理器镜像源（HTTP / rsync 访问）",
+    "type": "os"
+  },
+  "gentoo-portage.git": {
+    "name": "Gentoo Portage Git",
+    "desc": "Gentoo Linux 的 Portage 包管理器镜像源（Git 访问）",
+    "type": "os",
+    "gitRepo": true
+  },
+  "gentoo-zh": {
+    "name": "Gentoo CN",
+    "desc": "Gentoo 中文社区软件包仓库",
+    "type": "none"
+  },
+  "gentoo-zh.git": {
+    "name": "Gentoo CN Git",
+    "desc": "Gentoo 中文社区 Git 仓库镜像",
+    "type": "none",
+    "gitRepo": true
+  },
+  "github-release": {
+    "name": "GitHub Releases",
+    "desc": "一些项目的 Github Release 镜像",
+    "type": "tool"
+  },
+  "gnu": {
+    "name": "GNU",
+    "desc": "GNU 项目的软件包（源代码、文档和部分平台的二进制文件）",
+    "type": "none"
+  },
+  "hackage": {
+    "name": "Hackage",
+    "desc": "Haskell 社区的中心软件包仓库",
+    "type": "lang"
+  },
+  "homebrew": {
+    "name": "Homebrew",
+    "desc": "Homebrew/Linuxbrew 的 taps（软件包描述文件 Git 仓库）",
+    "type": "tool",
+    "gitRepo": true
+  },
+  "homebrew-bottles": {
+    "name": "Homebrew Bottles",
+    "desc": "预编译的 Homebrew 软件包",
+    "type": "tool"
+  },
+  "kali": {
+    "name": "Kali Linux",
+    "desc": "Kali Linux 的官方软件包仓库",
+    "type": "os"
+  },
+  "kali-images": {
+    "name": "Kali Images",
+    "desc": "Kali Linux 的安装镜像",
+    "type": "os"
+  },
+  "kicad": {
+    "name": "KiCad",
+    "desc": "开源的电路原理图与 PCB 设计工具",
+    "type": "tool"
+  },
+  "linux-stable.git": {
+    "name": "Linux Stable Git",
+    "desc": "Linux 内核源代码的 Git 仓库, 稳定版分支",
+    "type": "none",
+    "gitRepo": true
+  },
+  "linux.git": {
+    "name": "Linux Kernel Git",
+    "desc": "Linux 内核源代码的 Git 仓库",
+    "type": "none",
+    "gitRepo": true
+  },
+  "linuxmint": {
+    "name": "Linux Mint",
+    "desc": "Linux Mint 的官方软件源",
+    "type": "os"
+  },
+  "manjaro": {
+    "name": "Manjaro",
+    "desc": "Manjaro Linux 的官方软件源",
+    "type": "os"
+  },
+  "msys2": {
+    "name": "MSYS2",
+    "desc": "Windows 下的软件发行与构建平台，提供 MinGW-w64 工具链和包管理器 pacman",
+    "type": "tool"
+  },
+  "openjdk": {
+    "name": "OpenJDK",
+    "desc": "OpenJDK 软件包镜像",
+    "type": "tool"
+  },
+  "opensuse": {
+    "name": "openSUSE",
+    "desc": "openSUSE 的安装镜像和官方软件包仓库",
+    "type": "os",
+    "popular": true
+  },
+  "opensuse-leap": {
+    "name": "openSUSE Leap",
+    "desc": "openSUSE Leap 稳定发行版软件仓库",
+    "type": "os"
+  },
+  "opensuse-tumbleweed": {
+    "name": "openSUSE Tumbleweed",
+    "desc": "openSUSE Tumbleweed 滚动发行版软件仓库",
+    "type": "os"
+  },
+  "proxmox": {
+    "name": "Proxmox",
+    "desc": "服务器虚拟化环境 Linux 发行版 Proxmox VE",
+    "type": "os"
+  },
+  "python": {
+    "name": "Python",
+    "desc": "Python 官方软件包镜像",
+    "type": "lang"
+  },
+  "radxa-deb": {
+    "name": "Radxa Deb",
+    "desc": "Radxa 开发板 Debian 软件包仓库",
+    "type": "os"
+  },
+  "raspbian": {
+    "name": "Raspbian",
+    "desc": "为树莓派编译的 Debian 系统软件源",
+    "type": "os"
+  },
+  "rockylinux": {
+    "name": "Rocky Linux",
+    "desc": "Rocky Linux 软件包镜像",
+    "type": "os",
+    "popular": true
+  },
+  "ros": {
+    "name": "ROS",
+    "desc": "ROS 提供一系列程序库和工具以帮助软件开发者创建机器人应用软件",
+    "type": "tool"
+  },
+  "ros2": {
+    "name": "ROS2",
+    "desc": "ROS (Robot Operating System) 2.0 版本",
+    "type": "tool"
+  },
+  "ubuntu": {
+    "name": "Ubuntu",
+    "desc": "流行的 Linux 发行版 Ubuntu 的安装镜像和官方软件包仓库",
+    "type": "os",
+    "popular": true
+  },
+  "ubuntu-releases": {
+    "name": "Ubuntu Releases",
+    "desc": "包含近几年发行的 Ubuntu 的镜像",
+    "type": "os"
+  },
+  "videolan-ftp": {
+    "name": "VideoLAN FTP",
+    "desc": "简称VLC，是一款自由、开源的跨平台多媒体播放器及框架，可播放大多数多媒体文件",
+    "type": "tool"
+  },
+  "zerotier": {
+    "name": "ZeroTier 下载镜像",
+    "desc": "ZeroTier 下载镜像",
+    "type": "tool"
+  },
+  "anaconda": {
+    "name": "Anaconda",
+    "desc": "Anaconda 与 Conda 软件包仓库",
+    "type": "lang",
+    "upstream": "https://mirrors.tuna.tsinghua.edu.cn/anaconda/",
+    "storageType": "campusProxy"
+  },
+  "centos-vault": {
+    "name": "CentOS Vault",
+    "desc": "CentOS 历史版本软件包仓库",
+    "type": "os",
+    "upstream": "https://mirrors.cqupt.edu.cn/centos-vault/",
+    "storageType": "campusProxy"
+  },
+  "centos-stream": {
+    "name": "CentOS Stream",
+    "desc": "CentOS Stream 软件包仓库",
+    "type": "os",
+    "upstream": "https://mirrors.cqupt.edu.cn/centos-stream/",
+    "storageType": "campusProxy"
+  },
+  "ceph": {
+    "name": "Ceph",
+    "desc": "Ceph 分布式存储软件包仓库",
+    "type": "tool",
+    "upstream": "https://mirrors.ustc.edu.cn/ceph/",
+    "storageType": "campusProxy"
+  },
+  "dart-pub": {
+    "name": "Dart Pub",
+    "desc": "Dart 与 Flutter 软件包仓库",
+    "type": "lang",
+    "upstream": "https://mirror.nju.edu.cn/dart-pub/",
+    "storageType": "campusProxy"
+  },
+  "eclipse": {
+    "name": "Eclipse",
+    "desc": "Eclipse 软件与更新站点仓库",
+    "type": "tool",
+    "upstream": "https://mirror.nju.edu.cn/eclipse/",
+    "storageType": "campusProxy"
+  },
+  "flutter": {
+    "name": "Flutter",
+    "desc": "Flutter SDK 与相关资源仓库",
+    "type": "tool",
+    "upstream": "https://mirror.nju.edu.cn/flutter/",
+    "storageType": "campusProxy"
+  },
+  "gradle": {
+    "name": "Gradle",
+    "desc": "Gradle 构建工具发行包仓库",
+    "type": "tool",
+    "upstream": "https://mirror.nju.edu.cn/gradle/",
+    "storageType": "campusProxy"
+  },
+  "julia": {
+    "name": "Julia",
+    "desc": "Julia 编程语言发行包与软件包仓库",
+    "type": "lang",
+    "upstream": "https://mirror.nju.edu.cn/julia/",
+    "storageType": "campusProxy"
+  },
+  "mariadb": {
+    "name": "MariaDB",
+    "desc": "MariaDB 数据库软件包仓库",
+    "type": "tool",
+    "upstream": "https://mariadb.org/",
+    "storageType": "cache"
+  },
+  "maven": {
+    "name": "Maven Central 中心仓库",
+    "desc": "Java开发依赖管理工具 Maven 的中央仓库",
+    "type": "lang",
+    "upstream": "https://repo.maven.apache.org/maven2/",
+    "storageType": "cache"
+  },
+  "mxlinux": {
+    "name": "MX Linux",
+    "desc": "MX Linux 软件包仓库",
+    "type": "os",
+    "upstream": "https://mirror.sjtu.edu.cn/mx-packages/",
+    "storageType": "campusProxy"
+  },
+  "npm": {
+    "name": "npm",
+    "desc": "npm JavaScript 软件包仓库",
+    "type": "lang",
+    "upstream": "https://registry.npmjs.org/",
+    "storageType": "cache"
+  },
+  "openkylin-cdimage": {
+    "name": "openKylin CD Image",
+    "desc": "openKylin 系统安装镜像仓库",
+    "type": "os",
+    "upstream": "https://mirror.nju.edu.cn/openkylin-cdimage/",
+    "storageType": "campusProxy"
+  },
+  "openkylin": {
+    "name": "openKylin",
+    "desc": "openKylin 软件包仓库",
+    "type": "os",
+    "upstream": "https://mirror.nju.edu.cn/openkylin/",
+    "storageType": "campusProxy"
+  },
+  "openwrt": {
+    "name": "OpenWrt",
+    "desc": "OpenWrt 系统镜像与软件包仓库",
+    "type": "os",
+    "upstream": "https://downloads.openwrt.org/",
+    "storageType": "cache"
+  },
+  "packman": {
+    "name": "Packman",
+    "desc": "面向 openSUSE 的 Packman 第三方软件包仓库",
+    "type": "os",
+    "upstream": "https://ftp.fau.de/packman/",
+    "storageType": "cache"
+  },
+  "pks": {
+    "name": "OpenPGP Keyserver",
+    "desc": "Ubuntu OpenPGP 公钥服务器代理",
+    "type": "tool",
+    "upstream": "https://keyserver.ubuntu.com/pks/",
+    "storageType": "campusOnly"
+  },
+  "pypi": {
+    "name": "PyPI",
+    "desc": "Python 软件包索引仓库",
+    "type": "lang",
+    "upstream": "https://mirrors.tuna.tsinghua.edu.cn/pypi/",
+    "storageType": "campusProxy"
+  },
+  "qt": {
+    "name": "Qt 仓库",
+    "desc": "Qt 软件开发工具包镜像",
+    "type": "tool",
+    "upstream": "https://mirror.nju.edu.cn/qt/",
+    "storageType": "campusProxy"
+  },
+  "remi": {
+    "name": "Remi Repository",
+    "desc": "适用于 Enterprise Linux 的 Remi RPM 软件包仓库",
+    "type": "os",
+    "upstream": "https://rpms.remirepo.net/enterprise/",
+    "storageType": "cache"
+  }
+}

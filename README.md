@@ -48,8 +48,8 @@
 ```
 mirror-frontend-new/
 ├── content/                    ← Git 子模块（cqumirror/mirror-document-new）
-│   ├── docs/mdx/{zh,en}/*.mdx   帮助文档
-│   └── news/mdx/{zh,en}/*.mdx   新闻文章
+│   ├── docs/*.mdx               帮助文档与许可证声明
+│   └── news/mdx/*.mdx           新闻文章
 ├── src/
 │   ├── docs/index.ts           ← import.meta.glob 加载 content/docs/
 │   ├── news/index.ts           ← import.meta.glob 加载 content/news/
@@ -101,13 +101,28 @@ git commit -m "chore: update content submodule"
 git push
 ```
 
+## MirrorZ 帮助文档（mirrorz-docs/）
+
+[mirrorz-org/mirrorz-docs](https://github.com/mirrorz-org/mirrorz-docs) 以根目录 Git 子模块接入。`npm run dev` 和 `npm run build` 会先运行 `npm run docs:sync`，由 Node 脚本读取中文 YAML/Markdown、使用默认选项渲染模板，并输出到被忽略的 `.generated/mirrorz-docs/`。
+
+- 浏览器只加载 Vite 编译后的文档组件，不解析 YAML 或 Mustache。
+- `content/docs/*.mdx` 中的本地文档优先；MirrorZ 只补充本站缺失的文档。
+- 站点地址、仓库别名和特殊路径在 `mirrorz-docs.config.json` 配置。
+- 更新上游文档后运行 `git submodule update --remote mirrorz-docs`，再提交新的子模块指针。
+
+仅重新生成文档：
+
+```bash
+npm run docs:sync
+```
+
 ### 添加帮助文档
 
-在 mirror-document-new 仓库中，于 `docs/mdx/zh/` 和 `docs/mdx/en/` 下新建 `your-mirror.mdx`。
+在 mirror-document-new 仓库的 `docs/` 下新建 `your-mirror.mdx`。许可证也在同一文件内通过 `LicenseGrid` 声明。
 
 ### 添加新闻
 
-在 mirror-document-new 仓库中，于 `news/mdx/zh/` 和 `news/mdx/en/` 下新建 `YYYY-MM-DD-slug.mdx`，需导出 `meta` 对象：
+在 mirror-document-new 仓库的 `news/mdx/` 下新建 `YYYY-MM-DD-slug.mdx`，需导出 `meta` 对象：
 
 ```tsx
 export const meta = {
@@ -155,13 +170,15 @@ npm run test          # Vitest 单元测试
 
 ```
 GET /static/tunasync.json  → 同步状态
-GET /data/local_data.json  → 镜像名称/描述/文件列表（静态）
+GET /static/local_data.json  → 镜像名称/描述/文件列表（静态）
 GET /static/isoinfo.json   → ISO 文件列表（运行时合并）
        ↓
 transformOldJobs()         → 合并为 Mirror[]
        ↓
 React Query 缓存 (60s)    → 组件消费
 ```
+
+`tunasync.json`、`isoinfo.json`、`release-manifest.json` 和 `/api/getip` 可保留在 `public/` 供本地开发使用，但生产构建会将它们从 `dist/` 排除。
 
 ---
 

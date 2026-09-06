@@ -39,7 +39,7 @@ function parseNewsMeta(filePath) {
 }
 
 function generateRss() {
-  const newsDir = resolve(__dirname, '..', 'content', 'news', 'mdx', 'zh');
+  const newsDir = resolve(__dirname, '..', 'content', 'news', 'mdx');
   if (!existsSync(newsDir)) {
     console.warn('[rss] news directory not found, skipping');
     return;

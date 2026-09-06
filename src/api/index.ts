@@ -3,14 +3,15 @@
 //
 // 数据流：
 //   GET /static/tunasync.json       → OldTunasyncJob[]（旧后端静态 JSON）
-//   GET /data/local_data.json       → LocalMeta（本地补充元数据，随前端构建发布）
+//   GET /static/local_data.json       → LocalMeta（本地补充元数据，随前端构建发布）
 //   transformOldJobs()              → Mirror[]（前端完成格式转换）
 //   GET /api/getip                  → { is_cqu: 1|0 } 校园网检测
 
-import type { Mirror, CampusNetworkStatus } from '../types';
-
-import { fetchOldTunasyncData, transformOldJobs } from './oldBackendAdapter';
-import type { LocalMeta } from './transform';
+import { fetchIsoInfoData } from '@/api/isoInfo';
+import type { IsoInfoEntry } from '@/api/isoInfo';
+import type { LocalMeta } from '@/api/tunasync.ts';
+import { transformJobs, fetchTunasyncData } from '@/api/tunasync.ts';
+import type { Mirror, CampusNetworkStatus } from '@/types';
 
 // ── 本地元数据缓存（只需加载一次）────────────────────────────────────────────
 // 缓存 Promise 本身而非结果，避免并发请求时重复发起网络请求（竞态）
@@ -31,7 +32,7 @@ function inferMirrorIdFromUrl(url: string): string | null {
  */
 function mergeIsoInfo(
   base: Record<string, LocalMeta>,
-  isoData: Array<{ category: string; distro: string; urls: Array<{ name: string; url: string }> }>
+  isoData: IsoInfoEntry[]
 ): Record<string, LocalMeta> {
   const result = { ...base };
 
@@ -45,15 +46,16 @@ function mergeIsoInfo(
     if (result[mirrorId]) {
       // 已有元数据：github-release 追加 files（多个项目合并），其他替换
       const prev = result[mirrorId];
-      const merged = mirrorId === 'github-release'
-        ? { ...prev, files: [...(prev.files ?? []), ...files] }
-        : { ...prev, files };
+      const merged =
+        mirrorId === 'github-release'
+          ? { ...prev, files: [...(prev.files ?? []), ...files] }
+          : { ...prev, files };
       result[mirrorId] = merged;
     } else {
       // 没有元数据，创建基本条目
       result[mirrorId] = {
-        name: { zh: entry.distro, en: entry.distro },
-        desc: { zh: '', en: '' },
+        name: entry.distro,
+        desc: '',
         type: entry.category,
         files,
       };
@@ -65,13 +67,13 @@ function mergeIsoInfo(
 
 /**
  * 失败时回到空对象作为兜底，但**保留** Promise 拒绝信息给上层 logger
- * 同时拉取 /data/local_data.json（描述/类型/helpUrl）和 isoinfo.json（文件列表），合并输出
+ * 同时拉取 /static/local_data.json（描述/类型/helpUrl）和 isoinfo.json（文件列表），合并输出
  */
 function getLocalData(): Promise<Record<string, LocalMeta>> {
   if (_localDataPromise) return _localDataPromise;
 
   _localDataPromise = Promise.all([
-    fetch('/data/local_data.json', { cache: 'no-cache' })
+    fetch('/static/local_data.json', { cache: 'no-cache' })
       .then(async (res) => {
         if (!res.ok) throw new Error(`local_data.json HTTP ${res.status}`);
         const json = (await res.json()) as unknown;
@@ -81,20 +83,14 @@ function getLocalData(): Promise<Record<string, LocalMeta>> {
         return json as Record<string, LocalMeta>;
       })
       .catch((e) => {
-        if (import.meta.env.DEV) console.warn('[API] local_data.json 加载失败，镜像名称/描述将退回到默认值。', e);
+        if (import.meta.env.DEV)
+          console.warn('[API] local_data.json 加载失败，镜像名称/描述将退回到默认值。', e);
         return {} as Record<string, LocalMeta>;
       }),
-    fetch(`${import.meta.env.VITE_API_BASE ?? ''}/static/isoinfo.json`, { cache: 'no-cache' })
-      .then(async (res) => {
-        if (!res.ok) throw new Error(`isoinfo.json HTTP ${res.status}`);
-        const json = (await res.json()) as unknown;
-        if (!Array.isArray(json)) throw new Error('isoinfo.json: expected array');
-        return json as Array<{ category: string; distro: string; urls: Array<{ name: string; url: string }> }>;
-      })
-      .catch((e) => {
-        if (import.meta.env.DEV) console.warn('[API] isoinfo.json 加载失败，文件列表将不可用。', e);
-        return [];
-      }),
+    fetchIsoInfoData().catch((e) => {
+      if (import.meta.env.DEV) console.warn('[API] isoinfo.json 加载失败，文件列表将不可用。', e);
+      return [];
+    }),
   ]).then(([base, isoData]) => mergeIsoInfo(base, isoData));
 
   return _localDataPromise;
@@ -104,14 +100,11 @@ function getLocalData(): Promise<Record<string, LocalMeta>> {
 
 /**
  * 获取所有镜像列表
- * 从旧后端 /static/tunasync.json 获取同步状态，与本地 local_data.json 合并
+ * 从后端 /static/tunasync.json 获取同步状态，与本地 local_data.json 合并
  */
 export const fetchMirrors = async (): Promise<Mirror[]> => {
-  const [jobs, localData] = await Promise.all([
-    fetchOldTunasyncData(),
-    getLocalData(),
-  ]);
-  return transformOldJobs(jobs, localData);
+  const [jobs, localData] = await Promise.all([fetchTunasyncData(), getLocalData()]);
+  return transformJobs(jobs, localData);
 };
 
 /**
@@ -127,7 +120,7 @@ export const fetchMirrorByName = async (name: string): Promise<Mirror> => {
 /**
  * 判断客户端网络类型
  * GET /api/getip → { is_cqu: 1|0, remote_addr: "..." }
- * status: is_cqu=1 → "1" | 非校内且纯 IPv6 → "6" | 其他 → "0"
+ * status: is_cqu=1 → true | 非校内且纯 IPv6 → false | 其他 → false
  * ipv6: 纯 IPv6 地址（排除 "::ffff:" 前缀的 IPv4-mapped）
  */
 export const fetchCampusNetworkStatus = async (): Promise<CampusNetworkStatus> => {
@@ -137,7 +130,7 @@ export const fetchCampusNetworkStatus = async (): Promise<CampusNetworkStatus> =
   const json = (await res.json()) as { is_cqu?: number | string; remote_addr?: string };
   const addr = json.remote_addr ?? '';
   const ipv6 = addr.includes(':') && !addr.startsWith('::ffff:');
-  const status: CampusNetworkStatus['status'] = Number(json.is_cqu) === 1 ? '1' : ipv6 ? '6' : '0';
+  const status = Number(json.is_cqu) === 1;
 
   // 将 IP 写入 cookie，供目录浏览等请求通过 JS 质询
   if (addr) {

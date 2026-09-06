@@ -3,14 +3,20 @@
 
 import { KeyboardArrowUp as ArrowUpIcon } from '@mui/icons-material';
 import { Fab, Zoom, Tooltip } from '@mui/material';
-import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 
 const SCROLL_THRESHOLD = 400;
 
 const ScrollToTop: React.FC = () => {
-  const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
+  const { pathname } = useLocation();
+
+  // SPA 路由不会触发浏览器的常规页面滚动恢复，切换页面时显式回到顶部。
+  // 只监听 pathname，避免详情页切换 tab/query 时打断用户阅读位置。
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [pathname]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -26,12 +32,12 @@ const ScrollToTop: React.FC = () => {
 
   return (
     <Zoom in={visible}>
-      <Tooltip title={t('nav.backToTop', '回到顶部')} placement="left">
+      <Tooltip title={'回到顶部'} placement="left">
         <Fab
           size="small"
           color="primary"
           onClick={handleClick}
-          aria-label={t('nav.backToTop', '回到顶部')}
+          aria-label={'回到顶部'}
           sx={{
             position: 'fixed',
             bottom: 24,

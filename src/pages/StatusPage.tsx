@@ -33,21 +33,23 @@ import {
   Alert,
 } from '@mui/material';
 import React, { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 
 import RefreshButton from '../components/common/RefreshButton';
 import { useMirrors } from '../hooks/useMirrors';
-import { useLocaleStore } from '../stores/mirrorStore';
 import { canonicalUrl } from '../utils/seo';
 import { formatRelativeTime, formatAbsoluteTime, parseTimestamp } from '../utils/time';
 
 // ── 系统整体健康状态 ──────────────────────────────────────────────────────────
 type HealthLevel = 'operational' | 'degraded' | 'outage';
-
+const healthTypeLevelMap: Record<HealthLevel, string> = {
+  operational: '同步正常',
+  degraded: '部分镜像同步失败',
+  outage: '大量镜像同步失败，服务可能无法使用',
+};
 /**
  * 仅 failed 视为不可用；syncing/cached/succeeded/paused 都对外可访问
- * - cached: 历史快照可正常下载
+ * - cached: 缓存或反向代理仓库可正常访问
  * - syncing: 服务在跑，旧文件依然可访问
  * - paused: 维护中但内容仍在
  */
@@ -157,11 +159,8 @@ const StatCard: React.FC<StatCardProps> = ({ icon, label, value, sub, color }) =
 
 // ── 主页面 ────────────────────────────────────────────────────────────────────
 const StatusPage: React.FC = () => {
-  const { t } = useTranslation();
-  const { locale } = useLocaleStore();
   const navigate = useNavigate();
   const { data: mirrors = [], isLoading, isFetching, error, refetch, dataUpdatedAt } = useMirrors();
-
 
   // ── 聚合统计 ──────────────────────────────────────────────────────────────
   const stats = useMemo(() => {
@@ -257,7 +256,7 @@ const StatusPage: React.FC = () => {
   // ── 渲染 ──────────────────────────────────────────────────────────────────
   return (
     <>
-      <title>{`${t('status.title')} - 重庆大学开源软件镜像站 CQU Mirror`}</title>
+      <title>{`系统状态 - 重庆大学开源软件镜像站 CQU Mirror`}</title>
       <meta
         name="description"
         content="重庆大学开源软件镜像站实时同步状态监控，查看各镜像源的同步健康情况、成功率和服务器指标。"
@@ -272,7 +271,7 @@ const StatusPage: React.FC = () => {
             size="small"
             sx={{ color: 'text.secondary' }}
           >
-            {t('common.backToHome')}
+            {'返回首页'}
           </Button>
           <Typography
             sx={{
@@ -288,7 +287,7 @@ const StatusPage: React.FC = () => {
               color: 'text.secondary',
             }}
           >
-            {t('status.title')}
+            {'系统状态'}
           </Typography>
           <Box sx={{ flex: 1 }} />
           <RefreshButton onClick={() => refetch()} />
@@ -318,7 +317,7 @@ const StatusPage: React.FC = () => {
             <Skeleton variant="rectangular" height={88} sx={{ borderRadius: 3, mb: 4 }} />
           ) : error ? (
             <Alert severity="error" sx={{ mb: 4, borderRadius: 2 }}>
-              {t('error.loadFailed')}
+              {'加载失败'}
             </Alert>
           ) : (
             <Paper
@@ -346,7 +345,7 @@ const StatusPage: React.FC = () => {
                     fontWeight: 800,
                   }}
                 >
-                  {t(`status.${health}`)}
+                  {healthTypeLevelMap[health]}
                 </Typography>
                 <Typography
                   variant="caption"
@@ -354,13 +353,11 @@ const StatusPage: React.FC = () => {
                     color: 'text.secondary',
                   }}
                 >
-                  {t('status.lastChecked', {
-                    time: lastChecked ? formatAbsoluteTime(lastChecked.getTime(), locale) : '-',
-                  })}
+                  {`最后检查：${lastChecked ? formatAbsoluteTime(lastChecked.getTime()) : '-'}`}
                 </Typography>
               </Box>
               <Chip
-                label={`${stats.successRate}% ${t('status.availableLabel')}`}
+                label={`${stats.successRate}% 可用`}
                 color={healthCfg.color}
                 variant="filled"
                 sx={{ fontWeight: 700, fontSize: '0.85rem' }}
@@ -381,7 +378,7 @@ const StatusPage: React.FC = () => {
                 <Grid size={{ xs: 6, sm: 4, md: 2 }}>
                   <StatCard
                     icon={<StorageIcon />}
-                    label={t('status.totalMirrors')}
+                    label={'镜像总数'}
                     value={stats.total}
                     color="primary.main"
                   />
@@ -389,7 +386,7 @@ const StatusPage: React.FC = () => {
                 <Grid size={{ xs: 6, sm: 4, md: 2 }}>
                   <StatCard
                     icon={<OkIcon />}
-                    label={t('status.succeeded')}
+                    label={'同步成功'}
                     value={stats.succeeded}
                     sub={`${stats.successRate}%`}
                     color="success.main"
@@ -398,7 +395,7 @@ const StatusPage: React.FC = () => {
                 <Grid size={{ xs: 6, sm: 4, md: 2 }}>
                   <StatCard
                     icon={<ErrorIcon />}
-                    label={t('status.failed')}
+                    label={'同步失败'}
                     value={stats.failed}
                     color={stats.failed > 0 ? 'error.main' : 'text.disabled'}
                   />
@@ -406,7 +403,7 @@ const StatusPage: React.FC = () => {
                 <Grid size={{ xs: 6, sm: 4, md: 2 }}>
                   <StatCard
                     icon={<SyncIcon />}
-                    label={t('status.syncing')}
+                    label={'同步中'}
                     value={stats.syncing}
                     color="info.main"
                   />
@@ -414,7 +411,7 @@ const StatusPage: React.FC = () => {
                 <Grid size={{ xs: 6, sm: 4, md: 2 }}>
                   <StatCard
                     icon={<SpeedIcon />}
-                    label={t('status.syncedToday')}
+                    label={'今日同步'}
                     value={stats.syncedToday}
                     color="primary.main"
                   />
@@ -422,7 +419,7 @@ const StatusPage: React.FC = () => {
                 <Grid size={{ xs: 6, sm: 4, md: 2 }}>
                   <StatCard
                     icon={<StorageIcon />}
-                    label={t('status.totalStorage')}
+                    label={'存储总量'}
                     value={stats.totalBytes > 0 ? formatBytes(stats.totalBytes) : '-'}
                     color="text.secondary"
                   />
@@ -441,7 +438,7 @@ const StatusPage: React.FC = () => {
                     fontWeight: 600,
                   }}
                 >
-                  {t('status.availability')}
+                  {'镜像可用率'}
                 </Typography>
                 <Typography
                   variant="body2"
@@ -465,18 +462,18 @@ const StatusPage: React.FC = () => {
                 {(
                   [
                     {
-                      label: t('status.legendSucceeded'),
+                      label: '成功',
                       count: stats.succeeded,
                       color: '#22C55E',
                     },
-                    { label: t('status.legendFailed'), count: stats.failed, color: '#EF4444' },
-                    { label: t('status.legendSyncing'), count: stats.syncing, color: '#3B82F6' },
-                    { label: t('status.legendCached'), count: stats.cached, color: '#94A3B8' },
-                    { label: t('status.legendPaused'), count: stats.paused, color: '#F59E0B' },
+                    { label: '失败', count: stats.failed, color: '#EF4444' },
+                    { label: '同步中', count: stats.syncing, color: '#3B82F6' },
+                    { label: '缓存/代理', count: stats.cached, color: '#94A3B8' },
+                    { label: '已暂停', count: stats.paused, color: '#F59E0B' },
                     ...(stats.disabled > 0
                       ? [
                           {
-                            label: t('status.legendDisabled'),
+                            label: '已禁用',
                             count: stats.disabled,
                             color: '#9CA3AF',
                           },
@@ -521,7 +518,7 @@ const StatusPage: React.FC = () => {
                     '@keyframes spin-slow': { to: { transform: 'rotate(360deg)' } },
                   }}
                 />
-                {t('status.syncingMirrors')}
+                {'正在同步的镜像'}
                 <Chip
                   label={stats.syncingList.length}
                   size="small"
@@ -586,7 +583,7 @@ const StatusPage: React.FC = () => {
                             whiteSpace: 'nowrap',
                           }}
                         >
-                          {m.name[locale]}
+                          {m.name}
                         </Typography>
                         <Typography
                           variant="caption"
@@ -620,7 +617,7 @@ const StatusPage: React.FC = () => {
                 }}
               >
                 <ErrorIcon color="error" fontSize="small" />
-                {t('status.failedMirrors')}
+                {'同步失败的镜像'}
                 <Chip
                   label={stats.failedList.length}
                   size="small"
@@ -632,16 +629,16 @@ const StatusPage: React.FC = () => {
                 <Table size="small">
                   <TableHead>
                     <TableRow sx={{ bgcolor: 'action.hover' }}>
-                      <TableCell sx={{ fontWeight: 700 }}>{t('status.colMirror')}</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>{'镜像名称'}</TableCell>
                       <TableCell
                         sx={{ fontWeight: 700, display: { xs: 'none', sm: 'table-cell' } }}
                       >
-                        {t('status.colLastSuccess')}
+                        {'上次成功'}
                       </TableCell>
                       <TableCell
                         sx={{ fontWeight: 700, display: { xs: 'none', md: 'table-cell' } }}
                       >
-                        {t('status.colUpstream')}
+                        {'上游源'}
                       </TableCell>
                     </TableRow>
                   </TableHead>
@@ -657,7 +654,7 @@ const StatusPage: React.FC = () => {
                                 fontWeight: 600,
                               }}
                             >
-                              {m.name[locale]}
+                              {m.name}
                             </Typography>
                             <Typography
                               variant="caption"
@@ -677,7 +674,7 @@ const StatusPage: React.FC = () => {
                               color: 'text.secondary',
                             }}
                           >
-                            {formatRelativeTime(m.lastSuccess, locale)}
+                            {formatRelativeTime(m.lastSuccess)}
                           </Typography>
                         </TableCell>
                         <TableCell
@@ -704,7 +701,6 @@ const StatusPage: React.FC = () => {
                   </TableBody>
                 </Table>
               </TableContainer>
-
             </Box>
           )}
 
@@ -723,7 +719,7 @@ const StatusPage: React.FC = () => {
                 }}
               >
                 <OkIcon color="success" fontSize="small" />
-                {t('status.recentSynced')}
+                {'最近同步'}
               </Typography>
               {isLoading ? (
                 [...Array(5)].map((_, i) => (
@@ -744,7 +740,7 @@ const StatusPage: React.FC = () => {
                           color: 'text.secondary',
                         }}
                       >
-                        {t('status.noData')}
+                        {'暂无数据'}
                       </Typography>
                     </Box>
                   ) : (
@@ -775,7 +771,7 @@ const StatusPage: React.FC = () => {
                               minWidth: 0,
                             }}
                           >
-                            {m.name[locale]}
+                            {m.name}
                           </Typography>
                           <Typography
                             variant="caption"
@@ -784,7 +780,7 @@ const StatusPage: React.FC = () => {
                               flexShrink: 0,
                             }}
                           >
-                            {formatRelativeTime(m.lastUpdated, locale)}
+                            {formatRelativeTime(m.lastUpdated)}
                           </Typography>
                         </Box>
                         {idx < stats.recentlySynced.length - 1 && <Divider />}
@@ -808,7 +804,7 @@ const StatusPage: React.FC = () => {
                 }}
               >
                 <ScheduleIcon color="info" fontSize="small" />
-                {t('status.upcomingSyncs')}
+                {'即将同步'}
               </Typography>
               {isLoading ? (
                 [...Array(5)].map((_, i) => (
@@ -829,7 +825,7 @@ const StatusPage: React.FC = () => {
                           color: 'text.secondary',
                         }}
                       >
-                        {t('status.noUpcoming')}
+                        {'暂无待同步任务'}
                       </Typography>
                     </Box>
                   ) : (
@@ -860,7 +856,7 @@ const StatusPage: React.FC = () => {
                               minWidth: 0,
                             }}
                           >
-                            {m.name[locale]}
+                            {m.name}
                           </Typography>
                           <Typography
                             variant="caption"
@@ -869,7 +865,7 @@ const StatusPage: React.FC = () => {
                               flexShrink: 0,
                             }}
                           >
-                            {formatRelativeTime(m.nextScheduled, locale)}
+                            {formatRelativeTime(m.nextScheduled)}
                           </Typography>
                         </Box>
                         {idx < stats.upcoming.length - 1 && <Divider />}
@@ -880,11 +876,9 @@ const StatusPage: React.FC = () => {
               )}
             </Grid>
           </Grid>
-
         </Box>
         {/* end opacity wrapper */}
       </Container>
-
     </>
   );
 };

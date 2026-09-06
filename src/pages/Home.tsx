@@ -3,10 +3,11 @@
 
 import {
   Wifi as WifiIcon,
-  WifiTethering as Ipv6Icon,
   Star as StarIcon,
-  Code as CodeIcon,
+  ArrowForward as ArrowForwardIcon,
   Download as DownloadIcon,
+  GitHub as GitHubIcon,
+  Sync as SyncIcon,
 } from '@mui/icons-material';
 import {
   Box,
@@ -14,24 +15,26 @@ import {
   Typography,
   Grid,
   Button,
+  ButtonBase,
   Chip,
   Skeleton,
   Paper,
   Tooltip,
   LinearProgress,
 } from '@mui/material';
+import type { SxProps, Theme } from '@mui/material';
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
+import { usePopularRelease, useRelease } from '@/hooks/useRelease.ts';
 import { getNewsList } from '@/news';
+import type { Mirror } from '@/types';
 import { SITE_ORIGIN, SITE_TITLE_ZH, KEYWORDS_ZH, DESC_ZH, canonicalUrl } from '@/utils/seo';
 
 import RefreshButton from '../components/common/RefreshButton';
 import AnnouncementBanner from '../components/home/AnnouncementBanner';
 import NewsWidget from '../components/home/NewsWidget';
-import DownloadModal from '../components/mirrors/DownloadModal';
-import MirrorCard from '../components/mirrors/MirrorCard';
+import ItemCard from '../components/items/ItemCard.tsx';
 import MirrorList from '../components/mirrors/MirrorList';
 import {
   useMirrors,
@@ -41,9 +44,11 @@ import {
   usePopularMirrors,
   sortedGroupKeys,
 } from '../hooks/useMirrors';
-import { useMirrorSearchStore, useFavoriteStore } from '../stores/mirrorStore';
-import type { Mirror } from '../types';
-
+import {
+  useDownloadModalStore,
+  useFavoriteStore,
+  useMirrorSearchStore,
+} from '../stores/mirrorStore';
 
 // ── 字母索引导航子组件（roving tabindex）────────────────────────────────────
 // 独立为组件以满足 Rules of Hooks（不能在 IIFE 或回调中调用 Hook）
@@ -132,54 +137,22 @@ const LetterIndexNav: React.FC<LetterIndexNavProps> = ({ letters, ariaLabel }) =
 };
 
 /**
- * DEV-only: 自定义错误码测试 ErrorPage
- */
-const TestErrorPageButton: React.FC = () => {
-  const navigate = useNavigate();
-  const [code, setCode] = useState('404');
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
-      <input
-        value={code}
-        onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 3))}
-        placeholder="404"
-        style={{
-          width: 36,
-          fontSize: '0.7rem',
-          textAlign: 'center',
-          padding: '3px 2px',
-          border: '1px solid #ccc',
-          borderRadius: 4,
-          fontFamily: '"JetBrains Mono", monospace',
-        }}
-      />
-      <Button
-        size="small"
-        variant="outlined"
-        color="warning"
-        onClick={() => navigate(`/${code || 404}`)}
-        sx={{ fontSize: '0.7rem', minWidth: 0, px: 1 }}
-      >
-        Test Page
-      </Button>
-    </Box>
-  );
-};
-
-/**
  * 首页 - 展示镜像站概览
  */
 const Home: React.FC = () => {
-  const { t } = useTranslation();
   const navigate = useNavigate();
-  const [downloadOpen, setDownloadOpen] = useState(false);
-  const [triggerError, setTriggerError] = useState(false);
   const { searchQuery } = useMirrorSearchStore();
-
-  if (triggerError) throw new Error('ErrorBoundary 测试错误');
+  const openDownloadModal = useDownloadModalStore((state) => state.openDownloadModal);
 
   // 获取数据
-  const { data: mirrors = [], isLoading, isFetching, error, refetch } = useMirrors();
+  const {
+    data: mirrors = [],
+    isLoading: isMirrorLoading,
+    isFetching: isMirrorFetching,
+    error: mirrorError,
+    refetch: mirrorRefetch,
+  } = useMirrors();
+  const { data: releases = [] } = useRelease();
   const { data: campusStatus } = useCampusNetwork();
 
   // 测量左侧常用镜像列高度，用于动态适配新闻条数
@@ -199,6 +172,7 @@ const Home: React.FC = () => {
   const filteredMirrors = useFilteredMirrors(mirrors);
   const groupedMirrors = useGroupedMirrors(filteredMirrors);
   const popularMirrors = usePopularMirrors(mirrors, 8);
+  const popularReleases = usePopularRelease(releases, 6);
 
   // 收藏镜像 — 按收藏先后顺序排列（favorites 数组保留了添加时序）
   const { favorites } = useFavoriteStore();
@@ -210,7 +184,34 @@ const Home: React.FC = () => {
   // 新闻列表 —— 同步读取一次（import.meta.glob 静态分析），用 useMemo 防止每次 render 重算
   const newsList = useMemo(() => getNewsList(), []);
   const hasNews = newsList.length > 0;
-  const mirrorCount = hasNews ? 6 : 8;
+  const itemCount = hasNews ? 6 : 8;
+  const heroActionSx: SxProps<Theme> = {
+    borderRadius: 0,
+    minHeight: 50,
+    px: 2.75,
+    fontWeight: 800,
+    color: 'text.primary',
+    bgcolor: (theme) =>
+      theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.62)',
+    backgroundImage: (theme) =>
+      `linear-gradient(135deg, ${
+        theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.09)' : 'rgba(255,255,255,0.72)'
+      }, transparent)`,
+    backdropFilter: 'blur(16px) saturate(145%)',
+    boxShadow: (theme) =>
+      theme.palette.mode === 'dark'
+        ? '0 8px 24px rgba(0,0,0,0.24), inset 0 1px rgba(255,255,255,0.12)'
+        : '0 8px 24px rgba(30,64,175,0.10), inset 0 1px rgba(255,255,255,0.9)',
+    '&:hover': {
+      bgcolor: (theme) =>
+        theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.84)',
+      transform: 'translateY(-2px)',
+      boxShadow: (theme) =>
+        theme.palette.mode === 'dark'
+          ? '0 12px 30px rgba(0,0,0,0.32), inset 0 1px rgba(255,255,255,0.16)'
+          : '0 12px 30px rgba(30,64,175,0.16), inset 0 1px rgba(255,255,255,1)',
+    },
+  };
 
   return (
     <>
@@ -266,34 +267,23 @@ const Home: React.FC = () => {
                   />
                 );
               }
-              const netConfig =
-                campusStatus.status === '1'
-                  ? {
-                      icon: <WifiIcon sx={{ fontSize: 14 }} />,
-                      label: t('network.campusChip'),
-                      color: 'success' as const,
-                      dot: '#22C55E',
-                    }
-                  : campusStatus.status === '6'
-                    ? {
-                        icon: <Ipv6Icon sx={{ fontSize: 14 }} />,
-                        label: 'IPv6',
-                        color: 'info' as const,
-                        dot: '#3B82F6',
-                      }
-                    : {
-                        icon: <WifiIcon sx={{ fontSize: 14 }} />,
-                        label: t('network.externalLabel'),
-                        color: 'default' as const,
-                        dot: '#94A3B8',
-                      };
+              const netConfig = campusStatus.status
+                ? {
+                    icon: <WifiIcon sx={{ fontSize: 14 }} />,
+                    label: '校园网',
+                    color: 'success' as const,
+                    dot: '#22C55E',
+                  }
+                : {
+                    icon: <WifiIcon sx={{ fontSize: 14 }} />,
+                    label: '校外网络',
+                    color: 'default' as const,
+                    dot: '#94A3B8',
+                  };
 
-              const tooltip =
-                campusStatus.status === '1'
-                  ? t('network.campus')
-                  : campusStatus.status === '6'
-                    ? t('network.ipv6')
-                    : t('network.external');
+              const tooltip = campusStatus.status
+                ? '您正在使用校园网，可使用内网镜像源获得更快速度'
+                : '当前为校外网络，部分镜像源可能无法提供';
 
               return (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, mb: 2 }}>
@@ -315,8 +305,9 @@ const Home: React.FC = () => {
                           borderRadius: '50%',
                           bgcolor: netConfig.dot,
                           ml: 0.5,
-                          animation:
-                            campusStatus.status !== '0' ? 'net-pulse 2.4s ease-in-out infinite' : 'none',
+                          animation: campusStatus.status
+                            ? 'net-pulse 2.4s ease-in-out infinite'
+                            : 'none',
                         },
                         '@keyframes net-pulse': {
                           '0%, 100%': { opacity: 1, transform: 'scale(1)' },
@@ -355,46 +346,38 @@ const Home: React.FC = () => {
                   letterSpacing: '-0.03em',
                 }}
               >
-                {t('home.hero.title')}
+                {'重庆大学开源软件镜像站'}
               </Typography>
-              {import.meta.env.DEV && (
-                <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    color="error"
-                    onClick={() => setTriggerError(true)}
-                    sx={{ fontSize: '0.7rem', minWidth: 0, px: 1 }}
-                  >
-                    Test Boundary
-                  </Button>
-                  <TestErrorPageButton />
-                </Box>
-              )}
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                <Tooltip title={t('nav.gitMirrors')} placement="bottom">
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    startIcon={<CodeIcon sx={{ fontSize: 16 }} />}
-                    onClick={() => navigate('/mirrors/git')}
-                    sx={{ borderRadius: 6, fontSize: '0.8rem', px: 1.5, py: 0.4, fontWeight: 600, textTransform: 'none' }}
-                  >
-                    {t('nav.gitMirrors')}
-                  </Button>
-                </Tooltip>
-                <Tooltip title={t('nav.download')} placement="bottom">
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    startIcon={<DownloadIcon sx={{ fontSize: 16 }} />}
-                    onClick={() => setDownloadOpen(true)}
-                    sx={{ borderRadius: 6, fontSize: '0.8rem', px: 1.5, py: 0.4, fontWeight: 600, textTransform: 'none' }}
-                  >
-                    {t('nav.download')}
-                  </Button>
-                </Tooltip>
-              </Box>
+            </Box>
+
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, mb: 2, flexWrap: 'wrap' }}>
+              <Button
+                variant="text"
+                size="large"
+                startIcon={<DownloadIcon />}
+                onClick={openDownloadModal}
+                sx={heroActionSx}
+              >
+                常用下载
+              </Button>
+              <Button
+                variant="text"
+                size="large"
+                startIcon={<GitHubIcon />}
+                onClick={() => navigate('/release')}
+                sx={heroActionSx}
+              >
+                GitHub Release
+              </Button>
+              <Button
+                variant="text"
+                size="large"
+                startIcon={<SyncIcon />}
+                onClick={() => navigate('/status')}
+                sx={heroActionSx}
+              >
+                同步状态
+              </Button>
             </Box>
 
             <Typography
@@ -406,7 +389,7 @@ const Home: React.FC = () => {
                 fontSize: { xs: '1rem', md: '1.25rem' },
               }}
             >
-              {t('home.hero.subtitle')}
+              {'CQU Mirror'}
             </Typography>
 
             <Typography
@@ -418,9 +401,8 @@ const Home: React.FC = () => {
                 maxWidth: 520,
               }}
             >
-              {t('home.hero.description')}
+              {'致力于为国内和校内用户提供高质量的开源软件镜像、Linux 镜像源服务'}
             </Typography>
-
           </Box>
         </Container>
       </Box>
@@ -445,14 +427,18 @@ const Home: React.FC = () => {
                       mb: 3,
                     }}
                   >
-                    {t('home.news')}
+                    {'最新动态'}
                   </Typography>
                   <NewsWidget siblingHeight={leftHeight} />
                 </Grid>
               )}
 
               {/* 常用镜像列 —— 有新闻时桌面 9 列，无新闻时全宽 */}
-              <Grid ref={leftRef} size={{ xs: 12, lg: hasNews ? 9 : 12 }} sx={{ order: { xs: 1, lg: 0 } }}>
+              <Grid
+                ref={leftRef}
+                size={{ xs: 12, lg: hasNews ? 9 : 12 }}
+                sx={{ order: { xs: 1, lg: 0 } }}
+              >
                 <Typography
                   variant="h5"
                   sx={{
@@ -460,11 +446,11 @@ const Home: React.FC = () => {
                     mb: 3,
                   }}
                 >
-                  {t('home.popularMirrors')}
+                  {'常用镜像'}
                 </Typography>
-                {isLoading ? (
+                {isMirrorLoading ? (
                   <Grid container spacing={2}>
-                    {[...Array(mirrorCount)].map((_, i) => (
+                    {[...Array(itemCount)].map((_, i) => (
                       <Grid key={i} size={{ xs: 12, sm: 6, md: hasNews ? 4 : 3 }}>
                         <Skeleton variant="rectangular" height={160} sx={{ borderRadius: 2 }} />
                       </Grid>
@@ -472,13 +458,65 @@ const Home: React.FC = () => {
                   </Grid>
                 ) : (
                   <Grid container spacing={2}>
-                    {popularMirrors.slice(0, mirrorCount).map((mirror) => (
+                    {popularMirrors.slice(0, itemCount).map((mirror) => (
                       <Grid key={mirror.id} size={{ xs: 12, sm: 6, md: hasNews ? 4 : 3 }}>
-                        <MirrorCard mirror={mirror} />
+                        <ItemCard kind="mirror" mirror={mirror} />
                       </Grid>
                     ))}
                   </Grid>
                 )}
+                <Paper variant="outlined" sx={{ mt: 4, borderRadius: 3, overflow: 'hidden' }}>
+                  <ButtonBase
+                    onClick={() => navigate('/release')}
+                    sx={{
+                      width: '100%',
+                      p: { xs: 2.5, sm: 3 },
+                      gap: 2,
+                      justifyContent: 'flex-start',
+                      textAlign: 'left',
+                      '&:hover': { bgcolor: 'action.hover' },
+                    }}
+                    aria-label="查看全部 GitHub Releases"
+                  >
+                    <Box
+                      sx={{
+                        display: 'grid',
+                        placeItems: 'center',
+                        width: 52,
+                        height: 52,
+                        borderRadius: 2,
+                        bgcolor: 'primary.main',
+                        color: 'primary.contrastText',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <GitHubIcon sx={{ fontSize: 30 }} />
+                    </Box>
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Typography variant="h5" sx={{ fontWeight: 750 }}>
+                        GitHub Releases
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                        {releases.length > 0
+                          ? `查看全部 ${releases.length} 个软件发行包与字体镜像`
+                          : '查看全部软件发行包与字体镜像'}
+                      </Typography>
+                    </Box>
+                    <ArrowForwardIcon sx={{ color: 'primary.main', fontSize: 28 }} />
+                  </ButtonBase>
+                  <Box sx={{ borderTop: '1px solid', borderColor: 'divider', p: 2 }}>
+                    <Grid container spacing={2}>
+                      {popularReleases.map((release) => (
+                        <Grid
+                          key={`${release.org}/${release.repo}`}
+                          size={{ xs: 12, sm: 6, md: 4 }}
+                        >
+                          <ItemCard kind="release" release={release} />
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </Box>
+                </Paper>
               </Grid>
             </Grid>
           </Box>
@@ -495,7 +533,7 @@ const Home: React.FC = () => {
                   fontWeight: 700,
                 }}
               >
-                {t('favorites.title')}
+                {'我的收藏'}
               </Typography>
               <Chip
                 label={favoriteMirrors.length}
@@ -508,7 +546,7 @@ const Home: React.FC = () => {
             <Grid container spacing={2}>
               {favoriteMirrors.map((mirror) => (
                 <Grid key={mirror.id} size={{ xs: 12, sm: 6, md: 3 }}>
-                  <MirrorCard mirror={mirror} />
+                  <ItemCard kind="mirror" mirror={mirror} />
                 </Grid>
               ))}
             </Grid>
@@ -533,13 +571,11 @@ const Home: React.FC = () => {
                 fontWeight: 700,
               }}
             >
-              {searchQuery
-                ? t('search.results', { count: filteredMirrors.length })
-                : t('home.allMirrors')}
+              {searchQuery ? `找到 ${filteredMirrors.length} 个镜像` : '所有镜像'}
             </Typography>
 
             {/* 刷新按钮 */}
-            <RefreshButton onClick={() => refetch()} />
+            <RefreshButton onClick={() => mirrorRefetch()} />
           </Box>
 
           {/* 刷新进度条——仅在后台 refetch 时（非首次加载）显示 */}
@@ -548,48 +584,44 @@ const Home: React.FC = () => {
               mb: 1.5,
               borderRadius: 1,
               height: 3,
-              opacity: isFetching && !isLoading ? 1 : 0,
+              opacity: isMirrorFetching && !isMirrorLoading ? 1 : 0,
               transition: 'opacity 0.3s',
             }}
           />
 
           {/* 加载失败 */}
-          {error && (
+          {mirrorError && (
             <Paper variant="outlined" sx={{ p: 3, textAlign: 'center', borderRadius: 2, mb: 3 }}>
               <Typography color="error" gutterBottom>
-                {t('error.loadFailed')}
+                {'加载失败'}
               </Typography>
-              <Button variant="contained" size="small" onClick={() => refetch()}>
-                {t('error.retry')}
+              <Button variant="contained" size="small" onClick={() => mirrorRefetch()}>
+                {'重试'}
               </Button>
             </Paper>
           )}
 
           {/* 字母分组索引导航 — roving tabindex：整体一个 Tab 停，方向键在字母间移动 */}
-          {!isLoading && Object.keys(groupedMirrors).length > 0 && (
-            <LetterIndexNav
-              letters={sortedGroupKeys(groupedMirrors)}
-              ariaLabel={t('home.letterIndex')}
-            />
+          {!isMirrorLoading && Object.keys(groupedMirrors).length > 0 && (
+            <LetterIndexNav letters={sortedGroupKeys(groupedMirrors)} ariaLabel={'按字母跳转'} />
           )}
 
           {/* 镜像列表 */}
           <Box
             sx={{
-              opacity: isFetching && !isLoading ? 0.55 : 1,
-              pointerEvents: isFetching && !isLoading ? 'none' : 'auto',
+              opacity: isMirrorFetching && !isMirrorLoading ? 0.55 : 1,
+              pointerEvents: isMirrorFetching && !isMirrorLoading ? 'none' : 'auto',
               transition: 'opacity 0.25s',
             }}
           >
             <MirrorList
               grouped={groupedMirrors}
-              loading={isLoading}
-              error={error ? String(error) : undefined}
+              loading={isMirrorLoading}
+              error={mirrorError ? String(mirrorError) : undefined}
             />
           </Box>
         </Box>
       </Container>
-      <DownloadModal open={downloadOpen} onClose={() => setDownloadOpen(false)} />
     </>
   );
 };

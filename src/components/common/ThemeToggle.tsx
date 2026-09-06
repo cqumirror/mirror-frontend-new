@@ -4,9 +4,8 @@
 import { DarkMode as DarkIcon, LightMode as LightIcon, BrightnessAuto as SystemIcon } from '@mui/icons-material';
 import { IconButton, Tooltip } from '@mui/material';
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 
-import { useTheme } from '../../hooks/useTheme';
+import { useTheme } from '@/hooks/useTheme.ts';
 
 const ICONS = {
   light: LightIcon,
@@ -25,18 +24,17 @@ const TOOLTIP_KEYS = {
  * 状态通过 localStorage['theme'] 与 FancyIndex 共享
  */
 const ThemeToggle: React.FC = () => {
-  const { t } = useTranslation();
   const { mode, cycleMode } = useTheme();
 
   const Icon = ICONS[mode];
 
   return (
-    <Tooltip title={t(TOOLTIP_KEYS[mode])} placement="bottom">
+    <Tooltip title={TOOLTIP_KEYS[mode]} placement="bottom">
       <IconButton
         onClick={cycleMode}
         color="inherit"
         size="small"
-        aria-label={t('theme.toggle')}
+        aria-label={"切换主题"}
         sx={{
           transition: 'transform 0.3s ease',
           '&:hover': { transform: 'rotate(20deg)' },

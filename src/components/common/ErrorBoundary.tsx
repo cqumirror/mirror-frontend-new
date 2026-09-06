@@ -6,8 +6,6 @@ import { Email as EmailIcon, GitHub as GitHubIcon, ContentCopy as CopyIcon, Chec
 import { Button, Container, Typography, Box, Link, Tooltip } from '@mui/material';
 import React from 'react';
 
-import i18n from '../../i18n';
-
 /** 检测当前是否为深色模式 */
 function isDarkMode(): boolean {
   try {
@@ -48,20 +46,11 @@ const LIGHT = {
 };
 
 const TEXT = {
-  zh: {
-    title: '页面出现异常',
-    desc: '抱歉，页面加载失败，请尝试刷新页面。',
-    reload: '刷新页面',
-    home: '返回首页',
-    contact: '如问题持续，请携带以上错误信息联系我们：',
-  },
-  en: {
-    title: 'Something Went Wrong',
-    desc: 'Sorry, the page failed to load. Please try refreshing.',
-    reload: 'Refresh',
-    home: 'Back to Home',
-    contact: 'If the issue persists, contact us with the error information above:',
-  },
+  title: '页面出现异常',
+  desc: '抱歉，页面加载失败，请尝试刷新页面。',
+  reload: '刷新页面',
+  home: '返回首页',
+  contact: '如问题持续，请携带以上错误信息联系我们：',
 } as const;
 
 interface State {
@@ -105,7 +94,9 @@ export default class ErrorBoundary extends React.Component<
       `ua: ${navigator.userAgent}`,
       this.state.error?.stack ?? '',
     ].filter(Boolean).join('\n');
-    return btoa(unescape(encodeURIComponent(raw)));
+    return btoa(encodeURIComponent(raw).replace(/%([0-9A-F]{2})/g,
+      (_, p1) => String.fromCharCode(parseInt(p1, 16))
+    ));
   };
 
   private handleCopy = async () => {
@@ -129,8 +120,7 @@ export default class ErrorBoundary extends React.Component<
 
   render() {
     if (this.state.hasError) {
-      const lang = i18n.language === 'en' ? 'en' : 'zh';
-      const t = TEXT[lang];
+      const t = TEXT;
       const dark = isDarkMode();
       const c = dark ? DARK : LIGHT;
 

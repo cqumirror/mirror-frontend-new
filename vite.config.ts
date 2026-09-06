@@ -1,19 +1,31 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import mdx from '@mdx-js/rollup';
-import remarkGfm from 'remark-gfm';
+import { rmSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import mdx from '@mdx-js/rollup';
+import react from '@vitejs/plugin-react';
+import remarkGfm from 'remark-gfm';
+import { defineConfig } from 'vite';
+
+import { contentMetadataPlugin } from './scripts/content-metadata-plugin';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const MIRROR_ORIGIN = 'https://mirrors.cqu.edu.cn';
+const RUNTIME_ONLY_PUBLIC_FILES = [
+  'api/getip',
+  'static/isoinfo.json',
+  'static/release-manifest.json',
+  'static/tunasync.json',
+];
 
 type BypassReq = { url?: string; headers: Record<string, string | string[] | undefined> };
 
 const proxyConfig = {
-  '/static': { target: MIRROR_ORIGIN, changeOrigin: true },
-  '/api/getip': { target: MIRROR_ORIGIN, changeOrigin: true },
+  '/static/release-manifest.json': { target: MIRROR_ORIGIN, changeOrigin: true },
+  '/static/isoinfo.json': { target: MIRROR_ORIGIN, changeOrigin: true },
+  // '/static/tunasync.json': { target: MIRROR_ORIGIN, changeOrigin: true },
+  // '/api/getip': { target: MIRROR_ORIGIN, changeOrigin: true },
   '^/(?!@|__vite|node_modules|src|assets|static)[a-zA-Z0-9_-]+/': {
     target: MIRROR_ORIGIN,
     changeOrigin: true,
@@ -21,7 +33,6 @@ const proxyConfig = {
       const url = req.url ?? '';
       if (url.startsWith('/@') || url.startsWith('/__')) return url;
       if (url.startsWith('/mirrors/') || url.startsWith('/news') || url === '/') return url;
-      if (url.startsWith('/grafana/')) return url;
       const accept = String(req.headers['accept'] ?? '');
       if (!accept.includes('text/html')) return url;
       return null;
@@ -31,7 +42,20 @@ const proxyConfig = {
 
 export default defineConfig({
   base: '/',
-  plugins: [react(), mdx({ providerImportSource: '@mdx-js/react', remarkPlugins: [remarkGfm] })],
+  plugins: [
+    contentMetadataPlugin(__dirname),
+    react(),
+    mdx({ providerImportSource: '@mdx-js/react', remarkPlugins: [remarkGfm] }),
+    {
+      name: 'exclude-runtime-data-from-dist',
+      apply: 'build',
+      closeBundle() {
+        for (const file of RUNTIME_ONLY_PUBLIC_FILES) {
+          rmSync(resolve(__dirname, 'dist', file), { force: true });
+        }
+      },
+    },
+  ],
 
   resolve: {
     alias: { '@': resolve(__dirname, 'src') },

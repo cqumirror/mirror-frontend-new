@@ -4,10 +4,9 @@
 import { Search as SearchIcon, Close as CloseIcon } from '@mui/icons-material';
 import { TextField, InputAdornment, IconButton } from '@mui/material';
 import React, { useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { useMirrorSearchStore } from '../../stores/mirrorStore';
+import { useMirrorSearchStore } from '@/stores/mirrorStore.ts';
 
 interface SearchBarProps {
   fullWidth?: boolean;
@@ -20,7 +19,6 @@ interface SearchBarProps {
  * 在非首页输入时自动跳转到首页并滚动到镜像列表
  */
 const SearchBar: React.FC<SearchBarProps> = ({ fullWidth = false, size = 'small', inputRef }) => {
-  const { t } = useTranslation();
   const { searchQuery, setSearchQuery } = useMirrorSearchStore();
   const location = useLocation();
   const navigate = useNavigate();
@@ -62,7 +60,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ fullWidth = false, size = 'small'
     <TextField
       value={inputValue}
       onChange={handleChange}
-      placeholder={t('search.placeholder')}
+      placeholder={"搜索镜像..."}
       fullWidth={fullWidth}
       size={size}
       variant="outlined"
@@ -84,7 +82,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ fullWidth = false, size = 'small'
         },
 
         htmlInput: {
-          'aria-label': t('search.placeholder'),
+          'aria-label': "搜索镜像...",
           ref: inputRef,
         },
       }}

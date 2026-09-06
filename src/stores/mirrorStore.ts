@@ -9,7 +9,8 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
-import type { Mirror, ThemeMode, Locale } from '../types';
+import type { Mirror, ThemeMode } from '@/types';
+
 import { safeGetItem, safeSetItem, safeRemoveItem } from '../utils/storage';
 
 // ── persist 自定义存储：复用 safeGetItem 的兜底逻辑（Safari 隐私模式等）──
@@ -104,7 +105,7 @@ export const useThemeStore = create<ThemeState>()(
       storage: safeStorage,
       version: 2,
       partialize: (s) => ({ mode: s.mode }),
-      migrate: (persisted, version) => {
+      migrate: (persisted) => {
         const p = persisted as Record<string, unknown>;
         const raw = p?.mode;
         if (raw === 'light' || raw === 'dark' || raw === 'system') {
@@ -118,7 +119,9 @@ export const useThemeStore = create<ThemeState>()(
           applyThemeAttr(effective);
           state.effectiveMode = effective;
           if (state.mode === 'system') {
-            setupSystemListener((partial) => state.setMode((partial as { mode?: ThemeMode }).mode ?? state.mode));
+            setupSystemListener((partial) =>
+              state.setMode((partial as { mode?: ThemeMode }).mode ?? state.mode)
+            );
           }
         }
       },
@@ -131,7 +134,6 @@ try {
   const initial = useThemeStore.getState();
   if (initial.mode === 'system') {
     setupSystemListener((partial) => {
-      const state = useThemeStore.getState();
       if (partial.effectiveMode !== undefined) {
         // 只更新 effectiveMode，不触发 setMode
         useThemeStore.setState({ effectiveMode: partial.effectiveMode as 'light' | 'dark' });
@@ -142,27 +144,6 @@ try {
   /* SSR 兜底 */
 }
 
-// ---- 语言 Store ----
-interface LocaleState {
-  locale: Locale;
-  setLocale: (locale: Locale) => void;
-}
-
-export const useLocaleStore = create<LocaleState>()(
-  persist(
-    (set) => ({
-      locale: 'zh',
-      setLocale: (locale) => set({ locale }),
-    }),
-    {
-      name: 'locale-store',
-      storage: safeStorage,
-      version: 1,
-      partialize: (s) => ({ locale: s.locale }),
-    }
-  )
-);
-
 // ---- 搜索 Store（不持久化）----
 interface MirrorSearchState {
   searchQuery: string;
@@ -172,6 +153,19 @@ interface MirrorSearchState {
 export const useMirrorSearchStore = create<MirrorSearchState>((set) => ({
   searchQuery: '',
   setSearchQuery: (query) => set({ searchQuery: query }),
+}));
+
+// ---- 常用下载弹窗 Store（全站入口共享）----
+interface DownloadModalState {
+  open: boolean;
+  openDownloadModal: () => void;
+  closeDownloadModal: () => void;
+}
+
+export const useDownloadModalStore = create<DownloadModalState>((set) => ({
+  open: false,
+  openDownloadModal: () => set({ open: true }),
+  closeDownloadModal: () => set({ open: false }),
 }));
 
 // ---- 镜像缓存 Store（运行时缓存，不持久化）----

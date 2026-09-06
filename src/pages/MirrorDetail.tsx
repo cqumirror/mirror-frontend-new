@@ -8,11 +8,6 @@ import {
   OpenInNew as OpenIcon,
   Download as DownloadIcon,
   FolderOpen as FolderIcon,
-  FolderOff as EmptyIcon,
-  VerifiedUser as ChecksumIcon,
-  Search as SearchIcon,
-  Close as ClearIcon,
-  LocalOffer as LocalOfferIcon,
 } from '@mui/icons-material';
 import {
   Box,
@@ -26,44 +21,28 @@ import {
   Tabs,
   Tab,
   Divider,
-  Alert,
   Chip,
   Skeleton,
-  CircularProgress,
   Tooltip,
-  List,
-  ListItem,
-  ListItemText,
   IconButton,
-  InputBase,
 } from '@mui/material';
-import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
+import React, { useState, useRef, useEffect } from 'react';
 // useSearchParams allows us to read ?tab=help from the URL
 import { useParams, useNavigate, Link as RouterLink, useSearchParams } from 'react-router-dom';
-import { MDXProvider } from '@mdx-js/react';
 
-import DocViewer, { mdxComponents } from '../components/docs/DocViewer';
+import LicenseViewer from '@/components/docs/LicenseViewer';
+import DistroLogo from '@/components/mirrors/DistroLogo.tsx';
+import { hasHelpDoc } from '@/docs';
+import { MirrorNotFoundError, useMirrorDetail } from '@/hooks/useMirrors';
+import { hasLicense } from '@/licenses';
+import ErrorPage from '@/pages/ErrorPage';
+import { getHttpErrorCode } from '@/utils/httpError';
+import { SITE_ORIGIN, canonicalUrl, mirrorJsonLd, breadcrumbJsonLd } from '@/utils/seo';
+
+import DocViewer from '../components/docs/DocViewer';
 import DirectoryListing from '../components/mirrors/DirectoryListing';
-import GithubReleaseViewer from '../components/mirrors/GithubReleaseViewer';
 import StatusChip from '../components/mirrors/StatusChip';
 import SyncTimeline from '../components/mirrors/SyncTimeline';
-import { useGithubReleaseSubProjects } from '../data/githubReleaseSubprojects';
-import { hasMdxDoc } from '../docs';
-import { hasLicense, loadLicense } from '../licenses';
-import { useMirrorDetail, useMirrors } from '../hooks/useMirrors';
-import { useLocaleStore } from '../stores/mirrorStore';
-import type { Mirror, Locale } from '../types';
-import { SITE_ORIGIN, canonicalUrl, mirrorJsonLd, breadcrumbJsonLd } from '../utils/seo';
-import {
-  detectPlatform,
-  detectArch,
-  PLATFORM_LABEL,
-  PLATFORM_ICON,
-  PLATFORM_ORDER,
-  type Platform,
-} from '../utils/platform';
-import { sanitizeUrl, toFullUrl } from '../utils/url';
 
 // ─── Tab 面板 ────────────────────────────────────────────────────────────────
 interface TabPanelProps {
@@ -84,117 +63,26 @@ interface IsoFilesCardProps {
   mirrorUrl: string;
 }
 
-// 单个文件行显示约 36px，预留 5 行高度；超出部分滚动
-const LIST_MAX_HEIGHT = 36 * 5 + 8; // px
+// 比 Release 文件行更紧凑，预留约 5 行；超出部分滚动。
+const LIST_MAX_HEIGHT = 48 * 5;
 
-// isoinfo 文件行 —— 与 GithubReleaseViewer FileRow 风格一致
-interface IsoFileRowProps {
-  file: { name: string; url: string; platform: Platform; arch: string };
-  t: (key: string) => string;
-}
-const IsoFileRow: React.FC<IsoFileRowProps> = ({ file, t }) => {
-  const [copied, setCopied] = useState(false);
-  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(() => () => { if (copyTimerRef.current) clearTimeout(copyTimerRef.current); }, []);
+const fileNameFromUrl = (url: string): string => {
+  const segment = url.split(/[?#]/, 1)[0].split('/').pop() ?? '';
+  try {
+    return decodeURIComponent(segment);
+  } catch {
+    return segment;
+  }
+};
 
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(toFullUrl(file.url));
-      setCopied(true);
-      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
-      copyTimerRef.current = setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      if (import.meta.env.DEV) console.warn('[copy]', err);
-    }
-  };
-
-  return (
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: { xs: 0.5, sm: 1 },
-        px: 1.5,
-        py: 0.8,
-        borderRadius: 1,
-        minWidth: 0,
-        '&:hover': { bgcolor: 'action.hover' },
-      }}
-    >
-      {/* 文件名 + arch chip */}
-      <Box sx={{ flex: 1, minWidth: 0 }}>
-        <Box sx={{ display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: 0.5, minWidth: 0 }}>
-          <Link
-            href={sanitizeUrl(file.url)}
-            target="_blank"
-            rel="noopener noreferrer"
-            underline="hover"
-            sx={{
-              fontFamily: '"JetBrains Mono", monospace',
-              fontSize: { xs: '0.75rem', sm: '0.8rem' },
-              wordBreak: 'break-all',
-              lineHeight: 1.4,
-              minWidth: 0,
-            }}
-          >
-            {file.name}
-          </Link>
-          {file.arch && (
-            <Chip
-              label={file.arch}
-              size="small"
-              variant="outlined"
-              sx={{
-                fontSize: '0.65rem',
-                height: 18,
-                fontFamily: '"JetBrains Mono", monospace',
-                flexShrink: 0,
-              }}
-            />
-          )}
-        </Box>
-      </Box>
-      <Box sx={{ display: 'flex', gap: 0.25, flexShrink: 0 }}>
-        <Tooltip title={copied ? t('common.copied') : t('common.copyLink')}>
-          <IconButton size="small" sx={{ p: 0.5 }} onClick={handleCopy} color={copied ? 'success' : 'default'}>
-            {copied ? <CheckIcon sx={{ fontSize: 14 }} /> : <CopyIcon sx={{ fontSize: 14 }} />}
-          </IconButton>
-        </Tooltip>
-        <Tooltip title={t('common.download')}>
-          <IconButton size="small" sx={{ p: 0.5 }} component="a" href={sanitizeUrl(file.url)} target="_blank" rel="noopener noreferrer" color="primary">
-            <DownloadIcon sx={{ fontSize: 14 }} />
-          </IconButton>
-        </Tooltip>
-      </Box>
-    </Box>
-  );
+const MIRROR_TYPE_LABELS: Record<string, string> = {
+  os: '操作系统',
+  tool: '工具软件',
 };
 
 const IsoFilesCard: React.FC<IsoFilesCardProps> = ({ files, mirrorUrl }) => {
-  const { t } = useTranslation();
-  const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
-  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(
-    () => () => {
-      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
-    },
-    []
-  );
-
-  const handleCopy = async (url: string, idx: number) => {
-    try {
-      await navigator.clipboard.writeText(toFullUrl(url));
-      setCopiedIdx(idx);
-      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
-      copyTimerRef.current = setTimeout(() => setCopiedIdx(null), 2000);
-    } catch (err) {
-      if (import.meta.env.DEV) console.warn('[copy]', err);
-    }
-  };
-
   return (
-    <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+    <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 2 }}>
       {/* 标题行 */}
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
         <Typography
@@ -207,16 +95,16 @@ const IsoFilesCard: React.FC<IsoFilesCardProps> = ({ files, mirrorUrl }) => {
           }}
         >
           <FolderIcon sx={{ fontSize: 16, color: 'primary.main' }} />
-          {t('detail.downloads')}
+          {'下载文件'}
         </Typography>
-        <Tooltip title={t('common.openInBrowser')}>
+        <Tooltip title={'在浏览器中打开'}>
           <IconButton
             size="small"
             component="a"
             href={toFullUrl(mirrorUrl)}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label={t('common.openInBrowser')}
+            aria-label={'在浏览器中打开'}
           >
             <OpenIcon sx={{ fontSize: 15 }} />
           </IconButton>
@@ -249,7 +137,7 @@ const IsoFilesCard: React.FC<IsoFilesCardProps> = ({ files, mirrorUrl }) => {
             fontWeight: 600,
           }}
         >
-          {t('detail.installImages')}
+          {'安装镜像'}
         </Typography>
         {/* 文件数量角标，超过可视行数时提示"可滚动" */}
         <Typography
@@ -258,8 +146,8 @@ const IsoFilesCard: React.FC<IsoFilesCardProps> = ({ files, mirrorUrl }) => {
             color: 'text.disabled',
           }}
         >
-          {t('detail.filesCount', { count: files.length })}
-          {files.length > 5 ? t('detail.scrollHint') : ''}
+          {`${files.length} 个文件`}
+          {files.length > 5 ? ' · 可滚动' : ''}
         </Typography>
       </Box>
       {/* 固定高度 + 滚动区域 —— 5 行可见，更多文件直接向下滚动 */}
@@ -267,6 +155,9 @@ const IsoFilesCard: React.FC<IsoFilesCardProps> = ({ files, mirrorUrl }) => {
         sx={{
           maxHeight: LIST_MAX_HEIGHT,
           overflowY: 'auto',
+          border: '1px solid',
+          borderColor: 'divider',
+          borderRadius: 1.5,
           // 细滚动条，不影响整体风格
           '&::-webkit-scrollbar': { width: 4 },
           '&::-webkit-scrollbar-track': { bgcolor: 'transparent' },
@@ -277,718 +168,90 @@ const IsoFilesCard: React.FC<IsoFilesCardProps> = ({ files, mirrorUrl }) => {
           },
         }}
       >
-        <List dense disablePadding>
-          {files.map((file, idx) => {
-            const fullUrl = toFullUrl(file.url);
-            return (
-              <ListItem
-                key={file.url}
-                disablePadding
-                sx={{
-                  px: 0.5,
-                  py: 0.3,
-                  borderRadius: 1,
-                  '&:hover': { bgcolor: 'action.hover' },
-                  alignItems: 'flex-start',
-                }}
-              >
-                <ListItemText
-                  primary={
-                    <Link
-                      href={fullUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      underline="hover"
-                      sx={{
-                        fontSize: '0.78rem',
-                        fontFamily: '"JetBrains Mono", monospace',
-                        wordBreak: 'break-all',
-                        lineHeight: 1.4,
-                      }}
-                    >
-                      {file.name}
-                    </Link>
-                  }
-                  sx={{ m: 0 }}
-                />
-                <Box sx={{ display: 'flex', gap: 0.3, ml: 0.5, flexShrink: 0 }}>
-                  <Tooltip title={copiedIdx === idx ? t('common.copied') : t('common.copyLink')}>
-                    <IconButton
-                      size="small"
-                      sx={{ p: 0.4 }}
-                      onClick={() => handleCopy(file.url, idx)}
-                      color={copiedIdx === idx ? 'success' : 'default'}
-                      aria-label={`${t('common.copyLink')}: ${file.name}`}
-                    >
-                      {copiedIdx === idx ? (
-                        <CheckIcon sx={{ fontSize: 13 }} />
-                      ) : (
-                        <CopyIcon sx={{ fontSize: 13 }} />
-                      )}
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title={t('common.download')}>
-                    <IconButton
-                      size="small"
-                      sx={{ p: 0.4 }}
-                      component="a"
-                      href={fullUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      color="primary"
-                      aria-label={`${t('common.download')}: ${file.name}`}
-                    >
-                      <DownloadIcon sx={{ fontSize: 13 }} />
-                    </IconButton>
-                  </Tooltip>
-                </Box>
-              </ListItem>
-            );
-          })}
-        </List>
+        {files.map((file, index) => (
+          <React.Fragment key={file.url}>
+            {index > 0 && <Divider />}
+            <Box
+              component="a"
+              href={toFullUrl(file.url)}
+              download
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                px: 1,
+                py: 0.7,
+                color: 'inherit',
+                textDecoration: 'none',
+                '&:hover': { bgcolor: 'action.hover' },
+              }}
+            >
+              <DownloadIcon sx={{ color: 'primary.main', fontSize: 17, flexShrink: 0 }} />
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography variant="body2" sx={{ fontSize: '0.8rem', fontWeight: 650 }} noWrap>
+                  {file.name}
+                </Typography>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ display: 'block', fontSize: '0.68rem', fontFamily: 'monospace' }}
+                  noWrap
+                >
+                  {fileNameFromUrl(file.url)}
+                </Typography>
+              </Box>
+            </Box>
+          </React.Fragment>
+        ))}
       </Box>
     </Paper>
   );
 };
 
+// ─── URL 安全校验 ─────────────────────────────────────────────────────────────
+// 仅允许 https?://（显式协议）或以单斜杠开头的相对路径
+// 明确排除 // 开头的协议相对 URL（如 //evil.com）
+const SAFE_URL_RE = /^(https?:\/\/[^/]|\/[^/]|\/\s*$)/i;
 
-// ─── github-release 子项目视图 ────────────────────────────────────────────────
-interface SubProjectViewProps {
-  name: string;
-  parentMirror: Mirror;
-  locale: Locale;
-  navigate: (to: string) => void;
-  t: (key: string, options?: Record<string, unknown>) => string;
-  /** 是否有该子项目专属的帮助文档（默认按 name 检查） */
-  hasDoc?: boolean;
+function sanitizeUrl(url: string): string {
+  if (!url) return '#';
+  return SAFE_URL_RE.test(url) ? url : '#';
 }
 
-const buildSubTabOrder = (license: boolean): string[] => {
-  const base = ['help', 'files', 'release', 'downloads'];
-  if (license) base.splice(1, 0, 'license');
-  return base;
-};
-
-const SubProjectView: React.FC<SubProjectViewProps> = ({
-  name,
-  parentMirror,
-  locale,
-  navigate,
-  t,
-  hasDoc: hasDocProp,
-}) => {
-  const { data: subProjects, isLoading: subLoading } = useGithubReleaseSubProjects();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const subOrg = searchParams.get('org');
-  const subRepo = searchParams.get('repo');
-  const ghBase = parentMirror.url.replace(/\/+$/, '');
-  const mapped = subProjects[name];
-  const browsePath = subOrg && subRepo
-    ? `${ghBase}/${subOrg}/${subRepo}/`
-    : mapped
-      ? `${ghBase}/${mapped}/`
-      : subOrg
-        ? `${ghBase}/${subOrg}/`
-        : `${ghBase}/`;
-  const hasDoc = hasDocProp ?? hasMdxDoc(name, locale);
-  const hasLicenseFile = hasLicense(name, locale);
-
-  // license 组件加载
-  const [LicenseComponent, setLicenseComponent] = useState<React.FC | null>(null);
-  const [licenseLoading, setLicenseLoading] = useState(false);
-
-  useEffect(() => {
-    if (hasLicenseFile) {
-      setLicenseLoading(true);
-      loadLicense(name, locale)
-        .then((component) => setLicenseComponent(() => component))
-        .catch(() => setLicenseComponent(null))
-        .finally(() => setLicenseLoading(false));
-    } else {
-      setLicenseComponent(null);
-    }
-  }, [name, locale, hasLicenseFile]);
-
-  // 从文件名提取版本号（如 Office_Tool_v11.5.7.0_x64.zip → v11.5.7.0）
-  const extractVersionFromName = (name: string): string => {
-    const m = name.match(/v?\d+\.\d+(?:\.\d+)+(?:[-._]?\w+)?/);
-    return m ? m[0] : '';
-  };
-
-  // isoinfo.json 下载包数据
-  interface IsoFileEntry { name: string; url: string; platform: Platform; arch: string; version: string }
-  const [isoFiles, setIsoFiles] = useState<IsoFileEntry[]>([]);
-  const [isoLoading, setIsoLoading] = useState(false);
-  useEffect(() => {
-    if (!subOrg || !subRepo) return;
-    const prefix = `/github-release/${subOrg}/${subRepo}/`;
-    setIsoLoading(true);
-    fetch(`${import.meta.env.VITE_API_BASE ?? ''}/static/isoinfo.json`, { cache: 'no-cache' })
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((data: Array<{ distro: string; urls: Array<{ name: string; url: string }> }>) => {
-        const files: IsoFileEntry[] = [];
-        for (const entry of data) {
-          for (const u of entry.urls) {
-            if (u.url.startsWith(prefix)) {
-              const version = extractVersionFromName(u.name);
-              files.push({ ...u, platform: detectPlatform(u.name), arch: detectArch(u.name), version });
-            }
-          }
-        }
-        setIsoFiles(files);
-      })
-      .catch(() => {})
-      .finally(() => setIsoLoading(false));
-  }, [subOrg, subRepo]);
-
-  // 下载文件搜索
-  const [isoSearch, setIsoSearch] = useState('');
-  const isoSearchRef = useRef<HTMLInputElement>(null);
-  const filteredIsoFiles = useMemo(() => {
-    const q = isoSearch.trim().toLowerCase();
-    return q ? isoFiles.filter((f) => f.name.toLowerCase().includes(q)) : isoFiles;
-  }, [isoFiles, isoSearch]);
-
-  // 版本 + 平台二级分组
-  const isoVersions = useMemo(() => {
-    const map = new Map<string, IsoFileEntry[]>();
-    for (const f of filteredIsoFiles) {
-      const arr = map.get(f.version) ?? [];
-      arr.push(f);
-      map.set(f.version, arr);
-    }
-    // 按版本号降序排列
-    const sorted = [...map.entries()].sort(([a], [b]) => b.localeCompare(a, undefined, { numeric: true }));
-    return sorted.map(([version, files]) => ({
-      version,
-      byPlatform: PLATFORM_ORDER.reduce<Record<string, IsoFileEntry[]>>((acc, p) => {
-        const group = files.filter((f) => f.platform === p);
-        if (group.length > 0) acc[p] = group;
-        return acc;
-      }, {}),
-    }));
-  }, [filteredIsoFiles]);
-
-  // 子项目自己的 tab 管理
-  const tabParam = searchParams.get('tab');
-  const computeTab = (param: string | null, docAvailable: boolean, license: boolean): number => {
-    const order = buildSubTabOrder(license);
-    if (param && order.includes(param)) return order.indexOf(param);
-    return docAvailable ? 0 : order.indexOf('files');
-  };
-  const [tabValue, setTabValue] = useState(() => computeTab(tabParam, hasDoc, hasLicenseFile));
-
-  React.useEffect(() => {
-    setTabValue(computeTab(tabParam, hasDoc, hasLicenseFile));
-  }, [tabParam, hasDoc, hasLicenseFile]);
-
-  const handleTabChange = (_: React.SyntheticEvent, v: number) => {
-    setTabValue(v);
-    const order = buildSubTabOrder(hasLicenseFile);
-    setSearchParams(
-      (prev) => {
-        prev.set('tab', order[v] ?? 'help');
-        return prev;
-      },
-      { replace: true },
-    );
-  };
-
-  // 预算 Tab 顺序和索引
-  const subTabOrder = buildSubTabOrder(hasLicenseFile);
-  const subTabIdx = (label: string) => subTabOrder.indexOf(label);
-
-  if (subLoading) {
-    return (
-      <Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}>
-        <Skeleton variant="rectangular" height={40} sx={{ borderRadius: 1, mb: 2, maxWidth: 300 }} />
-        <Skeleton variant="rectangular" height={120} sx={{ borderRadius: 2, mb: 3 }} />
-        <Skeleton variant="rectangular" height={200} sx={{ borderRadius: 2 }} />
-      </Container>
-    );
-  }
-
-  return (
-    <>
-      <title>{`${name} - 重庆大学开源软件镜像站 CQU Mirror`}</title>
-      <link rel="canonical" href={canonicalUrl(`/mirrors/${name}`)} />
-      <Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}>
-        {/* 面包屑 */}
-        <Breadcrumbs sx={{ mb: 2 }}>
-          <Link component={RouterLink} to="/" underline="hover" sx={{ color: 'text.secondary' }}>
-            {t('nav.home')}
-          </Link>
-          <Link
-            component={RouterLink}
-            to={`/mirrors/${parentMirror.id}`}
-            underline="hover"
-            sx={{ color: 'text.secondary' }}
-          >
-            {parentMirror.name[locale]}
-          </Link>
-          <Typography sx={{ color: 'text.primary', fontWeight: 500 }}>{name}</Typography>
-        </Breadcrumbs>
-
-        <Button
-          startIcon={<BackIcon />}
-          onClick={() => navigate('/mirrors/git')}
-          size="small"
-          sx={{ mb: 3, color: 'text.secondary' }}
-        >
-          {t('common.backToList')}
-        </Button>
-
-        {/* ── 顶部信息卡 ── */}
-        <Paper variant="outlined" sx={{ p: { xs: 2.5, md: 3 }, borderRadius: 2, mb: 3 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.5, flexWrap: 'wrap' }}>
-            <Typography variant="h4" sx={{ fontWeight: 800, fontSize: { xs: '1.5rem', md: '2rem' } }}>
-              {mapped ? mapped.split('/')[1] : parentMirror.name[locale]}
-            </Typography>
-            <StatusChip status={parentMirror.status} size="medium" />
-            <Chip
-              label={parentMirror.id}
-              size="small"
-              variant="outlined"
-              color="primary"
-              sx={{ fontFamily: '"JetBrains Mono", monospace', fontSize: '0.72rem' }}
-            />
-          </Box>
-          <Typography variant="body1" sx={{ color: 'text.secondary', lineHeight: 1.7, mb: 2 }}>
-            {parentMirror.desc[locale]}
-          </Typography>
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1,
-              p: 1.5,
-              bgcolor: 'action.hover',
-              borderRadius: 1.5,
-              wordBreak: 'break-all',
-            }}
-          >
-            <FolderIcon sx={{ fontSize: 16, color: 'primary.main', flexShrink: 0 }} />
-            <Typography
-              variant="body2"
-              sx={{
-                fontFamily: '"JetBrains Mono", monospace',
-                fontSize: '0.83rem',
-                color: 'primary.main',
-                wordBreak: 'break-all',
-              }}
-            >
-              {toFullUrl(browsePath)}
-            </Typography>
-          </Box>
-        </Paper>
-
-        {/* 同步状态（父镜像） */}
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-            {t('detail.syncStatus')}
-          </Typography>
-          <SyncTimeline mirror={parentMirror} />
-        </Box>
-
-        <Divider sx={{ mb: 3 }} />
-
-        {/* ── Tabs ── */}
-        <Box>
-          <Tabs
-            value={tabValue}
-            onChange={handleTabChange}
-            variant="scrollable"
-            scrollButtons="auto"
-            allowScrollButtonsMobile
-            sx={{
-              borderBottom: 1,
-              borderColor: 'divider',
-              '& .MuiTab-root': { fontWeight: 600, minWidth: { xs: 80, sm: 120 } },
-            }}
-          >
-            <Tab label={t('detail.helpDoc')} />
-            {hasLicenseFile && <Tab label={t('detail.license')} />}
-            <Tab label={t('detail.fileList')} />
-            <Tab label={t('detail.release')} />
-            <Tab label={t('detail.downloads')} />
-          </Tabs>
-
-          <TabPanel value={tabValue} index={subTabIdx('help')}>
-            {hasDoc ? (
-              <DocViewer mirrorId={name} />
-            ) : (
-              <Alert severity="info">{t('detail.noHelp')}</Alert>
-            )}
-          </TabPanel>
-
-          {hasLicenseFile && (
-            <TabPanel value={tabValue} index={subTabIdx('license')}>
-              {licenseLoading ? (
-                <Box sx={{ py: 2, display: 'flex', justifyContent: 'center' }}>
-                  <CircularProgress size={24} />
-                </Box>
-              ) : LicenseComponent ? (
-                <Box sx={{ '& > *:first-of-type': { mt: 0 }, '& > *:last-child': { mb: 0 } }}>
-                  <MDXProvider components={mdxComponents as unknown as Record<string, React.ComponentType>}>
-                    <LicenseComponent />
-                  </MDXProvider>
-                </Box>
-              ) : (
-                <Alert severity="info">{t('detail.noHelp')}</Alert>
-              )}
-            </TabPanel>
-          )}
-
-          <TabPanel value={tabValue} index={subTabIdx('files')}>
-            <DirectoryListing mirrorUrl={browsePath} mirrorName={name} />
-          </TabPanel>
-
-          <TabPanel value={tabValue} index={subTabIdx('release')}>
-            <GithubReleaseViewer rootPath={parentMirror.url} subProjectPath={browsePath} />
-          </TabPanel>
-
-          <TabPanel value={tabValue} index={subTabIdx('downloads')}>
-            {/* 项目标题（与 Release tab 一致） */}
-            {subOrg && subRepo && (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
-                <Box
-                  component="img"
-                  src={`https://github.com/${subOrg}.png?size=64`}
-                  alt={subOrg}
-                  loading="lazy"
-                  onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-                    e.currentTarget.style.display = 'none';
-                  }}
-                  sx={{ width: 32, height: 32, borderRadius: '6px', flexShrink: 0, objectFit: 'contain' }}
-                />
-                <Box>
-                  <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
-                    {subRepo}
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    component="a"
-                    href={`https://github.com/${subOrg}/${subRepo}/releases`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    sx={{
-                      color: 'text.secondary',
-                      fontFamily: '"JetBrains Mono", monospace',
-                      fontSize: '0.72rem',
-                      textDecoration: 'none',
-                      '&:hover': { textDecoration: 'underline' },
-                    }}
-                  >
-                    {subOrg}/{subRepo} ↗
-                  </Typography>
-                </Box>
-              </Box>
-            )}
-            <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', minWidth: 0 }}>
-              {/* 文件信息栏（与 Release tab 版本信息栏风格一致） */}
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  px: 2,
-                  py: 1,
-                  borderBottom: 1,
-                  borderColor: 'divider',
-                  gap: 1,
-                  flexWrap: 'wrap',
-                }}
-              >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-                  <LocalOfferIcon sx={{ fontSize: 14, color: 'text.secondary' }} />
-                  <Typography
-                    variant="caption"
-                    sx={{ fontFamily: '"JetBrains Mono", monospace', color: 'text.secondary' }}
-                  >
-                    {t('detail.installImages')}
-                  </Typography>
-                  {!isoLoading && isoFiles.length > 0 && (
-                    <Chip
-                      size="small"
-                      label={t('githubRelease.fileCount', { count: isoFiles.length })}
-                      variant="outlined"
-                      sx={{ fontSize: '0.68rem', height: 20 }}
-                    />
-                  )}
-                </Box>
-              </Box>
-
-              {/* 文件列表 */}
-              <Box sx={{ p: 1.5 }}>
-                {isoLoading ? (
-                  Array.from({ length: 6 }).map((_, i) => (
-                    <Skeleton
-                      key={i}
-                      variant="rectangular"
-                      height={36}
-                      sx={{ mb: 0.5, borderRadius: 1 }}
-                    />
-                  ))
-                ) : isoFiles.length === 0 ? (
-                  <Box
-                    sx={{
-                      py: 4,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      gap: 1,
-                      color: 'text.disabled',
-                    }}
-                  >
-                    <EmptyIcon sx={{ fontSize: 36 }} />
-                    <Typography variant="body2">{t('githubRelease.noFiles')}</Typography>
-                  </Box>
-                ) : (
-                  <>
-                    {/* 搜索栏（文件数 > 6 时才显示） */}
-                    {isoFiles.length > 6 && (
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 0.75,
-                          mb: 1.5,
-                          px: 1,
-                          py: 0.5,
-                          border: '1.5px solid',
-                          borderColor: isoSearch ? 'primary.main' : 'divider',
-                          borderRadius: 2,
-                          bgcolor: 'background.paper',
-                          transition: 'border-color 0.15s',
-                          boxShadow: isoSearch ? '0 0 0 3px rgba(59,130,246,0.12)' : 'none',
-                        }}
-                      >
-                        <SearchIcon sx={{ fontSize: 15, color: 'text.secondary', flexShrink: 0 }} />
-                        <InputBase
-                          inputRef={isoSearchRef}
-                          value={isoSearch}
-                          onChange={(e) => setIsoSearch(e.target.value)}
-                          onKeyDown={(e) => e.key === 'Escape' && setIsoSearch('')}
-                          placeholder={t('githubRelease.searchFiles')}
-                          inputProps={{ 'aria-label': t('githubRelease.searchFiles') }}
-                          sx={{
-                            flex: 1,
-                            fontSize: '0.82rem',
-                            fontFamily: '"JetBrains Mono", monospace',
-                          }}
-                        />
-                        {isoSearch && (
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              color: 'text.secondary',
-                              flexShrink: 0,
-                              fontFamily: '"JetBrains Mono", monospace',
-                              fontSize: '0.72rem',
-                            }}
-                          >
-                            {filteredIsoFiles.length}/{isoFiles.length}
-                          </Typography>
-                        )}
-                        {isoSearch && (
-                          <IconButton
-                            size="small"
-                            onClick={() => {
-                              setIsoSearch('');
-                              isoSearchRef.current?.focus();
-                            }}
-                            aria-label={t('common.clear')}
-                            sx={{ p: 0.25 }}
-                          >
-                            <ClearIcon sx={{ fontSize: 14 }} />
-                          </IconButton>
-                        )}
-                      </Box>
-                    )}
-
-                    {/* 无结果 */}
-                    {isoSearch && filteredIsoFiles.length === 0 ? (
-                      <Box sx={{ py: 3, textAlign: 'center', color: 'text.disabled' }}>
-                        <Typography variant="body2">
-                          {t('directory.noResults', { query: isoSearch })}
-                        </Typography>
-                      </Box>
-                    ) : (
-                      isoVersions.map((ver, verIdx) => (
-                        <Box key={ver.version || 'unknown'}>
-                          {verIdx > 0 && <Divider sx={{ my: 1.5 }} />}
-                          {/* 版本标题 */}
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 0.75,
-                              px: 1.5,
-                              py: 0.5,
-                              mb: 0.5,
-                            }}
-                          >
-                            <Typography
-                              variant="caption"
-                              sx={{
-                                fontWeight: 700,
-                                fontFamily: '"JetBrains Mono", monospace',
-                                color: 'text.secondary',
-                                fontSize: '0.78rem',
-                              }}
-                            >
-                              {ver.version || 'unknown'}
-                            </Typography>
-                          </Box>
-                          {/* 版本内的平台分组（与 Release tab 平台分组风格一致） */}
-                          {PLATFORM_ORDER.filter((p) => ver.byPlatform[p]).map((platform, pIdx) => (
-                            <Box key={platform}>
-                              {pIdx > 0 && <Divider sx={{ my: 0.5 }} />}
-                              <Box
-                                sx={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: 0.75,
-                                  px: 1.5,
-                                  py: 0.5,
-                                  mb: 0.25,
-                                }}
-                              >
-                                {platform === 'checksum' ? (
-                                  <ChecksumIcon sx={{ fontSize: '1rem', color: 'text.secondary' }} />
-                                ) : (
-                                  <Box
-                                    sx={{
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      color: 'text.secondary',
-                                      fontSize: '1rem',
-                                      lineHeight: 1,
-                                    }}
-                                  >
-                                    {PLATFORM_ICON[platform]}
-                                  </Box>
-                                )}
-                                <Typography
-                                  variant="caption"
-                                  sx={{
-                                    fontWeight: 700,
-                                    color: 'text.secondary',
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.05em',
-                                  }}
-                                >
-                                  {PLATFORM_LABEL[platform]}
-                                </Typography>
-                                <Chip
-                                  size="small"
-                                  label={ver.byPlatform[platform].length}
-                                  sx={{ height: 18, fontSize: '0.65rem' }}
-                                />
-                              </Box>
-                              {ver.byPlatform[platform].map((file, fileIdx) => (
-                                <IsoFileRow key={file.url || fileIdx} file={file} t={t} />
-                              ))}
-                            </Box>
-                          ))}
-                        </Box>
-                      ))
-                    )}
-                  </>
-                )}
-              </Box>
-            </Paper>
-          </TabPanel>
-        </Box>
-      </Container>
-    </>
-  );
-};
+/** 将镜像 url 转换为完整 URL；若 sanitize 后为 # 则返回空串，避免拼出 origin/# */
+function toFullUrl(url: string): string {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  const safe = sanitizeUrl(url);
+  return safe === '#' ? '' : `${window.location.origin}${safe}`;
+}
 
 // ─── 主页面 ───────────────────────────────────────────────────────────────────
 const MirrorDetail: React.FC = () => {
   const { name } = useParams<{ name: string }>();
   const navigate = useNavigate();
-  const { t } = useTranslation();
-  const { locale } = useLocaleStore();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const { data: mirror, isLoading, error } = useMirrorDetail(name || '');
-  const { data: allMirrors = [] } = useMirrors();
 
-  // Tab 初始值计算 —— 提取为纯函数，依赖完全显式，避免 effect 闭包过期
   const tabParam = searchParams.get('tab');
-  const hasDoc = name ? hasMdxDoc(name, locale) : false;
-  const hasLicenseFile = name ? hasLicense(name, locale) : false;
-  // github-release 镜像有额外的子项目 tab
-  const isGithubRelease = name === 'github-release';
+  const hasDoc = name ? hasHelpDoc(name) : false;
+  const hasLicenseFile = name ? hasLicense(name) : false;
+  const hasFiles = Array.isArray(mirror?.files) && (mirror?.files.length ?? 0) > 0;
+  const tabKeys = [
+    ...(hasDoc ? ['help' as const] : []),
+    ...(hasLicenseFile ? ['license' as const] : []),
+    'files' as const,
+    ...(hasFiles ? ['downloads' as const] : []),
+  ];
+  const requestedTab = tabParam === '0' ? 'help' : tabParam;
+  const requestedIndex = tabKeys.findIndex((key) => key === requestedTab);
+  const tabValue = requestedIndex >= 0 ? requestedIndex : 0;
 
-  // 动态构建 Tab 标签数组，支持条件性插入 license tab
-  const buildTabOrder = React.useCallback((license: boolean, isGH: boolean): string[] => {
-    const base = isGH
-      ? ['help', 'files', 'subprojects', 'downloads']
-      : ['help', 'files', 'downloads'];
-    if (license) base.splice(1, 0, 'license');
-    return base;
-  }, []);
-
-  const computeTab = React.useCallback(
-    (param: string | null, docAvailable: boolean, license: boolean, isGH: boolean): number => {
-      const order = buildTabOrder(license, isGH);
-      if (param && order.includes(param)) return order.indexOf(param);
-      // 无参数时：有文档默认帮助，否则文件列表
-      return docAvailable ? 0 : order.indexOf('files');
-    },
-    [buildTabOrder],
-  );
-
-  const [tabValue, setTabValue] = useState(() =>
-    computeTab(tabParam, hasDoc, hasLicenseFile, isGithubRelease),
-  );
-
-  // tabParam / locale / 文档可用性变化时重算 Tab，依赖完全显式
-  React.useEffect(() => {
-    setTabValue(computeTab(tabParam, hasDoc, hasLicenseFile, isGithubRelease));
-  }, [tabParam, hasDoc, hasLicenseFile, isGithubRelease, computeTab]);
-
-  // React 19 原生 metadata 不能 hoist <html>/<body>，必须直接同步 DOM
-  // 放在 early return 之前以满足 Rules of Hooks
-  React.useEffect(() => {
-    document.documentElement.lang = locale === 'en' ? 'en' : 'zh-CN';
-  }, [locale]);
-
-  // license 组件加载
-  const [LicenseComponent, setLicenseComponent] = useState<React.FC | null>(null);
-  const [licenseLoading, setLicenseLoading] = useState(false);
-
-  useEffect(() => {
-    if (name && hasLicenseFile) {
-      setLicenseLoading(true);
-      loadLicense(name, locale)
-        .then((component) => setLicenseComponent(() => component))
-        .catch(() => setLicenseComponent(null))
-        .finally(() => setLicenseLoading(false));
-    } else {
-      setLicenseComponent(null);
-    }
-  }, [name, locale, hasLicenseFile]);
-
-  // Tab 切换时同步到 URL，保留已有的 org/repo 等参数，不产生历史记录（replace）
+  // Tab 切换时同步到 URL，不产生历史记录（replace）
   const handleTabChange = (_: React.SyntheticEvent, v: number) => {
-    setTabValue(v);
-    const order = buildTabOrder(hasLicenseFile, isGithubRelease);
-    setSearchParams(
-      (prev) => {
-        prev.set('tab', order[v] ?? 'help');
-        return prev;
-      },
-      { replace: true },
-    );
+    setSearchParams({ tab: tabKeys[v] ?? tabKeys[0] }, { replace: true });
   };
-
-  // 预算 Tab 顺序和索引
-  const tabOrder = buildTabOrder(hasLicenseFile, isGithubRelease);
-  const tabIdx = (label: string) => tabOrder.indexOf(label);
 
   const [copiedUrl, setCopiedUrl] = useState(false);
   const copyUrlTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -1013,9 +276,6 @@ const MirrorDetail: React.FC = () => {
     }
   };
 
-  // 右侧侧栏是否显示：只有 API 返回了 files 且不为空时才渲染
-  const hasFiles = Array.isArray(mirror?.files) && (mirror?.files.length ?? 0) > 0;
-
   if (isLoading) {
     return (
       <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -1026,100 +286,50 @@ const MirrorDetail: React.FC = () => {
     );
   }
 
-  if (error || !mirror) {
-    // github-release-* 子项目页面：按普通详情页布局展示
-    if (name && name.startsWith('github-release-')) {
-      const parentMirror = allMirrors.find((m) => m.id === 'github-release');
-      if (!parentMirror) {
-        return (
-          <Container maxWidth="lg" sx={{ py: 4 }}>
-            <Alert severity="error">{t('error.loadFailed')}</Alert>
-          </Container>
-        );
-      }
-      return (
-        <SubProjectView
-          name={name}
-          parentMirror={parentMirror}
-          locale={locale}
-          navigate={navigate}
-          t={t}
-        />
-      );
-    }
-
+  if (error) {
+    const notFound = error instanceof MirrorNotFoundError;
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Alert
-          severity="error"
-          action={
-            <Button color="inherit" size="small" onClick={() => navigate('/')}>
-              {t('error.backHome')}
-            </Button>
-          }
-        >
-          {error ? t('error.loadFailed') : t('error.notFound')}
-        </Alert>
-      </Container>
+      <ErrorPage
+        code={notFound ? 404 : getHttpErrorCode(error)}
+        data={notFound ? undefined : error.message}
+      />
     );
   }
 
-  // github-release 镜像 + org/repo 参数 → 子项目视图
-  if (mirror.id === 'github-release' && (searchParams.get('org') || searchParams.get('repo'))) {
-    return (
-      <SubProjectView
-        name={name || mirror.id}
-        parentMirror={mirror}
-        locale={locale}
-        navigate={navigate}
-        t={t}
-        hasDoc={false}
-      />
-    );
+  if (!mirror) {
+    return <ErrorPage code={404} />;
   }
 
   return (
     <>
-      <title>
-        {locale === 'en'
-          ? `${mirror.name.en} Mirror — CQU Mirror`
-          : `${mirror.name.zh} 镜像 - 重庆大学开源软件镜像站 CQU Mirror`}
-      </title>
+      <title>{`${mirror.name} 镜像 - 重庆大学开源软件镜像站 CQU Mirror`}</title>
       <meta
         name="description"
-        content={
-          locale === 'en'
-            ? `${mirror.name.en} - ${mirror.desc.en} High-speed mirror provided by CQU Mirror.`
-            : `${mirror.name.zh} - ${mirror.desc.zh} 由重庆大学开源软件镜像站（CQU Mirror）提供高速下载。`
-        }
+        content={`${mirror.name} - ${mirror.desc} 由重庆大学开源软件镜像站（CQU Mirror）提供高速下载。`}
       />
       <meta
         name="keywords"
-        content={
-          locale === 'en'
-            ? `${mirror.name.en},${mirror.id},${mirror.name.en} mirror,${mirror.name.en} download,CQU Mirror,open source mirror`
-            : `${mirror.name.zh},${mirror.id},${mirror.name.zh}镜像,${mirror.name.zh}下载,CQU Mirror,重庆大学镜像站,开源软件镜像`
-        }
+        content={`${mirror.name},${mirror.id},${mirror.name}镜像,${mirror.name}下载,CQU Mirror,重庆大学镜像站,开源软件镜像`}
       />
       <link rel="canonical" href={canonicalUrl(`/mirrors/${mirror.id}`)} />
       <meta property="og:type" content="website" />
-      <meta property="og:title" content={`${mirror.name[locale]} - CQU Mirror`} />
-      <meta property="og:description" content={mirror.desc[locale]} />
+      <meta property="og:title" content={`${mirror.name} - CQU Mirror`} />
+      <meta property="og:description" content={mirror.desc} />
       <meta property="og:url" content={canonicalUrl(`/mirrors/${mirror.id}`)} />
       <meta property="og:image" content={`${SITE_ORIGIN}/favicon.svg`} />
       <meta name="twitter:card" content="summary" />
-      <meta name="twitter:title" content={`${mirror.name[locale]} - CQU Mirror`} />
-      <meta name="twitter:description" content={mirror.desc[locale]} />
+      <meta name="twitter:title" content={`${mirror.name} - CQU Mirror`} />
+      <meta name="twitter:description" content={mirror.desc} />
       {/* 结构化数据：面包屑 */}
       <script type="application/ld+json">
         {breadcrumbJsonLd([
-          { name: locale === 'en' ? 'Home' : '首页', url: '/' },
-          { name: mirror.name[locale], url: `/mirrors/${mirror.id}` },
+          { name: '首页', url: '/' },
+          { name: mirror.name, url: `/mirrors/${mirror.id}` },
         ])}
       </script>
       {/* 结构化数据：软件应用 */}
       <script type="application/ld+json">
-        {mirrorJsonLd(mirror.name[locale], mirror.desc[locale], `/mirrors/${mirror.id}`)}
+        {mirrorJsonLd(mirror.name, mirror.desc, `/mirrors/${mirror.id}`)}
       </script>
       <Container maxWidth="lg" sx={{ py: { xs: 3, md: 4 } }}>
         {/* 面包屑 */}
@@ -1132,7 +342,7 @@ const MirrorDetail: React.FC = () => {
               color: 'text.secondary',
             }}
           >
-            {t('nav.home')}
+            {'首页'}
           </Link>
           <Typography
             sx={{
@@ -1140,7 +350,7 @@ const MirrorDetail: React.FC = () => {
               fontWeight: 500,
             }}
           >
-            {mirror.name[locale]}
+            {mirror.name}
           </Typography>
         </Breadcrumbs>
 
@@ -1158,7 +368,7 @@ const MirrorDetail: React.FC = () => {
           size="small"
           sx={{ mb: 3, color: 'text.secondary' }}
         >
-          {t('common.backToList')}
+          {'返回列表'}
         </Button>
 
         {/* ── 顶部信息卡 ── */}
@@ -1176,6 +386,7 @@ const MirrorDetail: React.FC = () => {
               <Box
                 sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.5, flexWrap: 'wrap' }}
               >
+                <DistroLogo id={mirror.id} size={30} />
                 <Typography
                   variant="h4"
                   sx={{
@@ -1183,7 +394,7 @@ const MirrorDetail: React.FC = () => {
                     fontSize: { xs: '1.5rem', md: '2rem' },
                   }}
                 >
-                  {mirror.name[locale]}
+                  {mirror.name}
                 </Typography>
                 <StatusChip status={mirror.status} size="medium" />
                 {/* id 在详情页保留作为标签，因为详情页有充足空间展示 */}
@@ -1196,7 +407,7 @@ const MirrorDetail: React.FC = () => {
                 />
                 {mirror.type && mirror.type !== 'none' && mirror.type !== mirror.id && (
                   <Chip
-                    label={mirror.type}
+                    label={MIRROR_TYPE_LABELS[mirror.type] ?? mirror.type}
                     size="small"
                     variant="outlined"
                     sx={{ fontFamily: '"JetBrains Mono", monospace', fontSize: '0.72rem' }}
@@ -1212,7 +423,7 @@ const MirrorDetail: React.FC = () => {
                   mb: 2,
                 }}
               >
-                {mirror.desc[locale]}
+                {mirror.desc}
               </Typography>
 
               {/* 完整 URL 行 */}
@@ -1244,7 +455,7 @@ const MirrorDetail: React.FC = () => {
                   </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', gap: 0.5, flexShrink: 0 }}>
-                  <Tooltip title={copiedUrl ? t('mirror.copied') : t('mirror.copyUrl')}>
+                  <Tooltip title={copiedUrl ? '已复制！' : '复制地址'}>
                     <Button
                       size="small"
                       onClick={handleCopyUrl}
@@ -1254,10 +465,10 @@ const MirrorDetail: React.FC = () => {
                       }
                       sx={{ fontFamily: '"JetBrains Mono", monospace' }}
                     >
-                      {copiedUrl ? t('mirror.copied') : t('mirror.copyUrl')}
+                      {copiedUrl ? '已复制！' : '复制地址'}
                     </Button>
                   </Tooltip>
-                  <Tooltip title={t('common.openInBrowser')}>
+                  <Tooltip title={'在浏览器中打开'}>
                     <IconButton
                       size="small"
                       component="a"
@@ -1265,7 +476,7 @@ const MirrorDetail: React.FC = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                       color="primary"
-                      aria-label={t('common.openInBrowser')}
+                      aria-label={'在浏览器中打开'}
                     >
                       <OpenIcon fontSize="small" />
                     </IconButton>
@@ -1285,7 +496,7 @@ const MirrorDetail: React.FC = () => {
               mb: 2,
             }}
           >
-            {t('detail.syncStatus')}
+            {'同步状态'}
           </Typography>
           <SyncTimeline mirror={mirror} />
         </Box>
@@ -1306,47 +517,28 @@ const MirrorDetail: React.FC = () => {
               '& .MuiTab-root': { fontWeight: 600, minWidth: { xs: 80, sm: 120 } },
             }}
           >
-            <Tab label={t('detail.helpDoc')} />
-            {hasLicenseFile && <Tab label={t('detail.license')} />}
-            <Tab label={t('detail.fileList')} />
-            {isGithubRelease && <Tab label={t('detail.subprojects')} />}
-            {hasFiles && <Tab label={t('detail.installImages')} />}
+            {hasDoc && <Tab label={'使用说明'} />}
+            {hasLicenseFile && <Tab label={'许可证'} />}
+            <Tab label={'文件列表'} />
+            {hasFiles && <Tab label={'安装镜像'} />}
           </Tabs>
 
-          <TabPanel value={tabValue} index={tabIdx('help')}>
-            <DocViewer mirrorId={mirror.id} />
-          </TabPanel>
-
+          {hasDoc && (
+            <TabPanel value={tabValue} index={tabKeys.indexOf('help')}>
+              <DocViewer mirrorId={mirror.id} />
+            </TabPanel>
+          )}
           {hasLicenseFile && (
-            <TabPanel value={tabValue} index={tabIdx('license')}>
-              {licenseLoading ? (
-                <Box sx={{ py: 2, display: 'flex', justifyContent: 'center' }}>
-                  <CircularProgress size={24} />
-                </Box>
-              ) : LicenseComponent ? (
-                <Box sx={{ '& > *:first-of-type': { mt: 0 }, '& > *:last-child': { mb: 0 } }}>
-                  <MDXProvider components={mdxComponents as unknown as Record<string, React.ComponentType>}>
-                    <LicenseComponent />
-                  </MDXProvider>
-                </Box>
-              ) : (
-                <Alert severity="info">{t('detail.noHelp')}</Alert>
-              )}
+            <TabPanel value={tabValue} index={tabKeys.indexOf('license')}>
+              <LicenseViewer licenseId={name ?? ''} />
             </TabPanel>
           )}
-
-          <TabPanel value={tabValue} index={tabIdx('files')}>
-            <DirectoryListing mirrorUrl={mirror.url} mirrorName={mirror.name[locale]} />
+          <TabPanel value={tabValue} index={tabKeys.indexOf('files')}>
+            <DirectoryListing mirrorUrl={mirror.url} mirrorName={mirror.name} />
           </TabPanel>
-
-          {isGithubRelease && (
-            <TabPanel value={tabValue} index={tabIdx('subprojects')}>
-              <GithubReleaseViewer rootPath={mirror.url} />
-            </TabPanel>
-          )}
 
           {hasFiles && (
-            <TabPanel value={tabValue} index={tabIdx('downloads')}>
+            <TabPanel value={tabValue} index={tabKeys.indexOf('downloads')}>
               <IsoFilesCard files={mirror.files} mirrorUrl={mirror.url} />
             </TabPanel>
           )}

@@ -16,11 +16,33 @@ const DIST_DIR = resolve(__dirname, '..', 'dist');
  */
 function getMirrorIds() {
   try {
-    const localDataPath = resolve(__dirname, '..', 'public', 'data', 'local_data.json');
+    const localDataPath = resolve(__dirname, '..', 'public', 'static', 'local_data.json');
     const data = JSON.parse(readFileSync(localDataPath, 'utf-8'));
     return Object.keys(data);
   } catch {
     console.warn('[sitemap] Failed to read local_data.json, using empty mirror list');
+    return [];
+  }
+}
+
+/**
+ * 从 release-manifest.json 的 org/repo 键生成 Release 详情路由。
+ */
+function getReleasePaths() {
+  try {
+    const manifestPath = resolve(__dirname, '..', 'public', 'static', 'release-manifest.json');
+    const data = JSON.parse(readFileSync(manifestPath, 'utf-8'));
+    if (!data || typeof data !== 'object' || Array.isArray(data)) return [];
+
+    return Object.keys(data).flatMap((key) => {
+      const separator = key.indexOf('/');
+      if (separator <= 0 || separator === key.length - 1) return [];
+      const org = encodeURIComponent(key.slice(0, separator));
+      const repo = encodeURIComponent(key.slice(separator + 1));
+      return [`/release/${org}/${repo}`];
+    });
+  } catch {
+    console.warn('[sitemap] Failed to read release-manifest.json, using empty release list');
     return [];
   }
 }
@@ -41,11 +63,11 @@ function getNewsSlugs() {
 }
 
 /**
- * 从 content/docs/mdx/zh/ 目录提取有文档的镜像列表（用于帮助页面）
+ * 从 content/docs/ 目录提取有文档的镜像列表（用于帮助页面）
  */
 function getDocIds() {
   try {
-    const docsDir = resolve(__dirname, '..', 'content', 'docs', 'mdx', 'zh');
+    const docsDir = resolve(__dirname, '..', 'content', 'docs');
     if (!existsSync(docsDir)) return [];
     return readdirSync(docsDir)
       .filter((f) => f.endsWith('.mdx'))
@@ -63,6 +85,7 @@ function generateSitemap() {
     { loc: '/', changefreq: 'daily', priority: '1.0' },
     { loc: '/status', changefreq: 'hourly', priority: '0.6' },
     { loc: '/news', changefreq: 'weekly', priority: '0.7' },
+    { loc: '/release', changefreq: 'daily', priority: '0.8' },
     { loc: '/special-thanks', changefreq: 'monthly', priority: '0.4' },
     { loc: '/about', changefreq: 'monthly', priority: '0.4' },
     { loc: '/mirrors/git', changefreq: 'weekly', priority: '0.7' },
@@ -78,6 +101,12 @@ function generateSitemap() {
     priority: docIds.has(id) ? '0.8' : '0.6',
   }));
 
+  const releasePages = getReleasePaths().map((loc) => ({
+    loc,
+    changefreq: 'daily',
+    priority: '0.7',
+  }));
+
   // 新闻详情页
   const newsSlugs = getNewsSlugs();
   const newsPages = newsSlugs.map((slug) => ({
@@ -86,7 +115,7 @@ function generateSitemap() {
     priority: '0.5',
   }));
 
-  const allPages = [...staticPages, ...mirrorPages, ...newsPages];
+  const allPages = [...staticPages, ...mirrorPages, ...releasePages, ...newsPages];
 
   const xml = [
     '<?xml version="1.0" encoding="UTF-8"?>',

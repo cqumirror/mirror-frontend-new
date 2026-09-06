@@ -10,7 +10,10 @@
     "npm": ">=10.0.0"
   },
   "scripts": {
+    "docs:sync": "node scripts/sync-mirrorz-docs.mjs",
+    "predev": "npm run docs:sync",
     "dev": "vite",
+    "prebuild": "npm run docs:sync",
     "build": "npm run typecheck && vite build && node scripts/generate-sitemap.mjs && node scripts/generate-rss.mjs",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
@@ -31,6 +34,7 @@
     "@mui/system": "^9.0.0",
     "@tanstack/react-query": "^5.100.9",
     "date-fns": "^4.1.0",
+    "glob": "^13.0.6",
     "i18next": "^26.0.8",
     "i18next-browser-languagedetector": "^8.2.1",
     "react": "^19.2.5",
@@ -47,6 +51,7 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
+    "@types/node": "^26.1.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@types/react-syntax-highlighter": "15.5",
@@ -58,10 +63,12 @@
     "eslint-plugin-import-x": "^4.16.2",
     "eslint-plugin-react-hooks": "^5.2.0",
     "jsdom": "^25.0.1",
+    "mustache": "^4.2.0",
     "prettier": "^3.8.3",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.59.2",
     "vite": "^7.3.2",
-    "vitest": "^4.1.5"
+    "vitest": "^4.1.5",
+    "yaml": "^2.9.0"
   }
 }

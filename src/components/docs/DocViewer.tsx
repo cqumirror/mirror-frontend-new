@@ -14,20 +14,32 @@ import {
   TableRow,
   Paper,
   Alert,
+  Button,
   CircularProgress,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-import { loadHelpDoc, hasMdxDoc } from '../../docs';
-import { useLocaleStore } from '../../stores/mirrorStore';
+import { loadHelpDoc, hasMdxDoc } from '@/docs';
 
 import CodeBlock from './CodeBlock';
+import LicenseGrid from './LicenseGrid';
 
 // MDX 组件的 MUI 映射，与 ReactMarkdown 保持一致
 export const mdxComponents = {
+  LicenseGrid,
+  NavButton: ({ href, children }: { href: string; children: React.ReactNode }) => (
+    <Button
+      component="a"
+      href={href}
+      variant="contained"
+      size="large"
+      sx={{ my: 1.5, px: 2.5, fontWeight: 700 }}
+    >
+      {children}
+    </Button>
+  ),
   h1: ({ children }: { children: React.ReactNode }) => (
     <Typography variant="h4" sx={{ mt: 3, mb: 1.5, fontWeight: 700 }}>
       {children}
@@ -155,16 +167,14 @@ interface DocViewerProps {
  * 使用 react-markdown 渲染，并自定义 MUI 组件映射
  */
 const DocViewer: React.FC<DocViewerProps> = ({ mirrorId, content, loading }) => {
-  const { t } = useTranslation();
-  const { locale } = useLocaleStore();
   const [MdxComponent, setMdxComponent] = useState<React.FC | null>(null);
   const [mdxLoading, setMdxLoading] = useState(false);
 
   useEffect(() => {
     // 尝试加载 MDX 文档
-    if (mirrorId && hasMdxDoc(mirrorId, locale)) {
+    if (mirrorId && hasMdxDoc(mirrorId)) {
       setMdxLoading(true);
-      loadHelpDoc(mirrorId, locale)
+      loadHelpDoc(mirrorId)
         .then((component) => {
           setMdxComponent(() => component);
         })
@@ -178,7 +188,7 @@ const DocViewer: React.FC<DocViewerProps> = ({ mirrorId, content, loading }) => 
     } else {
       setMdxComponent(null);
     }
-  }, [mirrorId, locale]);
+  }, [mirrorId]);
 
   // 优先显示 MDX 加载状态
   if (mdxLoading) {
@@ -191,7 +201,7 @@ const DocViewer: React.FC<DocViewerProps> = ({ mirrorId, content, loading }) => 
             color: 'text.secondary',
           }}
         >
-          {t('docs.loading')}
+          {'加载文档中...'}
         </Typography>
       </Box>
     );
@@ -201,7 +211,14 @@ const DocViewer: React.FC<DocViewerProps> = ({ mirrorId, content, loading }) => 
   if (MdxComponent) {
     return (
       <Box sx={{ '& > *:first-of-type': { mt: 0 }, '& > *:last-child': { mb: 0 } }}>
-        <MDXProvider components={mdxComponents as unknown as Record<string, React.ComponentType>}>
+        <MDXProvider
+          components={
+            { ...mdxComponents, LicenseGrid: () => null } as unknown as Record<
+              string,
+              React.ComponentType
+            >
+          }
+        >
           <MdxComponent />
         </MDXProvider>
       </Box>
@@ -235,7 +252,7 @@ const DocViewer: React.FC<DocViewerProps> = ({ mirrorId, content, loading }) => 
   }
 
   if (!content) {
-    return <Alert severity="info">{t('detail.noHelp')}</Alert>;
+    return <Alert severity="info">{'暂无使用说明'}</Alert>;
   }
 
   return (

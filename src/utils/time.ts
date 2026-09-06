@@ -2,9 +2,7 @@
 // 时间工具函数 - 处理后端返回的 Unix 秒级时间戳
 
 import { formatDistanceToNow, format, isValid } from 'date-fns';
-import { zhCN, enUS } from 'date-fns/locale';
-
-import type { Locale } from '../types';
+import { zhCN } from 'date-fns/locale';
 
 /**
  * 将后端时间戳转换为 Date 对象
@@ -38,14 +36,13 @@ export const parseTimestamp = (value: string | number | null | undefined): Date 
  */
 export const formatRelativeTime = (
   value: string | number | null | undefined,
-  locale: Locale
 ): string => {
   const date = parseTimestamp(value);
   if (!date) return '-';
   try {
     return formatDistanceToNow(date, {
       addSuffix: true,
-      locale: locale === 'zh' ? zhCN : enUS,
+      locale: zhCN
     });
   } catch {
     return '-';
@@ -57,13 +54,12 @@ export const formatRelativeTime = (
  */
 export const formatAbsoluteTime = (
   value: string | number | null | undefined,
-  locale: Locale,
   fmt = 'yyyy-MM-dd HH:mm:ss'
 ): string => {
   const date = parseTimestamp(value);
   if (!date) return '-';
   try {
-    return format(date, fmt, { locale: locale === 'zh' ? zhCN : enUS });
+    return format(date, fmt);
   } catch {
     return '-';
   }

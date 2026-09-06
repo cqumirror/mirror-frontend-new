@@ -12,7 +12,6 @@ import {
   Breadcrumbs,
   Link,
   Button,
-  Alert,
   Table,
   TableHead,
   TableBody,
@@ -20,15 +19,13 @@ import {
   TableCell,
 } from '@mui/material';
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 
 import { getNewsArticle, getNewsItem } from '@/news';
+import ErrorPage from '@/pages/ErrorPage';
 
 import CodeBlock from '../components/docs/CodeBlock';
-import { useLocaleStore } from '../stores/mirrorStore';
 import { canonicalUrl } from '../utils/seo';
-
 
 // MUI 组件映射
 // 表格使用 MUI Table 组件，保证主题色正确、暗色模式正常
@@ -127,36 +124,17 @@ const mdxComponents = {
 const NewsDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { t } = useTranslation();
-  const { locale } = useLocaleStore();
 
-  const meta = slug ? getNewsItem(slug, locale) : undefined;
-  const ArticleComponent = slug ? getNewsArticle(slug, locale) : null;
+  const meta = slug ? getNewsItem(slug) : undefined;
+  const ArticleComponent = slug ? getNewsArticle(slug) : null;
   const notFound = !ArticleComponent && !meta;
 
-  const displayTitle = meta
-    ? meta.title
-    : locale === 'zh'
-      ? '新闻详情'
-      : 'News';
+  const displayTitle = meta ? meta.title : '新闻详情';
 
   const pageTitle = `${displayTitle} - 重庆大学开源软件镜像站 CQU Mirror`;
 
   if (notFound) {
-    return (
-      <Container maxWidth="md" sx={{ py: 5 }}>
-        <Alert
-          severity="error"
-          action={
-            <Button color="inherit" size="small" onClick={() => navigate('/news')}>
-              {t('news.backToList')}
-            </Button>
-          }
-        >
-          {t('news.notFound')}
-        </Alert>
-      </Container>
-    );
+    return <ErrorPage code={404} />;
   }
 
   return (
@@ -174,7 +152,7 @@ const NewsDetailPage: React.FC = () => {
               color: 'text.secondary',
             }}
           >
-            {t('nav.home')}
+            {'首页'}
           </Link>
           <Link
             component={RouterLink}
@@ -184,7 +162,7 @@ const NewsDetailPage: React.FC = () => {
               color: 'text.secondary',
             }}
           >
-            {t('news.breadcrumb')}
+            {'新闻动态'}
           </Link>
           <Typography
             noWrap
@@ -204,7 +182,7 @@ const NewsDetailPage: React.FC = () => {
           size="small"
           sx={{ mb: 3, color: 'text.secondary' }}
         >
-          {t('news.backToList')}
+          {'返回列表'}
         </Button>
 
         {/* 文章头部元信息 */}
@@ -253,16 +231,6 @@ const NewsDetailPage: React.FC = () => {
               }}
             >
               {displayTitle}
-            </Typography>
-
-            <Typography
-              variant="body1"
-              sx={{
-                color: 'text.secondary',
-                lineHeight: 1.7,
-              }}
-            >
-              {meta.summary}
             </Typography>
 
             <Divider sx={{ mt: 3 }} />

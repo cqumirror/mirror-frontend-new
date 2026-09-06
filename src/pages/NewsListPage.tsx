@@ -2,24 +2,28 @@
 // 新闻列表页 /news
 
 import { ArrowForward as ArrowIcon } from '@mui/icons-material';
-import { Box, Container, Typography, Chip, Divider, Breadcrumbs, Link, Pagination } from '@mui/material';
+import {
+  Box,
+  Container,
+  Typography,
+  Chip,
+  Divider,
+  Breadcrumbs,
+  Link,
+  Pagination,
+} from '@mui/material';
 import React, { useMemo, useState, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 
 import { getNewsList } from '@/news';
 
-import { useLocaleStore } from '../stores/mirrorStore';
 import { canonicalUrl } from '../utils/seo';
-
 
 const NewsListPage: React.FC = () => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
-  const { locale } = useLocaleStore();
   // getNewsList() 通过 import.meta.glob eager 在构建时固定，运行时不会变化，
   // 空依赖数组是有意为之
-  const news = useMemo(() => getNewsList(locale), [locale]);
+  const news = useMemo(() => getNewsList(), []);
 
   const PER_PAGE = 10;
   const [page, setPage] = useState(1);
@@ -30,7 +34,7 @@ const NewsListPage: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
-  const title = t('news.title') + ' - 重庆大学开源软件镜像站 CQU Mirror';
+  const title = '新闻动态' + ' - 重庆大学开源软件镜像站 CQU Mirror';
 
   return (
     <>
@@ -47,7 +51,7 @@ const NewsListPage: React.FC = () => {
               color: 'text.secondary',
             }}
           >
-            {t('nav.home')}
+            {'首页'}
           </Link>
           <Typography
             sx={{
@@ -55,7 +59,7 @@ const NewsListPage: React.FC = () => {
               fontWeight: 500,
             }}
           >
-            {t('news.breadcrumb')}
+            {'新闻动态'}
           </Typography>
         </Breadcrumbs>
 
@@ -66,19 +70,9 @@ const NewsListPage: React.FC = () => {
             mb: 0.5,
           }}
         >
-          {t('news.latestNews')}
+          {'最新动态'}
         </Typography>
-        <Typography
-          variant="body2"
-          sx={{
-            color: 'text.secondary',
-            mb: 4,
-          }}
-        >
-          {t('news.subtitle')}
-        </Typography>
-
-        <Box>
+        <Box sx={{ mt: 3 }}>
           {paged.map((item, idx) => (
             <React.Fragment key={item.slug}>
               <Box
@@ -153,16 +147,19 @@ const NewsListPage: React.FC = () => {
                     {item.title}
                   </Typography>
 
-                  {/* 摘要 */}
                   <Typography
                     variant="body2"
                     sx={{
                       color: 'text.secondary',
                       lineHeight: 1.6,
-                      maxWidth: 600,
+                      maxWidth: 640,
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
                     }}
                   >
-                    {item.summary}
+                    {item.excerpt}
                   </Typography>
                 </Box>
 
@@ -190,7 +187,7 @@ const NewsListPage: React.FC = () => {
                 textAlign: 'center',
               }}
             >
-              {t('news.noNews')}
+              {'暂无新闻'}
             </Typography>
           )}
         </Box>

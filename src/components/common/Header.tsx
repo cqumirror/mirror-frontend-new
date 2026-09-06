@@ -5,6 +5,7 @@
 
 import {
   Close as CloseIcon,
+  Download as DownloadIcon,
   FavoriteBorder as ThanksIcon,
   InfoOutlined as AboutIcon,
   Menu as MenuIcon,
@@ -30,18 +31,16 @@ import {
   useTheme as useMuiTheme,
 } from '@mui/material';
 import React, { useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { useMirrorSearchStore } from '../../stores/mirrorStore';
+import { useDownloadModalStore, useMirrorSearchStore } from '@/stores/mirrorStore.ts';
 
-
-import LocaleToggle from './LocaleToggle';
 import SearchBar from './SearchBar';
 import ThemeToggle from './ThemeToggle';
 
+const DownloadModal = React.lazy(() => import('../mirrors/DownloadModal'));
+
 const Header: React.FC = () => {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const muiTheme = useMuiTheme();
@@ -49,6 +48,7 @@ const Header: React.FC = () => {
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const { open: downloadOpen, openDownloadModal, closeDownloadModal } = useDownloadModalStore();
 
   const searchInputRef = useRef<HTMLInputElement>(null); // mobile 弹层搜索框
   const desktopSearchRef = useRef<HTMLInputElement>(null); // 桌面端 header 搜索框
@@ -91,14 +91,14 @@ const Header: React.FC = () => {
   // 侧边栏导航项
   const navItems = [
     {
-      label: t('nav.home'),
+      label: '首页',
       action: () => {
         navigate('/');
         setDrawerOpen(false);
       },
     },
     {
-      label: t('nav.mirrors'),
+      label: '镜像列表',
       action: () => {
         if (location.pathname === '/') {
           document.getElementById('mirrors')?.scrollIntoView({ behavior: 'smooth' });
@@ -113,14 +113,14 @@ const Header: React.FC = () => {
       },
     },
     {
-      label: t('nav.about'),
+      label: '关于我们',
       action: () => {
         navigate('/about');
         setDrawerOpen(false);
       },
     },
     {
-      label: t('nav.status'),
+      label: '同步状态',
       action: () => {
         navigate('/status');
         setDrawerOpen(false);
@@ -202,9 +202,9 @@ const Header: React.FC = () => {
                     }, 100);
                   }
                 }}
-                placeholder={t('search.placeholder')}
+                placeholder={'搜索镜像...'}
                 fullWidth
-                inputProps={{ 'aria-label': t('search.placeholder') }}
+                inputProps={{ 'aria-label': '搜索镜像...' }}
                 sx={{ fontSize: '0.9rem', color: 'text.primary' }}
               />
             </Box>
@@ -214,35 +214,43 @@ const Header: React.FC = () => {
 
           {/* 桌面端右侧工具栏 */}
           {!isMobile && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
               <Button
                 variant="outlined"
-                size="small"
+                size="medium"
+                startIcon={<DownloadIcon sx={{ fontSize: 18 }} />}
+                onClick={openDownloadModal}
+                sx={{ borderRadius: 6, px: 1.75, py: 0.65, fontWeight: 600, textTransform: 'none' }}
+              >
+                常用下载
+              </Button>
+              <Button
+                variant="outlined"
+                size="medium"
                 startIcon={<SyncIcon sx={{ fontSize: 16 }} />}
                 onClick={() => navigate('/status')}
-                sx={{ borderRadius: 6, fontSize: '0.8rem', px: 1.5, py: 0.4, fontWeight: 600, textTransform: 'none' }}
+                sx={{ borderRadius: 6, px: 1.75, py: 0.65, fontWeight: 600, textTransform: 'none' }}
               >
-                {t('nav.status')}
+                {'同步状态'}
               </Button>
               <Button
                 variant="outlined"
-                size="small"
+                size="medium"
                 startIcon={<AboutIcon sx={{ fontSize: 16 }} />}
                 onClick={() => navigate('/about')}
-                sx={{ borderRadius: 6, fontSize: '0.8rem', px: 1.5, py: 0.4, fontWeight: 600, textTransform: 'none' }}
+                sx={{ borderRadius: 6, px: 1.75, py: 0.65, fontWeight: 600, textTransform: 'none' }}
               >
-                {t('nav.about')}
+                {'关于我们'}
               </Button>
               <Button
                 variant="outlined"
-                size="small"
+                size="medium"
                 startIcon={<ThanksIcon sx={{ fontSize: 16 }} />}
                 onClick={() => navigate('/special-thanks')}
-                sx={{ borderRadius: 6, fontSize: '0.8rem', px: 1.5, py: 0.4, fontWeight: 600, textTransform: 'none' }}
+                sx={{ borderRadius: 6, px: 1.75, py: 0.65, fontWeight: 600, textTransform: 'none' }}
               >
-                {t('nav.specialThanks')}
+                {'特别致谢'}
               </Button>
-              <LocaleToggle />
               <ThemeToggle />
             </Box>
           )}
@@ -293,7 +301,22 @@ const Header: React.FC = () => {
         </Box>
         <Divider />
         <List>
-          {navItems.map((item) => (
+          <ListItem disablePadding>
+            <ListItemButton onClick={navItems[0].action}>
+              <ListItemText primary={navItems[0].label} />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={() => {
+                openDownloadModal();
+                setDrawerOpen(false);
+              }}
+            >
+              <ListItemText primary="常用下载" />
+            </ListItemButton>
+          </ListItem>
+          {navItems.slice(1).map((item) => (
             <ListItem key={item.label} disablePadding>
               <ListItemButton onClick={item.action}>
                 <ListItemText primary={item.label} />
@@ -307,16 +330,16 @@ const Header: React.FC = () => {
                 setDrawerOpen(false);
               }}
             >
-              <ListItemText primary={t('nav.specialThanks', '特别致谢')} />
+              <ListItemText primary={'特别致谢'} />
             </ListItemButton>
           </ListItem>
-
         </List>
-        <Divider />
-        <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-          <LocaleToggle />
-        </Box>
       </Drawer>
+      {downloadOpen && (
+        <React.Suspense fallback={null}>
+          <DownloadModal open onClose={closeDownloadModal} />
+        </React.Suspense>
+      )}
     </>
   );
 };

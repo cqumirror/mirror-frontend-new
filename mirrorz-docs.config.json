@@ -1,0 +1,9 @@
+{
+  "scheme": "https",
+  "host": "mirrors.cqu.edu.cn",
+  "language": "zh",
+  "aliases": {
+    "rockylinux": "rocky"
+  },
+  "paths": {}
+}

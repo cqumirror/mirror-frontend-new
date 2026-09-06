@@ -1,3 +1,6 @@
 [submodule "content"]
 	path = content
 	url = https://github.com/cqumirror/mirror-document-new.git
+[submodule "mirrorz-docs"]
+	path = mirrorz-docs
+	url = https://github.com/mirrorz-org/mirrorz-docs.git

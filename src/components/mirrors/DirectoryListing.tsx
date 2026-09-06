@@ -29,7 +29,6 @@ import {
 } from '@mui/material';
 import { keyframes } from '@mui/system';
 import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import { TableVirtuoso } from 'react-virtuoso';
 
 // ── 加载遮罩动画 ─────────────────────────────────────────────────
@@ -87,7 +86,6 @@ function parseFancyIndex(html: string, baseUrl: string): DirEntry[] {
 }
 
 const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorName }) => {
-  const { t } = useTranslation();
   const [entries, setEntries] = useState<DirEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -178,7 +176,7 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
   );
 
   useEffect(() => {
-    loadDirectory(mirrorUrl);
+    void loadDirectory(mirrorUrl).catch(() => undefined);
   }, [mirrorUrl, loadDirectory]);
 
   // 进入子目录
@@ -187,9 +185,9 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
     // entry.href 已是绝对 URL，需转回路径
     try {
       const u = new URL(entry.href);
-      loadDirectory(u.pathname);
+      void loadDirectory(u.pathname).catch(() => undefined);
     } catch {
-      loadDirectory(entry.href);
+      void loadDirectory(entry.href).catch(() => undefined);
     }
   };
 
@@ -261,10 +259,12 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
           <RefreshButton size="small" variant="text" onClick={() => loadDirectory(currentUrl)} />
         }
       >
-        {t('directory.networkError')}
+        {
+          '无法加载目录列表，请确认在生产环境访问或检查网络。部分重定向类型的仓库无法加载目录列表为正常现象。'
+        }
         <Box sx={{ mt: 1 }}>
           <Link href={absCurrentUrl} target="_blank" rel="noopener noreferrer">
-            {t('common.openInNewTab')}
+            {'在新标签页中打开 →'}
           </Link>
         </Box>
       </Alert>
@@ -274,10 +274,10 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
   if (error === 'empty' || entries.length === 0) {
     return (
       <Alert severity="info">
-        {t('directory.emptyDir')}
+        {'目录为空或不支持文件列表展示。'}
         <Box sx={{ mt: 1 }}>
           <Link href={absCurrentUrl} target="_blank" rel="noopener noreferrer">
-            {t('common.viewInBrowser')}
+            {'在浏览器中查看 →'}
           </Link>
         </Box>
       </Alert>
@@ -339,7 +339,7 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
                 <Chip
                   size="small"
                   icon={<FolderIcon sx={{ fontSize: '14px !important' }} />}
-                  label={t('directory.dirs', { count: dirs.length })}
+                  label={`${dirs.length} 个目录`}
                   variant="outlined"
                   sx={{ fontSize: '0.72rem', height: 22 }}
                 />
@@ -348,7 +348,7 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
                 <Chip
                   size="small"
                   icon={<FileIcon sx={{ fontSize: '14px !important' }} />}
-                  label={t('directory.files', { count: files.length })}
+                  label={`${files.length} 个文件`}
                   variant="outlined"
                   sx={{ fontSize: '0.72rem', height: 22 }}
                 />
@@ -365,7 +365,7 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
               variant="outlined"
               sx={{ fontSize: '0.78rem', height: 28 }}
             >
-              {t('directory.parent')}
+              {'上级目录'}
             </Button>
           )}
           <Button
@@ -378,7 +378,7 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
             variant="outlined"
             sx={{ fontSize: '0.78rem', height: 28 }}
           >
-            {t('common.openInBrowser')}
+            {'在浏览器中打开'}
           </Button>
         </Box>
       </Box>
@@ -407,8 +407,8 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={(e) => e.key === 'Escape' && setSearchQuery('')}
-            placeholder={t('directory.searchPlaceholder')}
-            inputProps={{ 'aria-label': t('directory.searchPlaceholder') }}
+            placeholder={'搜索文件名…'}
+            inputProps={{ 'aria-label': '搜索文件名…' }}
             sx={{
               flex: 1,
               fontSize: '0.85rem',
@@ -439,7 +439,7 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
                 setSearchQuery('');
                 searchInputRef.current?.focus();
               }}
-              aria-label={t('common.clear')}
+              aria-label={'清除'}
               sx={{ p: 0.25 }}
             >
               <ClearIcon sx={{ fontSize: 15 }} />
@@ -451,7 +451,7 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
       {/* 无结果提示 */}
       {searchQuery && filteredEntries.filter((e) => !e.isParent).length === 0 && (
         <Alert severity="info" sx={{ mb: 1.5 }}>
-          {t('directory.noResults', { query: searchQuery })}
+          {`未找到 ${searchQuery}`}
         </Alert>
       )}
 
@@ -463,7 +463,13 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
           overflow: 'hidden',
           // 固定表头样式
           '& table': { tableLayout: 'fixed', width: '100%', borderCollapse: 'collapse' },
-          '& thead th': { bgcolor: 'action.hover', fontWeight: 700, fontSize: '0.78rem' },
+          '& thead': { position: 'relative', zIndex: 2 },
+          '& thead th': {
+            bgcolor: 'background.paper',
+            backgroundImage: 'none',
+            fontWeight: 700,
+            fontSize: '0.78rem',
+          },
           '& tbody td': { borderBottom: '1px solid', borderColor: 'divider' },
         }}
       >
@@ -472,16 +478,25 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
           style={{ height: Math.min(600, Math.max(300, filteredEntries.length * 36)) }}
           fixedHeaderContent={() => (
             <TableRow>
-              <TableCell sx={{ width: { xs: '55%', sm: '55%' }, py: 1 }}>
-                {t('directory.colName')}
-              </TableCell>
-              <TableCell sx={{ width: { xs: '20%', sm: '20%' }, py: 1 }}>
-                {t('directory.colSize')}
+              <TableCell
+                sx={{ width: { xs: '55%', sm: '55%' }, py: 1, bgcolor: 'background.paper' }}
+              >
+                {'名称'}
               </TableCell>
               <TableCell
-                sx={{ width: '25%', display: { xs: 'none', sm: 'table-cell' }, py: 1 }}
+                sx={{ width: { xs: '20%', sm: '20%' }, py: 1, bgcolor: 'background.paper' }}
               >
-                {t('directory.colModified')}
+                {'大小'}
+              </TableCell>
+              <TableCell
+                sx={{
+                  width: '25%',
+                  display: { xs: 'none', sm: 'table-cell' },
+                  py: 1,
+                  bgcolor: 'background.paper',
+                }}
+              >
+                {'修改日期'}
               </TableCell>
             </TableRow>
           )}
@@ -525,7 +540,7 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
                       }}
                     >
                       {entry.isParent ? (
-                        t('directory.parentDirectory')
+                        '上级目录'
                       ) : (
                         <Highlighted text={entry.name} query={searchQuery} />
                       )}
@@ -581,7 +596,7 @@ const DirectoryListing: React.FC<DirectoryListingProps> = ({ mirrorUrl, mirrorNa
                 sx={{ tableLayout: 'fixed', width: '100%' }}
               />
             ),
-            TableHead: (props) => <TableHead {...props} />,
+            TableHead: (props) => <TableHead {...props} sx={{ bgcolor: 'background.paper' }} />,
             TableBody: React.forwardRef<HTMLTableSectionElement>((props, ref) => (
               <TableBody {...props} ref={ref} />
             )),

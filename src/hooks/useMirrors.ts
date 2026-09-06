@@ -2,13 +2,19 @@
 // 镜像数据获取 Hook（TanStack Query）
 
 import { useQuery } from '@tanstack/react-query';
-import { useMemo, useEffect, useState } from 'react';
-
+import { useMemo } from 'react';
 
 import { fetchMirrors, fetchCampusNetworkStatus } from '@/api';
 import type { Mirror, GroupedMirrors, CampusNetworkStatus } from '@/types';
 
 import { useMirrorSearchStore } from '../stores/mirrorStore';
+
+export class MirrorNotFoundError extends Error {
+  constructor(name: string) {
+    super(`Mirror not found: ${name}`);
+    this.name = 'MirrorNotFoundError';
+  }
+}
 
 // ── 基础查询 Hooks ────────────────────────────────────────────────────────────
 
@@ -28,7 +34,7 @@ export const useMirrorDetail = (name: string) =>
     staleTime: 60_000,
     select: (mirrors) => {
       const mirror = mirrors.find((m) => m.id.toLowerCase() === name.toLowerCase());
-      if (!mirror) throw new Error(`Mirror not found: ${name}`);
+      if (!mirror) throw new MirrorNotFoundError(name);
       return mirror;
     },
   });
@@ -56,10 +62,8 @@ export const useFilteredMirrors = (mirrors: Mirror[]): Mirror[] => {
 
     for (const m of mirrors) {
       const id = m.id.toLowerCase();
-      const nameZh = m.name.zh.toLowerCase();
-      const nameEn = m.name.en.toLowerCase();
-      const descZh = m.desc.zh.toLowerCase();
-      const descEn = m.desc.en.toLowerCase();
+      const name = m.name.toLowerCase();
+      const desc = m.desc.toLowerCase();
 
       // 每个关键词都必须在至少一个字段中匹配
       let allMatch = true;
@@ -70,14 +74,28 @@ export const useFilteredMirrors = (mirrors: Mirror[]): Mirror[] => {
         let bestScore = 0;
 
         // id 精确匹配 > id 包含 > name 包含 > desc 包含
-        if (id === kw) { matched = true; bestScore = Math.max(bestScore, 4); }
-        else if (id.includes(kw)) { matched = true; bestScore = Math.max(bestScore, 3); }
+        if (id === kw) {
+          matched = true;
+          bestScore = Math.max(bestScore, 4);
+        } else if (id.includes(kw)) {
+          matched = true;
+          bestScore = Math.max(bestScore, 3);
+        }
 
-        if (nameZh.includes(kw) || nameEn.includes(kw)) { matched = true; bestScore = Math.max(bestScore, 2); }
+        if (name.includes(kw)) {
+          matched = true;
+          bestScore = Math.max(bestScore, 2);
+        }
 
-        if (descZh.includes(kw) || descEn.includes(kw)) { matched = true; bestScore = Math.max(bestScore, 1); }
+        if (desc.includes(kw)) {
+          matched = true;
+          bestScore = Math.max(bestScore, 1);
+        }
 
-        if (!matched) { allMatch = false; break; }
+        if (!matched) {
+          allMatch = false;
+          break;
+        }
         totalScore += bestScore;
       }
 
@@ -125,53 +143,24 @@ export function sortedGroupKeys(grouped: GroupedMirrors): string[] {
   });
 }
 
-// ── 常用镜像 —— 从 public/data/popular-mirrors.json 读取，运行时可热更新 ─────
-
-/** 内置兜底列表，当 JSON 文件不存在或加载失败时使用 */
-const FALLBACK_POPULAR = [
-  'ubuntu',
-  'debian',
-  'archlinux',
-  'archlinuxcn',
-  'kali',
-  'rocky',
-  'alpine',
-  'openeuler',
-];
-
 export const usePopularMirrors = (mirrors: Mirror[], count = 8): Mirror[] => {
-  const [popularIds, setPopularIds] = useState<string[]>([]);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    fetch('/data/popular-mirrors.json', { signal: controller.signal })
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((ids: string[]) => {
-        if (Array.isArray(ids) && ids.length > 0) setPopularIds(ids);
-        else setPopularIds(FALLBACK_POPULAR);
-      })
-      .catch((err) => {
-        if (err instanceof Error && err.name === 'AbortError') return;
-        setPopularIds(FALLBACK_POPULAR);
-      });
-    return () => controller.abort();
-  }, []);
-
   return useMemo(() => {
-    // 先按 popular-mirrors.json 中的顺序取
-    const ids = popularIds.length > 0 ? popularIds : FALLBACK_POPULAR;
-    const result: Mirror[] = [];
-    ids.forEach((id) => {
-      const m = mirrors.find((m) => m.id === id);
-      if (m) result.push(m);
-    });
-    // 不足 count 条时用 succeeded 状态的镜像补足
-    if (result.length < count) {
-      mirrors
-        .filter((m) => m.status === 'succeeded' && !result.find((r) => r.id === m.id))
-        .slice(0, count - result.length)
-        .forEach((m) => result.push(m));
+    // 先取所有 popular 为 true 的镜像
+    const popularMirrors = mirrors.filter((m) => m.popular);
+
+    // 如果 popular 镜像足够，直接返回前 count 个
+    if (popularMirrors.length >= count) {
+      return popularMirrors.slice(0, count);
     }
-    return result.slice(0, count);
-  }, [mirrors, popularIds, count]);
+
+    // 如果不足，用 succeeded 状态的镜像补全
+    const result = [...popularMirrors];
+    const popularIds = new Set(result.map((m) => m.id));
+
+    const fallbacks = mirrors
+      .filter((m) => m.status === 'succeeded' && !popularIds.has(m.id))
+      .slice(0, count - result.length);
+
+    return [...result, ...fallbacks];
+  }, [mirrors, count]);
 };
