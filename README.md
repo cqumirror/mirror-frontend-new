@@ -178,6 +178,8 @@ transformOldJobs()         → 合并为 Mirror[]
 React Query 缓存 (60s)    → 组件消费
 ```
 
+`tunasync.json`、`isoinfo.json`、`release-manifest.json` 和 `/api/getip` 可保留在 `public/` 供本地开发使用，但生产构建会将它们从 `dist/` 排除。
+
 ---
 
 ## 许可证

@@ -9,6 +9,13 @@ import type { Mirror, GroupedMirrors, CampusNetworkStatus } from '@/types';
 
 import { useMirrorSearchStore } from '../stores/mirrorStore';
 
+export class MirrorNotFoundError extends Error {
+  constructor(name: string) {
+    super(`Mirror not found: ${name}`);
+    this.name = 'MirrorNotFoundError';
+  }
+}
+
 // ── 基础查询 Hooks ────────────────────────────────────────────────────────────
 
 export const useMirrors = () =>
@@ -27,7 +34,7 @@ export const useMirrorDetail = (name: string) =>
     staleTime: 60_000,
     select: (mirrors) => {
       const mirror = mirrors.find((m) => m.id.toLowerCase() === name.toLowerCase());
-      if (!mirror) throw new Error(`Mirror not found: ${name}`);
+      if (!mirror) throw new MirrorNotFoundError(name);
       return mirror;
     },
   });

@@ -32,4 +32,15 @@ describe('ErrorPage', () => {
     expect(screen.getByRole('button', { name: /重新尝试/ })).toBeInTheDocument();
     expect(screen.queryByText('反馈时请提供下方错误信息：')).not.toBeInTheDocument();
   });
+
+  it('accepts diagnostic data supplied by a dynamic page error', () => {
+    render(
+      <MemoryRouter initialEntries={['/mirrors/missing']}>
+        <ErrorPage code={500} data="tunasync.json HTTP 503" />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText('Internal Server Error')).toBeInTheDocument();
+    expect(screen.getByText('tunasync.json HTTP 503')).toBeInTheDocument();
+  });
 });

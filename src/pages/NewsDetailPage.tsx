@@ -12,7 +12,6 @@ import {
   Breadcrumbs,
   Link,
   Button,
-  Alert,
   Table,
   TableHead,
   TableBody,
@@ -23,6 +22,7 @@ import React from 'react';
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 
 import { getNewsArticle, getNewsItem } from '@/news';
+import ErrorPage from '@/pages/ErrorPage';
 
 import CodeBlock from '../components/docs/CodeBlock';
 import { canonicalUrl } from '../utils/seo';
@@ -134,20 +134,7 @@ const NewsDetailPage: React.FC = () => {
   const pageTitle = `${displayTitle} - 重庆大学开源软件镜像站 CQU Mirror`;
 
   if (notFound) {
-    return (
-      <Container maxWidth="md" sx={{ py: 5 }}>
-        <Alert
-          severity="error"
-          action={
-            <Button color="inherit" size="small" onClick={() => navigate('/news')}>
-              {'返回列表'}
-            </Button>
-          }
-        >
-          {'新闻不存在'}
-        </Alert>
-      </Container>
-    );
+    return <ErrorPage code={404} />;
   }
 
   return (

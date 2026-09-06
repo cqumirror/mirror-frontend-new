@@ -1,3 +1,4 @@
+import { rmSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -11,6 +12,12 @@ import { contentMetadataPlugin } from './scripts/content-metadata-plugin';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const MIRROR_ORIGIN = 'https://mirrors.cqu.edu.cn';
+const RUNTIME_ONLY_PUBLIC_FILES = [
+  'api/getip',
+  'static/isoinfo.json',
+  'static/release-manifest.json',
+  'static/tunasync.json',
+];
 
 type BypassReq = { url?: string; headers: Record<string, string | string[] | undefined> };
 
@@ -39,6 +46,15 @@ export default defineConfig({
     contentMetadataPlugin(__dirname),
     react(),
     mdx({ providerImportSource: '@mdx-js/react', remarkPlugins: [remarkGfm] }),
+    {
+      name: 'exclude-runtime-data-from-dist',
+      apply: 'build',
+      closeBundle() {
+        for (const file of RUNTIME_ONLY_PUBLIC_FILES) {
+          rmSync(resolve(__dirname, 'dist', file), { force: true });
+        }
+      },
+    },
   ],
 
   resolve: {

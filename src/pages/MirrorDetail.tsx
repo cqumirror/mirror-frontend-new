@@ -21,7 +21,6 @@ import {
   Tabs,
   Tab,
   Divider,
-  Alert,
   Chip,
   Skeleton,
   Tooltip,
@@ -34,14 +33,16 @@ import { useParams, useNavigate, Link as RouterLink, useSearchParams } from 'rea
 import LicenseViewer from '@/components/docs/LicenseViewer';
 import DistroLogo from '@/components/mirrors/DistroLogo.tsx';
 import { hasHelpDoc } from '@/docs';
+import { MirrorNotFoundError, useMirrorDetail } from '@/hooks/useMirrors';
 import { hasLicense } from '@/licenses';
+import ErrorPage from '@/pages/ErrorPage';
+import { getHttpErrorCode } from '@/utils/httpError';
+import { SITE_ORIGIN, canonicalUrl, mirrorJsonLd, breadcrumbJsonLd } from '@/utils/seo';
 
 import DocViewer from '../components/docs/DocViewer';
 import DirectoryListing from '../components/mirrors/DirectoryListing';
 import StatusChip from '../components/mirrors/StatusChip';
 import SyncTimeline from '../components/mirrors/SyncTimeline';
-import { useMirrorDetail } from '../hooks/useMirrors';
-import { SITE_ORIGIN, canonicalUrl, mirrorJsonLd, breadcrumbJsonLd } from '../utils/seo';
 
 // ─── Tab 面板 ────────────────────────────────────────────────────────────────
 interface TabPanelProps {
@@ -285,21 +286,18 @@ const MirrorDetail: React.FC = () => {
     );
   }
 
-  if (error || !mirror) {
+  if (error) {
+    const notFound = error instanceof MirrorNotFoundError;
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Alert
-          severity="error"
-          action={
-            <Button color="inherit" size="small" onClick={() => navigate('/')}>
-              {'返回首页'}
-            </Button>
-          }
-        >
-          {error ? '加载失败' : '页面不存在'}
-        </Alert>
-      </Container>
+      <ErrorPage
+        code={notFound ? 404 : getHttpErrorCode(error)}
+        data={notFound ? undefined : error.message}
+      />
     );
+  }
+
+  if (!mirror) {
+    return <ErrorPage code={404} />;
   }
 
   return (

@@ -82,6 +82,6 @@ export async function fetchReleaseManifestData(): Promise<ReleaseManifest[]> {
     return parseReleaseManifest(json);
   } catch (e) {
     console.error('[BackendAdapter] release-manifest.json 加载失败:', e);
-    return [];
+    throw e;
   }
 }

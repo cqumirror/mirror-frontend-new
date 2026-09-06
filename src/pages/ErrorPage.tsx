@@ -23,6 +23,7 @@ import { Link as RouterLink, useSearchParams } from 'react-router-dom';
 
 interface ErrorPageProps {
   code?: number;
+  data?: string;
 }
 
 interface ErrorConfig {
@@ -140,10 +141,10 @@ const FALLBACK_ERROR: ErrorConfig = {
 
 const REFRESHABLE_CODES = new Set([500, 502, 503, 504]);
 
-const ErrorPage: React.FC<ErrorPageProps> = ({ code = 404 }) => {
+const ErrorPage: React.FC<ErrorPageProps> = ({ code = 404, data }) => {
   const [searchParams] = useSearchParams();
   const error = ERROR_CONFIG[code] ?? FALLBACK_ERROR;
-  const dataParam = searchParams.get('data')?.slice(0, 20_000) ?? '';
+  const dataParam = (data ?? searchParams.get('data') ?? '').slice(0, 20_000);
   const [copied, setCopied] = useState(false);
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 

@@ -1,6 +1,7 @@
-name: Build Static Site
+name: Build and Package Static Site
 
 on:
+  workflow_dispatch:
   push:
     branches: [master, main]
   pull_request:
@@ -34,9 +35,32 @@ jobs:
         env:
           VITE_API_BASE: https://mirrors.cqu.edu.cn
 
-      - name: Upload artifact
+      - name: Verify runtime data is not packaged
+        shell: bash
+        run: |
+          for file in \
+            dist/api/getip \
+            dist/static/isoinfo.json \
+            dist/static/release-manifest.json \
+            dist/static/tunasync.json; do
+            if [[ -e "$file" ]]; then
+              echo "::error file=$file::Runtime-only data was copied into dist"
+              exit 1
+            fi
+          done
+
+      - name: Package build
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          package_name="mirror-site-${GITHUB_SHA:0:7}.tar.gz"
+          tar -czf "artifacts/${package_name}" -C dist .
+
+      - name: Upload packaged artifact
         uses: actions/upload-artifact@v4
         with:
-          name: dist
-          path: dist/
+          name: mirror-site-${{ github.run_number }}-${{ github.sha }}
+          path: artifacts/*.tar.gz
+          if-no-files-found: error
+          compression-level: 0
           retention-days: 30

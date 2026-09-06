@@ -30,7 +30,9 @@ import ReleaseLogo from '@/components/releases/ReleaseLogo';
 import { getReleaseHelpDocId } from '@/docs/releases';
 import { useReleaseDetail, useReleaseFiles } from '@/hooks/useRelease';
 import { getReleaseLicenseId } from '@/licenses';
+import ErrorPage from '@/pages/ErrorPage';
 import type { ReleaseManifest } from '@/types';
+import { getHttpErrorCode } from '@/utils/httpError';
 import { canonicalUrl } from '@/utils/seo';
 import { formatAbsoluteTime } from '@/utils/time';
 
@@ -40,7 +42,7 @@ const projectPath = (release: ReleaseManifest): string =>
 const ReleaseDetail: React.FC = () => {
   const { org = '', repo = '' } = useParams<{ org: string; repo: string }>();
   const [selectedVersionKey, setSelectedVersionKey] = React.useState('');
-  const { data: release, isLoading } = useReleaseDetail(org, repo);
+  const { data: release, isLoading, error: releaseError } = useReleaseDetail(org, repo);
   const {
     data: files = [],
     isLoading: filesLoading,
@@ -57,21 +59,12 @@ const ReleaseDetail: React.FC = () => {
     );
   }
 
+  if (releaseError) {
+    return <ErrorPage code={getHttpErrorCode(releaseError)} data={releaseError.message} />;
+  }
+
   if (!release) {
-    return (
-      <Container maxWidth="md" sx={{ py: 8 }}>
-        <Alert
-          severity="warning"
-          action={
-            <Button component={RouterLink} to="/" color="inherit" size="small">
-              返回首页
-            </Button>
-          }
-        >
-          未在 Release Manifest 中找到 {org}/{repo}。
-        </Alert>
-      </Container>
-    );
+    return <ErrorPage code={404} />;
   }
 
   const routePath = `/release/${release.org}/${release.repo}`;

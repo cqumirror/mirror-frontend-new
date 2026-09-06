@@ -140,7 +140,7 @@ function sanitizeFiles(files: unknown): MirrorFile[] {
 
 /**
  * 获取tunasync tunasync.json
- * 失败时返回空数组（降级处理，避免整页崩溃）
+ * 失败时抛出错误，由页面统一显示服务错误，避免把数据源故障误判成 404。
  */
 export async function fetchTunasyncData(): Promise<TunasyncJob[]> {
   try {
@@ -156,7 +156,7 @@ export async function fetchTunasyncData(): Promise<TunasyncJob[]> {
     });
   } catch (e) {
     console.error('[BackendAdapter] tunasync.json 加载失败:', e);
-    return [];
+    throw e;
   }
 }
 
