@@ -289,7 +289,8 @@ const ReleaseDetail: React.FC = () => {
                         <Box
                           component="a"
                           href={file.url}
-                          download
+                          target="_blank"
+                          rel="noopener noreferrer"
                           sx={{
                             display: 'flex',
                             alignItems: 'center',

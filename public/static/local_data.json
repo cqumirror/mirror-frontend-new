@@ -401,16 +401,12 @@
   "openkylin-cdimage": {
     "name": "openKylin CD Image",
     "desc": "openKylin 系统安装镜像仓库",
-    "type": "os",
-    "upstream": "https://mirror.nju.edu.cn/openkylin-cdimage/",
-    "storageType": "campusProxy"
+    "type": "os"
   },
   "openkylin": {
     "name": "openKylin",
     "desc": "openKylin 软件包仓库",
-    "type": "os",
-    "upstream": "https://mirror.nju.edu.cn/openkylin/",
-    "storageType": "campusProxy"
+    "type": "os"
   },
   "openwrt": {
     "name": "OpenWrt",

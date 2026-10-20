@@ -397,7 +397,8 @@ const DownloadModal: React.FC<DownloadModalProps> = ({ open, onClose }) => {
                     <ListItemButton
                       component="a"
                       href={sanitizeUrl(file.url)}
-                      download
+                      target="_blank"
+                      rel="noopener noreferrer"
                       sx={{ borderRadius: 1.5, px: 1.25, py: 0.8, my: 0.3 }}
                     >
                       <ListItemIcon sx={{ minWidth: 30, color: 'primary.main' }}>

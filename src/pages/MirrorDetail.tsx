@@ -174,7 +174,8 @@ const IsoFilesCard: React.FC<IsoFilesCardProps> = ({ files, mirrorUrl }) => {
             <Box
               component="a"
               href={toFullUrl(file.url)}
-              download
+              target="_blank"
+              rel="noopener noreferrer"
               sx={{
                 display: 'flex',
                 alignItems: 'center',
